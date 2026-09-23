@@ -1,0 +1,120 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { useMarketStore } from "@/store/useMarketStore";
+import { MarketGrid } from "@/components/MarketGrid";
+import { SORT_OPTIONS, type CategoryMeta, type SortOption } from "@/lib/types";
+import { cn, formatVolume } from "@/lib/utils";
+
+export function CategoryView({ meta }: { meta: CategoryMeta }) {
+  const markets = useMarketStore((s) => s.markets);
+  const [subFilter, setSubFilter] = useState(meta.subFilters[0]);
+  const [sort, setSort] = useState<SortOption>("Popular");
+
+  const scoped = useMemo(
+    () =>
+      meta.slug === "live"
+        ? markets.filter((m) => m.isLive)
+        : markets.filter((m) => m.category === meta.slug),
+    [markets, meta.slug]
+  );
+
+  const filtered = useMemo(() => {
+    const isAll = subFilter.startsWith("All");
+    let out = scoped;
+    if (subFilter === "Live") out = scoped.filter((m) => m.isLive);
+    else if (!isAll)
+      out = scoped.filter(
+        (m) =>
+          m.subcategory.toLowerCase() === subFilter.toLowerCase() ||
+          m.category.toLowerCase() === subFilter.toLowerCase()
+      );
+
+    const sorted = [...out];
+    if (sort === "Popular") sorted.sort((a, b) => b.totalVolume - a.totalVolume);
+    else if (sort === "Starting Soon")
+      sorted.sort((a, b) => +new Date(a.endDate) - +new Date(b.endDate));
+    return sorted;
+  }, [scoped, sort, subFilter]);
+
+  const liveMarkets = filtered.filter((m) => m.isLive);
+  const restMarkets = meta.slug === "live" ? [] : filtered.filter((m) => !m.isLive);
+  const totalVolume = scoped.reduce((sum, m) => sum + m.totalVolume, 0);
+
+  return (
+    <div className="flex flex-col gap-5">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-content-primary">{meta.label}</h1>
+        <p className="text-[13px] text-content-secondary">
+          {meta.blurb}{" "}
+          <span className="tnum whitespace-nowrap">
+            {scoped.length} markets · {formatVolume(totalVolume)} volume
+          </span>
+        </p>
+      </header>
+
+      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+        {meta.subFilters.map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setSubFilter(f)}
+            className={cn(
+              "shrink-0 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
+              f === subFilter
+                ? "border-accent-blue bg-accent-blue/15 text-accent-blue"
+                : "border-subtle bg-bg-secondary text-content-secondary hover:text-content-primary"
+            )}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-1 border-b border-subtle pb-2">
+        {SORT_OPTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setSort(s)}
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-colors",
+              s === sort
+                ? "bg-bg-tertiary text-content-primary"
+                : "text-content-secondary hover:text-content-primary"
+            )}
+          >
+            {s}
+          </button>
+        ))}
+        <span className="tnum ml-auto text-[12px] text-content-secondary">
+          {filtered.length} shown
+        </span>
+      </div>
+
+      {liveMarkets.length > 0 && (
+        <section className="rounded-xl border border-accent-red/25 bg-accent-red/[0.04] p-3 sm:p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-accent-red animate-pulse-dot" />
+            <h2 className="text-[15px] font-bold text-content-primary">Live</h2>
+            <span className="tnum ml-auto text-[12px] text-content-secondary">
+              {liveMarkets.length} markets
+            </span>
+          </div>
+          <MarketGrid markets={liveMarkets} />
+        </section>
+      )}
+
+      {meta.slug !== "live" && (
+        <section>
+          {liveMarkets.length > 0 && (
+            <h2 className="mb-3 text-[15px] font-bold text-content-primary">
+              All {meta.label.toLowerCase()} markets
+            </h2>
+          )}
+          <MarketGrid markets={restMarkets} />
+        </section>
+      )}
+    </div>
+  );
+}

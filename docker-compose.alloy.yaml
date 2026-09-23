@@ -5,8 +5,9 @@ services:
     network_mode: host
     environment:
       IS_ALLOY: ${IS_ALLOY:-false}
-      HOST: 0.0.0.0
+      HOSTNAME: 0.0.0.0
       PORT: "3000"
+      NEXT_TELEMETRY_DISABLED: "1"
     volumes:
       - .:/workspace
-    command: bash -lc "npm install && npm run dev"
+    command: bash -lc "npm install --no-audit --no-fund && npm run dev"
