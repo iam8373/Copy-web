@@ -12,7 +12,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="mt-2 rounded-lg bg-accent-blue px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-blue-600"
+        className="mt-2 rounded-lg bg-accent-blue px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-accent-strong"
       >
         Browse markets
       </Link>

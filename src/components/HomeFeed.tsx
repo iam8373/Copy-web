@@ -32,13 +32,17 @@ function SectionHeader({
 }
 
 const SECTIONS: Array<{ title: string; category: Category }> = [
-  { title: "Crypto", category: "crypto" },
-  { title: "Sports", category: "sports" },
+  { title: "Cricket", category: "cricket" },
   { title: "Politics", category: "politics" },
-  { title: "Finance", category: "finance" },
-  { title: "Tech", category: "tech" },
+  { title: "Entertainment", category: "entertainment" },
   { title: "Economy", category: "economy" },
-  { title: "Culture", category: "culture" },
+  { title: "Finance", category: "finance" },
+  { title: "Sports", category: "sports" },
+  { title: "Esports", category: "esports" },
+  { title: "Tech", category: "tech" },
+  { title: "World News", category: "world-news" },
+  { title: "War", category: "war" },
+  { title: "AI", category: "ai" },
 ];
 
 export function HomeFeed() {
@@ -52,7 +56,7 @@ export function HomeFeed() {
       <FeaturedCarousel />
 
       <section>
-        <SectionHeader title="Popular" href="/markets/crypto" />
+        <SectionHeader title="Popular" href="/markets/cricket" />
         <MarketRow markets={popular} />
       </section>
 
@@ -84,7 +88,7 @@ export function HomeFeed() {
         <div className="min-w-0">
           <p className="text-[15px] font-bold text-content-primary">Predictions 101</p>
           <p className="mt-0.5 text-[13px] text-content-secondary">
-            How shares, odds and resolution work on a conditional token market.
+            How shares, odds and resolution work — in plain language, with ₹ examples.
           </p>
         </div>
         <ArrowRight className="ml-auto hidden h-4 w-4 shrink-0 text-content-secondary sm:block" />

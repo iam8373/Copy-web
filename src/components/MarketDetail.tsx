@@ -149,8 +149,8 @@ export function MarketDetail({
                 <AreaChart data={chartData} margin={{ top: 4, right: 12, bottom: 0, left: 4 }}>
                   <defs>
                     <linearGradient id="prob" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#7C5CFF" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#7C5CFF" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid stroke="var(--border-subtle)" vertical={false} />
@@ -183,7 +183,7 @@ export function MarketDetail({
                   <Area
                     type="monotone"
                     dataKey="p"
-                    stroke="#3B82F6"
+                    stroke="#7C5CFF"
                     strokeWidth={2}
                     fill="url(#prob)"
                     dot={false}
@@ -340,7 +340,7 @@ export function MarketDetail({
             max={500}
             value={Math.min(amount, 500)}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="mt-3 h-1.5 w-full accent-blue-500"
+            className="mt-3 h-1.5 w-full accent-[#7C5CFF]"
             aria-label="Amount slider"
           />
           <div className="mt-3 flex gap-2">
@@ -386,7 +386,7 @@ export function MarketDetail({
             type="button"
             onClick={() => placeOrder({ market, outcomeId: selected.id, amount })}
             disabled={amount <= 0}
-            className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-blue-600 active:bg-blue-700 disabled:opacity-40"
+            className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
           >
             Place Order
           </button>

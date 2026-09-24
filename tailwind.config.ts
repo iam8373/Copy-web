@@ -16,11 +16,13 @@ const config: Config = {
           primary: "var(--text-primary)",
           secondary: "var(--text-secondary)",
         },
+        // Distinct house palette: violet primary with an emerald/rose pair.
         accent: {
-          green: "#00C853",
-          red: "#FF3B30",
-          blue: "#3B82F6",
-          yellow: "#FFB300",
+          green: "#16C784",
+          red: "#F6465D",
+          blue: "#7C5CFF",
+          strong: "#6A46F5",
+          yellow: "#F7A83B",
         },
       },
       fontFamily: {

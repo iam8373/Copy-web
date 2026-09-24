@@ -5,23 +5,32 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Indian numbering: thousands, lakh (1e5), crore (1e7). */
 export function formatVolume(n: number) {
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 10_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toLocaleString("en-US")}`;
+  if (n >= 1_00_00_000) return `₹${(n / 1_00_00_000).toFixed(2)}Cr`;
+  if (n >= 1_00_000) return `₹${(n / 1_00_000).toFixed(2)}L`;
+  if (n >= 1_000) return `₹${(n / 1_000).toFixed(1)}K`;
+  return `₹${Math.round(n).toLocaleString("en-IN")}`;
 }
 
 export function formatVolumeFull(n: number) {
-  return `$${Math.round(n).toLocaleString("en-US")}`;
+  return `₹${Math.round(n).toLocaleString("en-IN")}`;
 }
 
 export function formatVolumeChange(n: number) {
   const sign = n >= 0 ? "+" : "-";
   const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_00_00_000) return `${sign}${(abs / 1_00_00_000).toFixed(1)}Cr`;
+  if (abs >= 1_00_000) return `${sign}${(abs / 1_00_000).toFixed(1)}L`;
   if (abs >= 1_000) return `${sign}${(abs / 1_000).toFixed(1)}K`;
   return `${sign}${Math.round(abs)}`;
+}
+
+export function formatRupees(n: number, digits = 2) {
+  return `₹${n.toLocaleString("en-IN", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  })}`;
 }
 
 export function formatPercent(price: number, digits = 0) {
@@ -60,12 +69,29 @@ export function countdown(iso: string, now = Date.now()) {
 }
 
 export const CATEGORY_TINT: Record<string, string> = {
-  sports: "text-accent-green",
+  cricket: "text-accent-green",
   politics: "text-accent-blue",
-  crypto: "text-accent-yellow",
-  esports: "text-accent-blue",
-  finance: "text-accent-green",
-  tech: "text-accent-blue",
+  entertainment: "text-accent-red",
   economy: "text-accent-yellow",
-  culture: "text-accent-red",
+  finance: "text-accent-green",
+  sports: "text-accent-blue",
+  esports: "text-accent-blue",
+  tech: "text-accent-blue",
+  "world-news": "text-accent-yellow",
+  war: "text-accent-red",
+  ai: "text-accent-blue",
+};
+
+export const CATEGORY_LABEL: Record<string, string> = {
+  cricket: "Cricket",
+  politics: "Politics",
+  entertainment: "Entertainment",
+  economy: "Economy",
+  finance: "Finance",
+  sports: "Sports",
+  esports: "eSports",
+  tech: "Tech",
+  "world-news": "World News",
+  war: "War",
+  ai: "AI",
 };

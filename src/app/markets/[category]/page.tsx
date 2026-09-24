@@ -13,7 +13,7 @@ export function generateMetadata({
   params: { category: string };
 }): Metadata {
   const meta = CATEGORIES.find((c) => c.slug === params.category);
-  return { title: meta ? `${meta.label} Markets — Predict` : "Predict" };
+  return { title: meta ? `${meta.label} Markets — BharatPredict` : "BharatPredict" };
 }
 
 export default function CategoryPage({ params }: { params: { category: string } }) {

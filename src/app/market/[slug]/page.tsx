@@ -15,7 +15,7 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const market = getMarketBySlug(params.slug);
-  return { title: market ? `${market.title} — Predict` : "Market — Predict" };
+  return { title: market ? `${market.title} — BharatPredict` : "Market — BharatPredict" };
 }
 
 export default function MarketPage({ params }: { params: { slug: string } }) {

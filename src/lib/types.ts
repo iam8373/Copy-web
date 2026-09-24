@@ -1,12 +1,17 @@
 export type Category =
-  | "sports"
+  | "cricket"
   | "politics"
-  | "crypto"
-  | "esports"
-  | "finance"
-  | "tech"
+  | "entertainment"
   | "economy"
-  | "culture";
+  | "finance"
+  | "sports"
+  | "esports"
+  | "tech"
+  | "world-news"
+  | "war"
+  | "ai";
+
+export type NavSlug = Category | "live";
 
 export interface Outcome {
   id: string;
@@ -31,14 +36,31 @@ export interface Market {
   outcomes: Outcome[];
   resolutionSource: string;
   isBinary: boolean;
+  /** Indian-first metadata */
+  currency: "INR";
+  region: string;
+  tags: string[];
+}
+
+export interface SubFilter {
+  label: string;
+  isHighlighted?: boolean;
 }
 
 export interface CategoryMeta {
-  slug: Category | "live";
+  slug: NavSlug;
   label: string;
   href: string;
-  subFilters: string[];
+  subFilters: SubFilter[];
   blurb: string;
+}
+
+/** Helper so category definitions stay readable. */
+function chips(labels: string[], highlighted: string[] = []): SubFilter[] {
+  return labels.map((label) => ({
+    label,
+    isHighlighted: highlighted.includes(label),
+  }));
 }
 
 export const CATEGORIES: CategoryMeta[] = [
@@ -46,79 +68,156 @@ export const CATEGORIES: CategoryMeta[] = [
     slug: "live",
     label: "Live",
     href: "/markets/live",
-    subFilters: ["All Live", "Sports", "Crypto", "Esports", "Finance"],
+    subFilters: chips(["Live", "Cricket", "Politics", "Finance", "Esports", "Entertainment"]),
     blurb: "Markets trading right now, updating in real time.",
   },
   {
-    slug: "sports",
-    label: "Sports",
-    href: "/markets/sports",
-    subFilters: [
-      "All Sports",
-      "Live",
-      "Soccer",
-      "F1",
-      "Basketball",
-      "Football",
-      "Hockey",
-      "Baseball",
-      "MLB",
-      "NHL",
-      "NFL",
-      "EPL",
-      "LaLiga",
-      "UCL",
-    ],
-    blurb: "Trade the outcome of every game, series and season.",
+    slug: "cricket",
+    label: "Cricket",
+    href: "/markets/cricket",
+    subFilters: chips(
+      [
+        "Cricket",
+        "IPL",
+        "World Cup",
+        "T20",
+        "ODI",
+        "Test",
+        "Ranji Trophy",
+        "Women's Cricket",
+        "BBL",
+        "PSL",
+      ],
+      ["IPL", "World Cup"]
+    ),
+    blurb: "IPL, World Cups and every format — India's biggest market.",
   },
   {
     slug: "politics",
     label: "Politics",
     href: "/markets/politics",
-    subFilters: ["All Politics", "Trump", "Global", "Elections", "Legislation"],
-    blurb: "Elections, legislation and geopolitics.",
+    subFilters: chips(
+      [
+        "Politics",
+        "Lok Sabha",
+        "State Elections",
+        "BJP",
+        "Congress",
+        "AAP",
+        "Parliament",
+        "India News",
+        "Global Election",
+      ],
+      ["Lok Sabha", "State Elections"]
+    ),
+    blurb: "Lok Sabha, state assemblies and the numbers behind them.",
   },
   {
-    slug: "crypto",
-    label: "Crypto",
-    href: "/markets/crypto",
-    subFilters: ["All Crypto", "Live", "BTC Price", "ETH Price", "BNB", "Altcoins", "ETFs"],
-    blurb: "Price levels, ETFs and protocol milestones.",
-  },
-  {
-    slug: "esports",
-    label: "Esports",
-    href: "/markets/esports",
-    subFilters: ["All Esports", "Live", "CS2", "League of Legends", "Dota 2", "Valorant"],
-    blurb: "Majors, splits and championship brackets.",
-  },
-  {
-    slug: "finance",
-    label: "Finance",
-    href: "/markets/finance",
-    subFilters: ["All Finance", "Stocks", "Commodities", "IPO", "Market Cap", "Pre-IPO"],
-    blurb: "Equities, commodities and IPO pricing.",
-  },
-  {
-    slug: "tech",
-    label: "Tech",
-    href: "/markets/tech",
-    subFilters: ["All Tech", "AI", "Acquisitions", "Space", "Launches"],
-    blurb: "AI model releases, M&A and launch windows.",
+    slug: "entertainment",
+    label: "Entertainment",
+    href: "/markets/entertainment",
+    subFilters: chips(
+      [
+        "Entertainment",
+        "Bollywood",
+        "Bigg Boss",
+        "Roadies",
+        "YouTube",
+        "Movies",
+        "Celebrity",
+        "OTT",
+      ],
+      ["Bigg Boss", "Bollywood"]
+    ),
+    blurb: "Bollywood box office, reality TV and creator culture.",
   },
   {
     slug: "economy",
     label: "Economy",
     href: "/markets/economy",
-    subFilters: ["All Economy", "Fed", "Inflation", "GDP", "Jobs"],
-    blurb: "Rates, inflation prints and growth data.",
+    subFilters: chips(
+      ["Economy", "India", "RBI", "Jobs", "Tax", "Budget", "GDP", "Inflation", "World"],
+      ["RBI", "Budget"]
+    ),
+    blurb: "RBI policy, the Union Budget and India's growth data.",
   },
   {
-    slug: "culture",
-    label: "Culture",
-    href: "/markets/culture",
-    subFilters: ["All Culture", "Awards", "Music", "Weather", "Mentions"],
-    blurb: "Awards, weather, and everything in between.",
+    slug: "finance",
+    label: "Finance",
+    href: "/markets/finance",
+    subFilters: chips([
+      "Finance",
+      "Stocks",
+      "Commodities",
+      "IPO",
+      "Market Cap",
+      "Pre-IPO",
+      "Gold",
+      "Silver",
+      "Nifty",
+      "Sensex",
+      "Crypto India",
+    ]),
+    blurb: "Nifty, Sensex, commodities and the IPO pipeline.",
+  },
+  {
+    slug: "sports",
+    label: "Sports",
+    href: "/markets/sports",
+    subFilters: chips(
+      ["Sports", "Football", "Hockey", "Tennis", "F1", "Asian Games", "Kabaddi", "Badminton"],
+      ["Football", "Hockey"]
+    ),
+    blurb: "Everything outside cricket — ISL to the Asian Games.",
+  },
+  {
+    slug: "esports",
+    label: "Esports",
+    href: "/markets/esports",
+    subFilters: chips(["eSports", "BGMI", "Free Fire", "GTA", "CS2", "Valorant", "PUBG"]),
+    blurb: "BGMI, Free Fire and India's competitive gaming circuit.",
+  },
+  {
+    slug: "tech",
+    label: "Tech",
+    href: "/markets/tech",
+    subFilters: chips(["Tech", "Indian Startups", "AI", "Global Tech", "Smartphones", "EV"]),
+    blurb: "Indian startups, launches and the global tech cycle.",
+  },
+  {
+    slug: "world-news",
+    label: "World News",
+    href: "/markets/world-news",
+    subFilters: chips([
+      "World News",
+      "US",
+      "China",
+      "Russia",
+      "Middle East",
+      "Europe",
+      "Global Election",
+    ]),
+    blurb: "Global events that move Indian markets.",
+  },
+  {
+    slug: "war",
+    label: "War",
+    href: "/markets/war",
+    subFilters: chips([
+      "War",
+      "India Defense",
+      "Russia-Ukraine",
+      "Israel-Palestine",
+      "China-Taiwan",
+    ]),
+    blurb: "Defence procurement and active geopolitical conflicts.",
+  },
+  {
+    slug: "ai",
+    label: "AI",
+    href: "/markets/ai",
+    subFilters: chips(["AI", "OpenAI", "Google Gemini", "Indian AI", "AI Regulation"]),
+    blurb: "Frontier models, Indian AI and the rules coming for both.",
   },
 ];
 

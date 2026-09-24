@@ -108,7 +108,7 @@ export function TradeModal() {
             max={500}
             value={Math.min(amount, 500)}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="h-1.5 w-full accent-blue-500"
+            className="h-1.5 w-full accent-[#7C5CFF]"
             aria-label="Amount slider"
           />
           <div className="flex gap-2">
@@ -154,7 +154,7 @@ export function TradeModal() {
           type="button"
           onClick={() => placeOrder({ market, outcomeId: selected.id, amount })}
           disabled={amount <= 0}
-          className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-blue-600 active:bg-blue-700 disabled:opacity-40"
+          className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
         >
           Place Order
         </button>

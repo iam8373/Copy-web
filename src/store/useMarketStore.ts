@@ -16,14 +16,46 @@ interface TradeIntent {
   outcomeId: string;
 }
 
+export interface Session {
+  /** "phone" or "google" */
+  method: "phone" | "google";
+  /** Display handle: masked mobile number or email */
+  handle: string;
+  initial: string;
+}
+
+export interface Position {
+  marketId: string;
+  outcomeId: string;
+  shares: number;
+  avgPrice: number;
+  /** Set once a market has resolved in the mock ledger. */
+  resolved?: "won" | "lost";
+}
+
+/** Mock ledger so the dashboard and P&L pages have content before any trade. */
+const SEED_POSITIONS: Position[] = [
+  { marketId: "mkt_002", outcomeId: "mumbai-indians", shares: 1420, avgPrice: 0.16 },
+  { marketId: "mkt_001", outcomeId: "yes", shares: 860, avgPrice: 0.31 },
+  { marketId: "mkt_012", outcomeId: "yes", shares: 540, avgPrice: 0.88 },
+  { marketId: "mkt_030", outcomeId: "yes", shares: 2100, avgPrice: 0.61 },
+  { marketId: "mkt_021", outcomeId: "ankita-sharma", shares: 320, avgPrice: 0.22 },
+  { marketId: "mkt_038", outcomeId: "yes", shares: 780, avgPrice: 0.39, resolved: "won" },
+  { marketId: "mkt_004", outcomeId: "no", shares: 410, avgPrice: 0.48, resolved: "lost" },
+];
+
 interface MarketState {
   markets: Market[];
-  connected: boolean;
+  session: Session | null;
+  authOpen: boolean;
   searchOpen: boolean;
   trade: TradeIntent | null;
+  positions: Position[];
   toasts: Toast[];
   tick: () => void;
-  connect: () => void;
+  signIn: (session: Session) => void;
+  signOut: () => void;
+  setAuthOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
   openTrade: (market: Market, outcomeId: string) => void;
   closeTrade: () => void;
@@ -74,9 +106,11 @@ function jitter(market: Market): Market {
 
 export const useMarketStore = create<MarketState>((set, get) => ({
   markets: MARKETS,
-  connected: false,
+  session: null,
+  authOpen: false,
   searchOpen: false,
   trade: null,
+  positions: SEED_POSITIONS,
   toasts: [],
 
   tick: () =>
@@ -91,15 +125,34 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       };
     }),
 
-  connect: () => {
-    set({ connected: true });
+  signIn: (session) => {
+    set({ session, authOpen: false });
+    try {
+      window.localStorage.setItem("bp-session", JSON.stringify(session));
+    } catch {
+      /* storage unavailable — session stays in memory only */
+    }
     get().pushToast({
-      title: "Predict Account connected",
-      description: "Demo wallet linked on BNB Chain testnet.",
+      title: `Welcome, ${session.handle}`,
+      description:
+        session.method === "phone"
+          ? "Signed in with mobile OTP."
+          : "Signed in with Google.",
       tone: "success",
     });
   },
 
+  signOut: () => {
+    set({ session: null });
+    try {
+      window.localStorage.removeItem("bp-session");
+    } catch {
+      /* ignore */
+    }
+    get().pushToast({ title: "Signed out", tone: "info" });
+  },
+
+  setAuthOpen: (open) => set({ authOpen: open }),
   setSearchOpen: (open) => set({ searchOpen: open }),
   openTrade: (market, outcomeId) => set({ trade: { market, outcomeId } }),
   closeTrade: () => set({ trade: null }),
@@ -107,12 +160,50 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   placeOrder: ({ market, outcomeId, amount }) => {
     const outcome = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
     const shares = amount / Math.max(outcome.price, 0.01);
-    set((state) => ({
-      trade: null,
-      markets: state.markets.map((m) =>
-        m.id === market.id ? { ...m, totalVolume: m.totalVolume + amount } : m
-      ),
-    }));
+
+    if (!get().session) {
+      set({ trade: null, authOpen: true });
+      get().pushToast({
+        title: "Sign in to place an order",
+        description: "Use your mobile number or Google account.",
+        tone: "info",
+      });
+      return;
+    }
+
+    set((state) => {
+      const existing = state.positions.find(
+        (p) => p.marketId === market.id && p.outcomeId === outcome.id && !p.resolved
+      );
+      const positions = existing
+        ? state.positions.map((p) =>
+            p === existing
+              ? {
+                  ...p,
+                  avgPrice:
+                    (p.avgPrice * p.shares + outcome.price * shares) / (p.shares + shares),
+                  shares: p.shares + shares,
+                }
+              : p
+          )
+        : [
+            ...state.positions,
+            {
+              marketId: market.id,
+              outcomeId: outcome.id,
+              shares,
+              avgPrice: outcome.price,
+            },
+          ];
+
+      return {
+        trade: null,
+        positions,
+        markets: state.markets.map((m) =>
+          m.id === market.id ? { ...m, totalVolume: m.totalVolume + amount } : m
+        ),
+      };
+    });
     get().pushToast({
       title: "Order placed successfully!",
       description: `Bought ${shares.toFixed(1)} ${outcome.label} shares @ ${outcome.price.toFixed(2)}`,
@@ -129,3 +220,17 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   dismissToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
+
+/** Restores a persisted demo session on first client render. */
+export function restoreSession() {
+  try {
+    const raw = window.localStorage.getItem("bp-session");
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as Session;
+    if (parsed?.handle && parsed?.initial) {
+      useMarketStore.setState({ session: parsed });
+    }
+  } catch {
+    /* ignore malformed storage */
+  }
+}

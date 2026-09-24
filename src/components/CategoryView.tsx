@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Star } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { MarketGrid } from "@/components/MarketGrid";
 import { SORT_OPTIONS, type CategoryMeta, type SortOption } from "@/lib/types";
@@ -8,7 +9,7 @@ import { cn, formatVolume } from "@/lib/utils";
 
 export function CategoryView({ meta }: { meta: CategoryMeta }) {
   const markets = useMarketStore((s) => s.markets);
-  const [subFilter, setSubFilter] = useState(meta.subFilters[0]);
+  const [subFilter, setSubFilter] = useState(meta.subFilters[0].label);
   const [sort, setSort] = useState<SortOption>("Popular");
 
   const scoped = useMemo(
@@ -20,14 +21,17 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
   );
 
   const filtered = useMemo(() => {
-    const isAll = subFilter.startsWith("All");
+    // The first chip in every category is the category name itself and shows everything.
+    const isAll = subFilter === meta.subFilters[0].label;
     let out = scoped;
-    if (subFilter === "Live") out = scoped.filter((m) => m.isLive);
+    if (!isAll && subFilter === "Live") out = scoped.filter((m) => m.isLive);
     else if (!isAll)
       out = scoped.filter(
         (m) =>
           m.subcategory.toLowerCase() === subFilter.toLowerCase() ||
-          m.category.toLowerCase() === subFilter.toLowerCase()
+          m.category.toLowerCase() === subFilter.toLowerCase() ||
+          m.category.replace(/-/g, " ").toLowerCase() === subFilter.toLowerCase() ||
+          m.tags.some((t) => t.replace(/-/g, " ") === subFilter.toLowerCase())
       );
 
     const sorted = [...out];
@@ -35,7 +39,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
     else if (sort === "Starting Soon")
       sorted.sort((a, b) => +new Date(a.endDate) - +new Date(b.endDate));
     return sorted;
-  }, [scoped, sort, subFilter]);
+  }, [meta.subFilters, scoped, sort, subFilter]);
 
   const liveMarkets = filtered.filter((m) => m.isLive);
   const restMarkets = meta.slug === "live" ? [] : filtered.filter((m) => !m.isLive);
@@ -54,21 +58,29 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
       </header>
 
       <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-        {meta.subFilters.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setSubFilter(f)}
-            className={cn(
-              "shrink-0 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
-              f === subFilter
-                ? "border-accent-blue bg-accent-blue/15 text-accent-blue"
-                : "border-subtle bg-bg-secondary text-content-secondary hover:text-content-primary"
-            )}
-          >
-            {f}
-          </button>
-        ))}
+        {meta.subFilters.map((f) => {
+          const active = f.label === subFilter;
+          return (
+            <button
+              key={f.label}
+              type="button"
+              onClick={() => setSubFilter(f.label)}
+              className={cn(
+                "flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
+                active && "border-accent-blue bg-accent-blue/15 text-accent-blue",
+                !active &&
+                  f.isHighlighted &&
+                  "border-accent-yellow/40 bg-accent-yellow/10 text-accent-yellow hover:border-accent-yellow",
+                !active &&
+                  !f.isHighlighted &&
+                  "border-subtle bg-bg-secondary text-content-secondary hover:text-content-primary"
+              )}
+            >
+              {f.isHighlighted && <Star className="h-3 w-3 shrink-0" />}
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-1 border-b border-subtle pb-2">

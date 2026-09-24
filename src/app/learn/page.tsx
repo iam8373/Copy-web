@@ -1,24 +1,24 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Predictions 101 — Predict" };
+export const metadata: Metadata = { title: "Predictions 101 — BharatPredict" };
 
 const STEPS = [
   {
     title: "Markets are questions",
-    body: "Every market asks a question with clearly defined outcomes and a single resolution source. Prices are probabilities: 64% means the market thinks there is a 64% chance.",
+    body: "Every market asks a question with clearly defined outcomes and a single named resolution source — the BCCI scorecard, the Election Commission, an RBI statement. Prices are probabilities: 64% means the market thinks there is a 64% chance.",
   },
   {
-    title: "Shares pay $1 if correct",
-    body: "Buying Yes at 0.64 costs $0.64 per share and pays $1.00 if the market resolves Yes. Your profit is the difference between the price you paid and the final settlement.",
+    title: "Shares pay ₹1 if correct",
+    body: "Buying Yes at 0.64 costs ₹0.64 per share and pays ₹1.00 if the market resolves Yes. Your profit is the difference between the price you paid and the final settlement.",
   },
   {
-    title: "Collateral earns yield",
-    body: "USDC collateral is minted into conditional tokens. Idle collateral is supplied to Venus Protocol on BNB Chain so it accrues yield while the market is open.",
+    title: "Deposits and payouts in ₹",
+    body: "Balances are held in Indian rupees so you never convert currency to take a position. Every number you see on a market card is already in ₹.",
   },
   {
-    title: "Chainlink resolves it",
-    body: "Resolution uses Chainlink CRE and DataLink feeds so prices and outcomes are delivered on-chain without a trusted intermediary.",
+    title: "Resolution is published",
+    body: "Each market lists the exact source used to settle it before you trade, so the outcome is verifiable and never decided at anyone's discretion.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function LearnPage() {
           Predictions 101
         </h1>
         <p className="text-[14px] leading-relaxed text-content-secondary">
-          How a conditional-token prediction market works, end to end.
+          How prediction markets work, end to end — with Indian examples.
         </p>
       </header>
 
@@ -58,7 +58,7 @@ export default function LearnPage() {
       >
         <h2 className="text-[15px] font-bold text-content-primary">Join the mailing list</h2>
         <p className="mt-1 text-[13px] text-content-secondary">
-          New markets, resolution notes and product updates.
+          New Indian markets, resolution notes and product updates.
         </p>
         <form className="mt-3 flex flex-col gap-2 sm:flex-row">
           <input
@@ -69,7 +69,7 @@ export default function LearnPage() {
           />
           <button
             type="submit"
-            className="h-11 rounded-lg bg-accent-blue px-5 text-[14px] font-bold text-white transition-colors hover:bg-blue-600"
+            className="h-11 rounded-lg bg-accent-blue px-5 text-[14px] font-bold text-white transition-colors hover:bg-accent-strong"
           >
             Subscribe
           </button>
@@ -80,14 +80,15 @@ export default function LearnPage() {
         <h2 className="text-[15px] font-bold text-content-primary">Terms</h2>
         <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
           This is a demonstration interface with simulated market data. No real funds are
-          custodied and no orders reach a live exchange.
+          custodied, no orders reach a live exchange, and nothing here is an offer to
+          participate in real-money gaming or trading.
         </p>
       </section>
 
       <section id="privacy" className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
         <h2 className="text-[15px] font-bold text-content-primary">Privacy</h2>
         <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
-          Only a theme preference is stored locally in your browser. Nothing else is collected.
+          Only your theme preference and demo session are stored locally in your browser. No mobile number, email or personal data is transmitted anywhere.
         </p>
       </section>
 
