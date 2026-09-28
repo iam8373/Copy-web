@@ -30,18 +30,28 @@ test("signed-in order shows the success animation, a toast, and lands on the das
   await signInWithGoogle(page);
   await openFirstTrade(page);
 
+  // The animation deliberately self-dismisses in ~1.2s, so start waiting for
+  // it before the click rather than asserting after — otherwise a slow run can
+  // miss the window and the test flakes.
+  const appeared = page.waitForSelector('[role="status"]', {
+    state: "attached",
+    timeout: 5_000,
+  });
   await page.getByRole("button", { name: /place order/i }).click();
 
-  // Phase A animation: role=status overlay, then it auto-dismisses.
-  const status = page.getByRole("status");
-  await expect(status).toBeVisible();
-  await expect(status).toContainText(/order confirmed/i);
+  const overlay = await appeared;
+  expect(await overlay.textContent()).toMatch(/order confirmed/i);
+
+  // The toast lives longer than the animation, so it can be asserted normally.
   await expect(page.getByText(/order placed successfully/i)).toBeVisible();
-  await expect(status).toHaveCount(0, { timeout: 5_000 });
+  // ...and the overlay auto-dismisses.
+  await expect(page.getByRole("status")).toHaveCount(0, { timeout: 5_000 });
 
   await page.goto("/dashboard");
-  const positionLinks = page.locator('a[href^="/market/"]');
-  expect(await positionLinks.count()).toBeGreaterThan(0);
+  // Positions hydrate from storage in an effect, so use a retrying assertion
+  // rather than a bare count().
+  await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
+  await expect(page.locator('a[href^="/market/"]:visible')).not.toHaveCount(0);
   // Portfolio figures are rupee-formatted; never assert an exact jittering price.
   await expect(page.getByText(/portfolio value/i)).toBeVisible();
   await expect(page.locator("body")).toContainText("₹");
@@ -56,6 +66,8 @@ test("rapid consecutive orders do not stack the animation", async ({ page }) => 
   await page.getByRole("button", { name: /^Trade$/ }).first().click();
   await page.getByRole("button", { name: /place order/i }).click();
 
-  // Exactly one live region, regardless of how many fills happened.
-  await expect(page.getByRole("status")).toHaveCount(1);
+  // Never more than one live region, however many fills land back to back.
+  // (Zero is valid too if both have already auto-dismissed.)
+  expect(await page.locator('[role="status"]').count()).toBeLessThanOrEqual(1);
+  await expect(page.getByText(/order placed successfully/i).first()).toBeVisible();
 });

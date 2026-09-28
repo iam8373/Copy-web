@@ -2,6 +2,34 @@
 
 Architecture and product decisions, newest first.
 
+## D-005 — Positions persist per account in localStorage (demo-grade)
+
+**Date:** Phase C
+**Status:** Accepted
+
+Key: `bp-positions:v1:<session.handle>`, with the schema version in the key so a future
+shape change can be detected rather than silently mis-parsed. A companion
+`bp-seeded:v1:<handle>` flag records that an account has been seeded.
+
+- **Hydration:** reads happen only in `signIn` and `restoreSession` (the latter called
+  from a `useEffect` in `LiveTicker`), never during render, so SSR output never depends
+  on storage.
+- **Seeding:** the demo ledger is injected once, only for an account with no stored data
+  and no seeded flag. After that, storage is authoritative — including an empty array.
+- **Sign-out:** storage is retained, memory is cleared (`positions: []`). Signing back in
+  restores the account's own data; accounts never see each other's.
+- **Validation:** `isValidPosition` checks object shape, string ids, finite `shares > 0`,
+  `avgPrice` within 0–1, an optional `resolved` of only `won`/`lost`, that `marketId`
+  exists in `MARKETS`, and that `outcomeId` exists on that market. Invalid entries are
+  dropped individually rather than rejecting the whole array. All access is wrapped in
+  try/catch, so unavailable or corrupt storage degrades to in-memory operation.
+- **Writes:** on every `placeOrder`, and whenever positions are seeded.
+
+**Supabase migration:** the localStorage key maps to a `positions` table keyed by
+`user_id` with RLS restricting rows to their owner; `v1` maps to the first migration. On
+first authenticated load the client uploads any local rows once, then treats the server
+as authoritative and keeps localStorage purely as an offline cache.
+
 ## D-004 — Live market end dates are relative, not hardcoded
 
 **Date:** Phase A

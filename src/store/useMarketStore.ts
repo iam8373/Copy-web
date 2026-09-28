@@ -43,7 +43,75 @@ export interface Position {
   resolved?: "won" | "lost";
 }
 
-/** Mock ledger so the dashboard and P&L pages have content before any trade. */
+const POSITIONS_SCHEMA = "v1";
+const positionsKey = (handle: string) => `bp-positions:${POSITIONS_SCHEMA}:${handle}`;
+/** Marks an account as seeded so the demo ledger is only ever injected once. */
+const seededKey = (handle: string) => `bp-seeded:${POSITIONS_SCHEMA}:${handle}`;
+
+/**
+ * Phase C: demo-grade per-user persistence. Parsed data is validated field by
+ * field and anything malformed is discarded rather than trusted, so corrupt
+ * localStorage can never crash the app. See docs/DECISIONS.md for the planned
+ * Supabase migration.
+ */
+function isValidPosition(raw: unknown): raw is Position {
+  if (typeof raw !== "object" || raw === null) return false;
+  const p = raw as Record<string, unknown>;
+  if (typeof p.marketId !== "string" || typeof p.outcomeId !== "string") return false;
+  if (typeof p.shares !== "number" || !Number.isFinite(p.shares) || p.shares <= 0) return false;
+  if (typeof p.avgPrice !== "number" || !Number.isFinite(p.avgPrice)) return false;
+  if (p.avgPrice < 0 || p.avgPrice > 1) return false;
+  if (p.resolved !== undefined && p.resolved !== "won" && p.resolved !== "lost") return false;
+
+  const market = MARKETS.find((m) => m.id === p.marketId);
+  if (!market) return false;
+  return market.outcomes.some((o) => o.id === p.outcomeId);
+}
+
+function readPositions(handle: string): Position[] | null {
+  try {
+    const raw = window.localStorage.getItem(positionsKey(handle));
+    if (raw === null) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isValidPosition).map((p) => ({
+      marketId: p.marketId,
+      outcomeId: p.outcomeId,
+      shares: p.shares,
+      avgPrice: p.avgPrice,
+      ...(p.resolved ? { resolved: p.resolved } : {}),
+    }));
+  } catch {
+    // Unavailable or corrupt storage: fall back to in-memory only.
+    return null;
+  }
+}
+
+function writePositions(handle: string, positions: Position[]) {
+  try {
+    window.localStorage.setItem(positionsKey(handle), JSON.stringify(positions));
+  } catch {
+    /* storage unavailable — keep working in memory */
+  }
+}
+
+function hasBeenSeeded(handle: string) {
+  try {
+    return window.localStorage.getItem(seededKey(handle)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markSeeded(handle: string) {
+  try {
+    window.localStorage.setItem(seededKey(handle), "1");
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Mock ledger, injected once per account that has never stored anything. */
 const SEED_POSITIONS: Position[] = [
   { marketId: "mkt_002", outcomeId: "mumbai-indians", shares: 1420, avgPrice: 0.16 },
   { marketId: "mkt_001", outcomeId: "yes", shares: 860, avgPrice: 0.31 },
@@ -122,7 +190,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   authOpen: false,
   searchOpen: false,
   trade: null,
-  positions: SEED_POSITIONS,
+  positions: [],
   lastFill: null,
   toasts: [],
 
@@ -139,7 +207,21 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     }),
 
   signIn: (session) => {
-    set({ session, authOpen: false });
+    // Stored data is the source of truth; the demo ledger is only a first-run
+    // convenience for an account that has never persisted anything.
+    const stored = readPositions(session.handle);
+    let positions: Position[];
+    if (stored !== null) {
+      positions = stored;
+    } else if (hasBeenSeeded(session.handle)) {
+      positions = [];
+    } else {
+      positions = SEED_POSITIONS;
+      markSeeded(session.handle);
+      writePositions(session.handle, positions);
+    }
+
+    set({ session, authOpen: false, positions });
     try {
       window.localStorage.setItem("bp-session", JSON.stringify(session));
     } catch {
@@ -156,7 +238,9 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   },
 
   signOut: () => {
-    set({ session: null });
+    // Stored positions are deliberately left in place so signing back in
+    // restores them; only the in-memory copy is dropped.
+    set({ session: null, positions: [] });
     try {
       window.localStorage.removeItem("bp-session");
     } catch {
@@ -184,6 +268,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       return;
     }
 
+    const handle = get().session?.handle;
+
     set((state) => {
       const existing = state.positions.find(
         (p) => p.marketId === market.id && p.outcomeId === outcome.id && !p.resolved
@@ -208,6 +294,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
               avgPrice: outcome.price,
             },
           ];
+
+      if (handle) writePositions(handle, positions);
 
       return {
         trade: null,
@@ -250,7 +338,18 @@ export function restoreSession() {
     if (!raw) return;
     const parsed = JSON.parse(raw) as Session;
     if (parsed?.handle && parsed?.initial) {
-      useMarketStore.setState({ session: parsed });
+      const stored = readPositions(parsed.handle);
+      let positions: Position[];
+      if (stored !== null) {
+        positions = stored;
+      } else if (hasBeenSeeded(parsed.handle)) {
+        positions = [];
+      } else {
+        positions = SEED_POSITIONS;
+        markSeeded(parsed.handle);
+        writePositions(parsed.handle, positions);
+      }
+      useMarketStore.setState({ session: parsed, positions });
     }
   } catch {
     /* ignore malformed storage */

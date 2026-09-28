@@ -6,8 +6,8 @@ Tracking for the BharatPredict work order (Phases A–E).
 | --- | --- | --- |
 | A | Trade-success animation | **Done** — commit `feat: trade success animation` |
 | — | Fix: live countdowns going stale; leftover USD labels | **Done** — commit `fix: ...` |
-| B | ESLint + scripts + Playwright suites + fill 5 empty chips | **Not started** |
-| C | Persist positions per user in localStorage | **Not started** |
+| B | ESLint + scripts + Playwright suites + fill 5 empty chips | **Done** |
+| C | Persist positions per user in localStorage | **Done** |
 | D | 18+ age restriction, dedicated `/terms` | **Not started** |
 | E1 | Compliance pages + i18n infrastructure + Hindi | **Not started** |
 | E2 | Marathi, Bengali, Tamil, Telugu | **Not started** |
@@ -32,5 +32,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 1. Non-live markets still have hardcoded end dates in the past (e.g. "Will India win the
    2026 T20 World Cup?" ends Mar 8 2026). Titles and dates need a coordinated calendar
    pass — see DECISIONS.md.
-2. Positions still reset on refresh (Phase C).
-3. No lint config, no test suite yet (Phase B).
+2. `npm run build` clobbers the dev server's `.next`; restart the dev container after
+   running `check` locally. Playwright reuses the running dev server unless `CI` is set.
+3. The dashboard renders each position twice (desktop table + mobile cards, one hidden
+   by CSS) — assert with `:visible` in tests.
