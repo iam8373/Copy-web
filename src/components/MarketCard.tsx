@@ -15,6 +15,7 @@ import {
   formatVolumeChange,
 } from "@/lib/utils";
 import { useMarketStore } from "@/store/useMarketStore";
+import { useT } from "@/i18n/LanguageProvider";
 
 function CategoryBadge({ market }: { market: Market }) {
   return (
@@ -28,6 +29,7 @@ function CategoryBadge({ market }: { market: Market }) {
 
 function BinaryOutcomes({ market }: { market: Market }) {
   const openTrade = useMarketStore((s) => s.openTrade);
+  const { t } = useT();
   const [yes, no] = market.outcomes;
 
   const cells = [
@@ -63,7 +65,7 @@ function BinaryOutcomes({ market }: { market: Market }) {
             <FlashValue value={o.price}>{formatPercent(o.price)}</FlashValue>
           </span>
           <span className="tnum text-[11px] text-content-secondary">
-            {formatChange(o.change24h)} pts 24h
+            {formatChange(o.change24h)} {t("card", "pts24h")}
           </span>
         </button>
       ))}
@@ -73,6 +75,7 @@ function BinaryOutcomes({ market }: { market: Market }) {
 
 function MultiOutcomes({ market }: { market: Market }) {
   const openTrade = useMarketStore((s) => s.openTrade);
+  const { t } = useT();
   const top = market.outcomes.slice(0, 4);
 
   return (
@@ -114,8 +117,11 @@ function MultiOutcomes({ market }: { market: Market }) {
       ))}
       {market.outcomes.length > top.length && (
         <span className="px-2.5 text-[11px] text-content-secondary">
-          +{market.outcomes.length - top.length} more{" "}
-          {market.outcomes.length - top.length === 1 ? "outcome" : "outcomes"}
+          {t(
+            "card",
+            market.outcomes.length - top.length === 1 ? "moreOutcome" : "moreOutcomes",
+            { count: market.outcomes.length - top.length }
+          )}
         </span>
       )}
     </div>
@@ -124,6 +130,7 @@ function MultiOutcomes({ market }: { market: Market }) {
 
 export function MarketCard({ market }: { market: Market }) {
   const openTrade = useMarketStore((s) => s.openTrade);
+  const { t } = useT();
 
   return (
     <Link
@@ -137,12 +144,12 @@ export function MarketCard({ market }: { market: Market }) {
             <>
               <span className="flex items-center gap-1 rounded-md bg-accent-red/15 px-1.5 py-0.5 font-bold uppercase text-accent-red">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent-red animate-pulse-dot" />
-                Live
+                {t("card", "live")}
               </span>
               <Countdown endDate={market.endDate} />
             </>
           ) : (
-            <>Ends {formatEndDate(market.endDate)}</>
+            <>{t("card", "ends", { date: formatEndDate(market.endDate) })}</>
           )}
         </span>
       </div>
@@ -155,7 +162,7 @@ export function MarketCard({ market }: { market: Market }) {
 
       <div className="mt-auto flex items-center gap-2 border-t border-subtle pt-2.5">
         <span className="tnum truncate text-[12px] text-content-secondary">
-          Vol {formatVolume(market.totalVolume)}
+          {t("card", "volume")} {formatVolume(market.totalVolume)}
         </span>
         <span
           className={cn(
@@ -175,7 +182,7 @@ export function MarketCard({ market }: { market: Market }) {
           className="ml-auto flex shrink-0 items-center gap-1 rounded-lg border border-subtle bg-bg-tertiary px-2.5 py-1 text-[12px] font-semibold text-content-primary transition-colors hover:border-accent-blue hover:text-accent-blue active:opacity-80"
         >
           <Plus className="h-3.5 w-3.5" />
-          Trade
+          {t("card", "trade")}
         </button>
       </div>
     </Link>

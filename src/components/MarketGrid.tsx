@@ -2,14 +2,19 @@
 
 import { MarketCard } from "@/components/MarketCard";
 import type { Market } from "@/lib/types";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function MarketGrid({ markets }: { markets: Market[] }) {
+  const { t } = useT();
+
   if (markets.length === 0) {
     return (
       <div className="rounded-xl border border-subtle bg-bg-secondary p-10 text-center">
-        <p className="text-[14px] font-semibold text-content-primary">No markets here yet</p>
+        <p className="text-[14px] font-semibold text-content-primary">
+          {t("empty", "noMarketsTitle")}
+        </p>
         <p className="mt-1 text-[13px] text-content-secondary">
-          Try a different filter or check back shortly.
+          {t("empty", "noMarketsBody")}
         </p>
       </div>
     );

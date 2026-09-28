@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm run lint && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run build",
+    "test:e2e:sandbox": "E2E_PORT=3100 playwright test"
   },
   "dependencies": {
     "clsx": "^2.1.1",

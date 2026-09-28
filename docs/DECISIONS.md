@@ -2,6 +2,30 @@
 
 Architecture and product decisions, newest first.
 
+## D-006 — Client-side i18n, no locale-prefixed routes
+
+**Date:** Phase E1
+**Status:** Accepted
+
+Locale-prefixed routes would multiply the ~110 statically generated pages by six. A
+client-side `LanguageProvider` with typed dictionaries keeps one static build.
+
+- SSR always renders English; the stored locale is applied after mount. Accepted
+  trade-off: a brief English flash for non-English users on first paint.
+- Toasts are stored as `{titleKey, bodyKey, vars}` because the Zustand store cannot reach
+  React context; `Toaster` resolves them at render time, so an open toast re-renders when
+  the language changes.
+- **Subfilter chips translate display text only.** The English label in `CATEGORIES` stays
+  the filter key matched against `market.subcategory` (exposed as `data-filter`); the
+  `chips` dictionary section maps it to display text. Filtering, including the Live tab,
+  is unchanged. Some game/brand names (CS2, GTA, PUBG, Valorant, OpenAI) stay in Latin
+  script.
+- Numbers always use Latin digits with `en-IN` grouping and `₹`.
+- Legal pages stay English; each dictionary carries a translated
+  "English version prevails" notice (`legal.englishPrevails`).
+- Every non-English dictionary begins with
+  "Machine-drafted — needs native-speaker review before launch".
+
 ## D-005 — Positions persist per account in localStorage (demo-grade)
 
 **Date:** Phase C

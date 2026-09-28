@@ -12,7 +12,7 @@ All data, prices, auth and positions are mocked client-side. No real money, no b
 
 ```bash
 docker compose -f docker-compose.alloy.yaml up   # dev server on :3000
-npx tsc --noEmit                                  # type-check (no npm script yet — Phase B)
+npm run check                                     # typecheck + lint + build
 ```
 
 Alloy preview proxies :8080 → :3000 (`.alloy/environment.json`).
@@ -21,8 +21,8 @@ Alloy preview proxies :8080 → :3000 (`.alloy/environment.json`).
 
 - **Auth is demo-only.** Phone OTP accepts any 6 digits; Google is a static account
   picker. Session persists in `localStorage` under `bp-session`.
-- **Positions are in-memory only** and reset on refresh. Seeded from `SEED_POSITIONS`
-  in the store. Phase C fixes this.
+- **Positions persist per account** under `bp-positions:v1:<handle>` (Phase C). Demo
+  ledger seeds once per new account. Signed-out users see no positions.
 - **Prices jitter every 6s** via `LiveTicker` → `tick()`. Never assert exact prices in
   tests; assert format (₹, %) and counts.
 - **Live tab behaviour is frozen** by owner instruction — `isLive` filtering, the
@@ -40,10 +40,10 @@ Alloy preview proxies :8080 → :3000 (`.alloy/environment.json`).
 - **Live market dates are relative** (`inHours` / `inDays` in `markets.ts`). Do not
   replace them with literals — that bug has already bitten once.
 
-## These subfilter chips currently render empty pages
+## Previously empty chips (fixed in Phase B)
 
-`Cricket→T20`, `Politics→BJP`, `Economy→India`, `Sports→Hockey`, `Tech→AI`.
-Phase B is meant to seed 1–2 markets each before the category tests can pass.
+`Cricket→T20`, `Politics→BJP`, `Economy→India`, `Sports→Hockey`, `Tech→AI` now have two
+seeds each. `categories.spec.ts` fails if any chip ever renders empty again.
 
 ## Layout map
 
@@ -83,3 +83,23 @@ npx playwright install-deps chromium   # system libs (re-run after a container r
 ```
 
 `.playwright-browsers/`, `playwright-report/` and `test-results/` are gitignored.
+
+## i18n (Phase E)
+
+- Dictionaries: `src/i18n/{en,hi,mr,bn,ta,te}.ts`. `en.ts` defines the shape; the others
+  are typed `Dictionary`, so a missing key is a type error. `i18n.spec.ts` also checks
+  key parity at runtime.
+- Use `const { t } = useT()` then `t("section", "key", { vars })`. Unknown keys fall back
+  to English, then to the key name.
+- Stored under `bp-lang`. `LanguageProvider` sets `<html lang>` and `data-script`;
+  `globals.css` picks the Noto font via `html[data-script=...]`.
+- Toasts are key-based (`titleKey`, `bodyKey`, `vars`) — never pass raw strings.
+- Chip filter keys stay English (`data-filter`); only display text is translated.
+- Market titles are English; `Market.title_hi?` / `description_hi?` reserved.
+- Legal pages are English-only by design.
+
+## Dev-server gotcha (hit twice)
+
+Running `npm run build` inside the dev container overwrites `.next`, after which the dev
+server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
+`docker compose -f docker-compose.alloy.yaml restart web` and wait ~45s.

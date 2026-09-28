@@ -1,4 +1,12 @@
 {
   "extends": "next/core-web-vitals",
-  "ignorePatterns": ["node_modules/", ".next/", "out/", "playwright-report/", "test-results/"]
+  "ignorePatterns": [
+    ".next-e2e/",
+    ".next/",
+    ".playwright-browsers/",
+    "node_modules/",
+    "out/",
+    "playwright-report/",
+    "test-results/"
+  ]
 }

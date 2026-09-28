@@ -9,7 +9,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | B | ESLint + scripts + Playwright suites + fill 5 empty chips | **Done** |
 | C | Persist positions per user in localStorage | **Done** |
 | D | 18+ age restriction, dedicated `/terms` | **Done** |
-| E1 | Compliance pages + i18n infrastructure + Hindi | **Not started** |
+| E1 | Compliance pages + i18n infrastructure + Hindi | **Done** |
 | E2 | Marathi, Bengali, Tamil, Telugu | **Not started** |
 
 ## Phase A — detail
@@ -36,3 +36,18 @@ Tracking for the BharatPredict work order (Phases A–E).
    running `check` locally. Playwright reuses the running dev server unless `CI` is set.
 3. The dashboard renders each position twice (desktop table + mobile cards, one hidden
    by CSS) — assert with `:visible` in tests.
+
+## Phase E1 — detail
+
+- `src/i18n/en.ts` defines the dictionary; `Dictionary` type derived from it. `hi.ts` is
+  typed as `Dictionary`, so a missing key fails `npm run typecheck`.
+- `LanguageProvider` + `useT()` (English fallback for unknown keys and unknown stored
+  locales). Choice persisted under `bp-lang`; `<html lang>` and `data-script` updated.
+- Noto Sans Devanagari/Bengali/Tamil/Telugu via `next/font` (`display: swap`), applied only
+  through `html[data-script=...]` selectors. `.tnum` stays on Inter so digits are Latin.
+- Translated chrome: category nav, header, sort controls, category headings and counts,
+  market card chrome, trade modal, success overlay, auth modal, dashboard, profit, search,
+  toasts (now key-based), footer, bottom nav, empty states.
+- Desktop language selector added to the header; mobile uses the More sheet chips.
+- Market titles/descriptions stay English; `Market.title_hi?` / `description_hi?` exist.
+- Subfilter chips translated for display via a `chips` section; filter keys stay English (D-006).

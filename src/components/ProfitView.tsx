@@ -15,8 +15,10 @@ import {
 } from "recharts";
 import { usePortfolio } from "@/lib/usePortfolio";
 import { cn, formatRupees } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function ProfitView() {
+  const { t } = useT();
   const { rows, open, settled, realized, unrealized, netPnl, wins, losses } = usePortfolio();
 
   const chartData = useMemo(
@@ -46,21 +48,21 @@ export function ProfitView() {
         className="flex w-fit items-center gap-1 text-[13px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to dashboard
+        {t("profit", "backToDashboard")}
       </Link>
 
       <header>
         <h1 className="text-2xl font-bold tracking-tight text-content-primary">
-          Profit &amp; loss
+          {t("profit", "title")}
         </h1>
         <p className="mt-0.5 text-[13px] text-content-secondary">
-          Realised and unrealised performance across every market you hold.
+          {t("profit", "subtitle")}
         </p>
       </header>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">Net P&amp;L</p>
+          <p className="text-[12px] font-medium text-content-secondary">{t("profit", "title")}</p>
           <p
             className={cn(
               "tnum mt-1 text-2xl font-bold",
@@ -71,12 +73,11 @@ export function ProfitView() {
             {formatRupees(Math.abs(netPnl), 0)}
           </p>
           <p className="tnum mt-0.5 text-[12px] text-content-secondary">
-            ROI {roi >= 0 ? "+" : ""}
-            {roi.toFixed(1)}%
+            {t("profit", "roi", { value: `${roi >= 0 ? "+" : ""}${roi.toFixed(1)}%` })}
           </p>
         </div>
         <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">Realised</p>
+          <p className="text-[12px] font-medium text-content-secondary">{t("dashboard", "resolved")}</p>
           <p
             className={cn(
               "tnum mt-1 text-2xl font-bold",
@@ -87,11 +88,11 @@ export function ProfitView() {
             {formatRupees(Math.abs(realized), 0)}
           </p>
           <p className="tnum mt-0.5 text-[12px] text-content-secondary">
-            {settled.length} settled
+            {t("profit", "settled", { count: settled.length })}
           </p>
         </div>
         <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">Unrealised</p>
+          <p className="text-[12px] font-medium text-content-secondary">{t("dashboard", "unrealised")}</p>
           <p
             className={cn(
               "tnum mt-1 text-2xl font-bold",
@@ -102,23 +103,23 @@ export function ProfitView() {
             {formatRupees(Math.abs(unrealized), 0)}
           </p>
           <p className="tnum mt-0.5 text-[12px] text-content-secondary">
-            {open.length} open
+            {t("profit", "openCount", { count: open.length })}
           </p>
         </div>
         <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">Win rate</p>
+          <p className="text-[12px] font-medium text-content-secondary">{t("profit", "winRate")}</p>
           <p className="tnum mt-1 text-2xl font-bold text-content-primary">
             {winRate.toFixed(0)}%
           </p>
           <p className="tnum mt-0.5 text-[12px] text-content-secondary">
-            {wins}W / {losses}L
+            {t("profit", "winLoss", { wins, losses })}
           </p>
         </div>
       </div>
 
       <section className="rounded-xl border border-subtle bg-bg-secondary p-4">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
-          P&amp;L by market
+          {t("profit", "byMarket")}
         </h2>
         <div className="mt-3 h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -161,7 +162,7 @@ export function ProfitView() {
 
       <section>
         <h2 className="mb-3 text-[15px] font-bold text-content-primary">
-          Per-market breakdown
+          {t("profit", "perMarket")}
         </h2>
         <div className="flex flex-col gap-2">
           {rows

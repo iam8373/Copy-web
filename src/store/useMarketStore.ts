@@ -4,10 +4,15 @@ import { create } from "zustand";
 import { MARKETS } from "@/data/markets";
 import type { Market } from "@/lib/types";
 
+/**
+ * Toasts store i18n coordinates rather than resolved strings: the store has no
+ * access to the React context, so `Toaster` resolves them with useT().
+ */
 export interface Toast {
   id: string;
-  title: string;
-  description?: string;
+  titleKey: string;
+  bodyKey?: string;
+  vars?: Record<string, string | number>;
   tone: "success" | "info" | "error";
 }
 
@@ -234,11 +239,9 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       /* storage unavailable — session stays in memory only */
     }
     get().pushToast({
-      title: `Welcome, ${session.handle}`,
-      description:
-        session.method === "phone"
-          ? "Signed in with mobile OTP."
-          : "Signed in with Google.",
+      titleKey: "welcome",
+      vars: { handle: session.handle },
+      bodyKey: session.method === "phone" ? "signedInPhone" : "signedInGoogle",
       tone: "success",
     });
   },
@@ -252,7 +255,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     } catch {
       /* ignore */
     }
-    get().pushToast({ title: "Signed out", tone: "info" });
+    get().pushToast({ titleKey: "signedOut", tone: "info" });
   },
 
   setAuthOpen: (open) => set({ authOpen: open }),
@@ -269,8 +272,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     if (!current) {
       set({ trade: null, authOpen: true });
       get().pushToast({
-        title: "Sign in to place an order",
-        description: "Use your mobile number or Google account.",
+        titleKey: "signInToOrder",
+        bodyKey: "signInToOrderBody",
         tone: "info",
       });
       return;
@@ -281,8 +284,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     if (!current.ageConfirmedAt) {
       set({ trade: null, authOpen: true });
       get().pushToast({
-        title: "Confirm your age to continue",
-        description: "Please confirm you are 18 or older and accept the Terms of Use.",
+        titleKey: "confirmAge",
+        bodyKey: "confirmAgeBody",
         tone: "info",
       });
       return;
@@ -333,8 +336,13 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       };
     });
     get().pushToast({
-      title: "Order placed successfully!",
-      description: `Bought ${shares.toFixed(1)} ${outcome.label} shares @ ${outcome.price.toFixed(2)}`,
+      titleKey: "orderPlaced",
+      bodyKey: "orderFilled",
+      vars: {
+        shares: shares.toFixed(1),
+        outcome: outcome.label,
+        price: outcome.price.toFixed(2),
+      },
       tone: "success",
     });
   },

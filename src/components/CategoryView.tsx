@@ -6,11 +6,14 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { MarketGrid } from "@/components/MarketGrid";
 import { SORT_OPTIONS, type CategoryMeta, type SortOption } from "@/lib/types";
 import { cn, formatVolume } from "@/lib/utils";
+import { NAV_KEY_BY_SLUG, type Dictionary } from "@/i18n";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function CategoryView({ meta }: { meta: CategoryMeta }) {
   const markets = useMarketStore((s) => s.markets);
   const [subFilter, setSubFilter] = useState(meta.subFilters[0].label);
   const [sort, setSort] = useState<SortOption>("Popular");
+  const { t } = useT();
 
   const scoped = useMemo(
     () =>
@@ -48,11 +51,16 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
   return (
     <div className="flex flex-col gap-5">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary">{meta.label}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-content-primary">
+          {t("nav", NAV_KEY_BY_SLUG[meta.slug])}
+        </h1>
         <p className="text-[13px] text-content-secondary">
           {meta.blurb}{" "}
           <span className="tnum whitespace-nowrap">
-            {scoped.length} markets · {formatVolume(totalVolume)} volume
+            {t("category", "marketsAndVolume", {
+              count: scoped.length,
+              volume: formatVolume(totalVolume),
+            })}
           </span>
         </p>
       </header>
@@ -65,6 +73,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
               key={f.label}
               type="button"
               data-testid="subfilter-chip"
+              data-filter={f.label}
               data-highlighted={f.isHighlighted ? "true" : "false"}
               data-active={active ? "true" : "false"}
               onClick={() => setSubFilter(f.label)}
@@ -80,7 +89,8 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
               )}
             >
               {f.isHighlighted && <Star className="h-3 w-3 shrink-0" />}
-              {f.label}
+              {/* Display text is translated; f.label stays the filter key. */}
+              {t("chips", f.label as keyof Dictionary["chips"])}
             </button>
           );
         })}
@@ -92,6 +102,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
             key={s}
             type="button"
             onClick={() => setSort(s)}
+            data-testid="sort-option"
             className={cn(
               "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-colors",
               s === sort
@@ -99,14 +110,18 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
                 : "text-content-secondary hover:text-content-primary"
             )}
           >
-            {s}
+            {s === "Starting Soon"
+              ? t("sort", "startingSoon")
+              : s === "All"
+                ? t("sort", "all")
+                : t("sort", "popular")}
           </button>
         ))}
         <span
           className="tnum ml-auto text-[12px] text-content-secondary"
           data-testid="shown-count"
         >
-          {filtered.length} shown
+          {t("category", "shown", { count: filtered.length })}
         </span>
       </div>
 
@@ -120,9 +135,11 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
               className="h-2 w-2 rounded-full bg-accent-red animate-pulse-dot"
               data-testid="live-pulse"
             />
-            <h2 className="text-[15px] font-bold text-content-primary">Live</h2>
+            <h2 className="text-[15px] font-bold text-content-primary">
+              {t("category", "liveHeading")}
+            </h2>
             <span className="tnum ml-auto text-[12px] text-content-secondary">
-              {liveMarkets.length} markets
+              {t("category", "liveCount", { count: liveMarkets.length })}
             </span>
           </div>
           <MarketGrid markets={liveMarkets} />
@@ -133,7 +150,9 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
         <section>
           {liveMarkets.length > 0 && (
             <h2 className="mb-3 text-[15px] font-bold text-content-primary">
-              All {meta.label.toLowerCase()} markets
+              {t("category", "allMarkets", {
+                category: t("nav", NAV_KEY_BY_SLUG[meta.slug]).toLowerCase(),
+              })}
             </h2>
           )}
           <MarketGrid markets={restMarkets} />

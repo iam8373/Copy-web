@@ -38,7 +38,23 @@ body {
   transition: background-color 200ms ease, color 200ms ease;
 }
 
+/* Script-specific font stacks, applied only when that locale is active. */
+html[data-script="devanagari"] body {
+  font-family: var(--font-devanagari), var(--font-inter);
+}
+html[data-script="bengali"] body {
+  font-family: var(--font-bengali), var(--font-inter);
+}
+html[data-script="tamil"] body {
+  font-family: var(--font-tamil), var(--font-inter);
+}
+html[data-script="telugu"] body {
+  font-family: var(--font-telugu), var(--font-inter);
+}
+
+/* Numbers stay in Latin digits with en-IN grouping regardless of locale. */
 .tnum {
+  font-family: var(--font-inter);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }

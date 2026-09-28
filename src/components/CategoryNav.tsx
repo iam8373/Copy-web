@@ -3,12 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/lib/types";
+import { NAV_KEY_BY_SLUG } from "@/i18n";
+import { useT } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
-const TABS = [{ label: "All", href: "/" }, ...CATEGORIES.map((c) => ({ label: c.label, href: c.href }))];
+const TABS = [
+  { slug: "all" as const, href: "/" },
+  ...CATEGORIES.map((c) => ({ slug: c.slug, href: c.href })),
+];
 
 export function CategoryNav() {
   const pathname = usePathname();
+  const { t } = useT();
 
   return (
     <nav className="sticky top-14 z-30 border-b border-subtle bg-bg-primary/85 backdrop-blur-xl sm:top-16">
@@ -16,6 +22,8 @@ export function CategoryNav() {
         <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-2.5">
           {TABS.map((tab) => {
             const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
+            const label =
+              tab.slug === "all" ? t("nav", "all") : t("nav", NAV_KEY_BY_SLUG[tab.slug]);
             return (
               <Link
                 key={tab.href}
@@ -27,13 +35,13 @@ export function CategoryNav() {
                     : "text-content-secondary hover:bg-bg-tertiary hover:text-content-primary"
                 )}
               >
-                {tab.label === "Live" ? (
+                {tab.slug === "live" ? (
                   <span className="flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-accent-red animate-pulse-dot" />
-                    Live
+                    {label}
                   </span>
                 ) : (
-                  tab.label
+                  label
                 )}
               </Link>
             );

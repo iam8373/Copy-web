@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
 
 const PRESETS = [100, 500, 1000];
 
@@ -15,6 +16,7 @@ export function TradeModal() {
 
   const [amount, setAmount] = useState(500);
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
+  const { t } = useT();
 
   useEffect(() => {
     if (trade) {
@@ -53,7 +55,7 @@ export function TradeModal() {
           <button
             type="button"
             onClick={closeTrade}
-            aria-label="Close"
+            aria-label={t("bottomNav", "close")}
             className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg text-content-secondary transition-colors hover:bg-bg-tertiary hover:text-content-primary"
           >
             <X className="h-4 w-4" />
@@ -83,7 +85,7 @@ export function TradeModal() {
                     "border-subtle bg-bg-tertiary text-content-secondary hover:text-content-primary"
                 )}
               >
-                <span className="truncate">Buy {o.label}</span>
+                <span className="truncate">{t("trade", "buy", { outcome: o.label })}</span>
                 <span className="tnum shrink-0">{formatPercent(o.price, 1)}</span>
               </button>
             );
@@ -92,7 +94,7 @@ export function TradeModal() {
 
         <div className="mt-4 flex flex-col gap-2">
           <label className="text-[12px] font-medium text-content-secondary" htmlFor="amount">
-            Amount (₹)
+            {t("trade", "amount")}
           </label>
           <input
             id="amount"
@@ -128,18 +130,20 @@ export function TradeModal() {
               onClick={() => setAmount(10000)}
               className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
             >
-              Max
+              {t("trade", "max")}
             </button>
           </div>
         </div>
 
         <dl className="mt-4 flex flex-col gap-1.5 rounded-lg bg-bg-tertiary p-3 text-[13px]">
           <div className="flex justify-between">
-            <dt className="text-content-secondary">You will receive</dt>
-            <dd className="tnum font-semibold text-content-primary">~{shares.toFixed(1)} shares</dd>
+            <dt className="text-content-secondary">{t("trade", "youWillReceive")}</dt>
+            <dd className="tnum font-semibold text-content-primary">
+              {t("trade", "shares", { count: shares.toFixed(1) })}
+            </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-content-secondary">If correct, you receive</dt>
+            <dt className="text-content-secondary">{t("trade", "ifCorrect")}</dt>
             <dd className="tnum font-semibold text-accent-green">{formatRupees(shares)}</dd>
           </div>
         </dl>
@@ -147,7 +151,7 @@ export function TradeModal() {
         {slipped && (
           <p className="mt-3 flex items-center gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 px-3 py-2 text-[12px] text-accent-yellow">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-            Price moved to {formatPercent(selected.price, 1)} since you opened this order.
+            {t("trade", "priceMoved", { price: formatPercent(selected.price, 1) })}
           </p>
         )}
 
@@ -157,7 +161,7 @@ export function TradeModal() {
           disabled={amount <= 0}
           className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
         >
-          Place Order
+          {t("trade", "placeOrder")}
         </button>
       </div>
     </div>

@@ -17,19 +17,19 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
+import { LanguagePicker } from "@/components/LanguagePicker";
 
 const ITEMS = [
-  { label: "Home", href: "/", icon: Home },
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Profit", href: "/profit", icon: TrendingUp },
+  { key: "home" as const, href: "/", icon: Home },
+  { key: "dashboard" as const, href: "/dashboard", icon: LayoutDashboard },
+  { key: "profit" as const, href: "/profit", icon: TrendingUp },
 ];
-
-const LANGUAGES = ["English", "हिन्दी", "বাংলা", "मराठी", "தமிழ்", "తెలుగు"];
 
 export function BottomNav() {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [language, setLanguage] = useState("English");
+  const { t } = useT();
 
   return (
     <>
@@ -45,13 +45,14 @@ export function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={t("bottomNav", item.key)}
                 className={cn(
                   "flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors",
                   active ? "text-accent-blue" : "text-content-secondary"
                 )}
               >
                 <Icon className="h-5 w-5" />
-                {item.label}
+                {t("bottomNav", item.key)}
               </Link>
             );
           })}
@@ -64,7 +65,7 @@ export function BottomNav() {
             )}
           >
             <MoreHorizontal className="h-5 w-5" />
-            More
+            {t("bottomNav", "more")}
           </button>
         </div>
       </nav>
@@ -80,11 +81,11 @@ export function BottomNav() {
             style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
           >
             <div className="flex items-center">
-              <h2 className="text-[15px] font-bold text-content-primary">More</h2>
+              <h2 className="text-[15px] font-bold text-content-primary">{t("bottomNav", "more")}</h2>
               <button
                 type="button"
                 onClick={() => setSheetOpen(false)}
-                aria-label="Close"
+                aria-label={t("bottomNav", "close")}
                 className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-content-secondary transition-colors hover:bg-bg-tertiary"
               >
                 <X className="h-4 w-4" />
@@ -98,7 +99,7 @@ export function BottomNav() {
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
               >
                 <LifeBuoy className="h-4 w-4 text-content-secondary" />
-                Help Center
+                {t("bottomNav", "helpCentre")}
               </Link>
               <Link
                 href="/terms"
@@ -106,7 +107,7 @@ export function BottomNav() {
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
               >
                 <FileText className="h-4 w-4 text-content-secondary" />
-                Terms of Use
+                {t("bottomNav", "terms")}
               </Link>
               <Link
                 href="/privacy"
@@ -114,7 +115,7 @@ export function BottomNav() {
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
               >
                 <ShieldCheck className="h-4 w-4 text-content-secondary" />
-                Privacy Policy
+                {t("bottomNav", "privacy")}
               </Link>
               <Link
                 href="/responsible-play"
@@ -122,7 +123,7 @@ export function BottomNav() {
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
               >
                 <HeartHandshake className="h-4 w-4 text-content-secondary" />
-                Responsible play
+                {t("bottomNav", "responsiblePlay")}
               </Link>
               <Link
                 href="/grievance"
@@ -130,32 +131,16 @@ export function BottomNav() {
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
               >
                 <MessageSquareWarning className="h-4 w-4 text-content-secondary" />
-                Grievance redressal
+                {t("bottomNav", "grievance")}
               </Link>
             </div>
 
             <div className="mt-3 border-t border-subtle pt-3">
               <p className="flex items-center gap-2 px-3 text-[12px] font-semibold text-content-secondary">
                 <Languages className="h-4 w-4" />
-                Language
+                {t("bottomNav", "language")}
               </p>
-              <div className="mt-2 flex flex-wrap gap-2 px-1">
-                {LANGUAGES.map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLanguage(l)}
-                    className={cn(
-                      "rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
-                      l === language
-                        ? "border-accent-blue bg-accent-blue/15 text-accent-blue"
-                        : "border-subtle bg-bg-tertiary text-content-secondary"
-                    )}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
+              <LanguagePicker variant="chips" />
             </div>
           </div>
         </div>

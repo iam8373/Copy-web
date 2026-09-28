@@ -5,6 +5,8 @@ import Link from "next/link";
 import { LogOut, Moon, Search, Sun, User } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useMarketStore } from "@/store/useMarketStore";
+import { useT } from "@/i18n/LanguageProvider";
+import { LanguagePicker } from "@/components/LanguagePicker";
 
 export function Header() {
   const { theme, toggle } = useTheme();
@@ -13,6 +15,7 @@ export function Header() {
   const session = useMarketStore((s) => s.session);
   const signOut = useMarketStore((s) => s.signOut);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useT();
 
   return (
     <header className="sticky top-0 z-40 border-b border-subtle bg-bg-primary/85 backdrop-blur-xl">
@@ -32,9 +35,9 @@ export function Header() {
           className="group flex h-9 min-w-0 flex-1 items-center gap-2 rounded-lg border border-subtle bg-bg-secondary px-3 text-left text-[13px] text-content-secondary transition-colors hover:bg-bg-tertiary sm:h-10 sm:max-w-xl"
         >
           <Search className="h-4 w-4 shrink-0" />
-          <span className="truncate">Search markets...</span>
+          <span className="truncate">{t("header", "searchPlaceholder")}</span>
           <kbd className="ml-auto hidden shrink-0 rounded border border-subtle bg-bg-tertiary px-1.5 py-0.5 text-[11px] font-medium text-content-secondary sm:block">
-            Shift + /
+            {t("header", "searchShortcut")}
           </kbd>
         </button>
 
@@ -44,7 +47,7 @@ export function Header() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((o) => !o)}
-                aria-label="Account menu"
+                aria-label={t("header", "accountMenu")}
                 className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-accent-blue to-accent-strong text-[13px] font-bold text-white sm:h-10 sm:w-10"
               >
                 {session.initial}
@@ -62,7 +65,7 @@ export function Header() {
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-content-primary transition-colors hover:bg-bg-tertiary"
                     >
                       <User className="h-4 w-4" />
-                      Dashboard
+                      {t("header", "dashboard")}
                     </Link>
                     <button
                       type="button"
@@ -73,7 +76,7 @@ export function Header() {
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-accent-red transition-colors hover:bg-bg-tertiary"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign out
+                      {t("header", "signOut")}
                     </button>
                   </div>
                 </>
@@ -85,15 +88,20 @@ export function Header() {
               onClick={() => setAuthOpen(true)}
               className="flex h-9 items-center gap-1.5 rounded-lg bg-accent-blue px-3 text-[13px] font-semibold text-white transition-colors hover:bg-accent-strong active:brightness-95 sm:h-10 sm:px-4"
             >
-              <span className="hidden sm:inline">Sign up / Log in</span>
-              <span className="sm:hidden">Log in</span>
+              <span className="hidden sm:inline">{t("header", "signIn")}</span>
+              <span className="sm:hidden">{t("header", "signInShort")}</span>
             </button>
           )}
+
+          {/* Desktop had no language control before; chips remain on mobile. */}
+          <div className="hidden sm:block">
+            <LanguagePicker variant="select" />
+          </div>
 
           <button
             type="button"
             onClick={toggle}
-            aria-label="Toggle theme"
+            aria-label={t("header", "toggleTheme")}
             className="grid h-9 w-9 place-items-center rounded-lg border border-subtle bg-bg-secondary text-content-secondary transition-colors hover:bg-bg-tertiary hover:text-content-primary sm:h-10 sm:w-10"
           >
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

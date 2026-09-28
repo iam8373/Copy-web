@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { formatPercent } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
 
 const VISIBLE_MS = 1160;
 
@@ -19,6 +20,7 @@ export function TradeSuccess() {
   const clearFill = useMarketStore((s) => s.clearFill);
   const markets = useMarketStore((s) => s.markets);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const { t } = useT();
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -89,7 +91,9 @@ export function TradeSuccess() {
           </svg>
         </span>
 
-        <p className="text-[13px] font-bold text-content-primary">Order confirmed</p>
+        <p className="text-[13px] font-bold text-content-primary">
+          {t("trade", "orderConfirmed")}
+        </p>
         <p className="tnum max-w-[220px] truncate text-center text-[12px] text-content-secondary">
           {lastFill.shares.toFixed(1)} {lastFill.outcomeLabel} @{" "}
           {formatPercent(lastFill.price, 1)}

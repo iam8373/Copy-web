@@ -12,3 +12,4 @@ tsconfig.tsbuildinfo
 .playwright-browsers
 playwright-report
 test-results
+.next-e2e

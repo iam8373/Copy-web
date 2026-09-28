@@ -33,7 +33,12 @@ export async function signInWithGoogle(page: Page, index = 0) {
 }
 
 export async function openAuthModal(page: Page) {
-  await page.getByRole("button", { name: /sign up \/ log in|^log in$/i }).click();
+  // Scoped to the header: /dashboard also renders a "Log in" button, and the
+  // header label itself collapses to "Log in" on mobile.
+  await page
+    .getByRole("banner")
+    .getByRole("button", { name: /sign up \/ log in|^log in$/i })
+    .click();
   await expect(page.getByRole("heading", { name: /sign up \/ log in/i })).toBeVisible();
 }
 

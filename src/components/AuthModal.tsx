@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Check, Phone, ShieldCheck, X } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
 
 type Tab = "phone" | "google";
 
@@ -24,6 +25,7 @@ export function AuthModal() {
   const [stage, setStage] = useState<"number" | "otp">("number");
   const [ageOk, setAgeOk] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
 
   useEffect(() => {
     if (open) {
@@ -51,11 +53,11 @@ export function AuthModal() {
 
   const sendOtp = () => {
     if (!ageOk) {
-      setError("Please confirm you are 18 or older to continue.");
+      setError(t("auth", "errorAge"));
       return;
     }
     if (!phoneValid) {
-      setError("Enter a valid 10-digit Indian mobile number.");
+      setError(t("auth", "errorPhone"));
       return;
     }
     setError(null);
@@ -64,7 +66,7 @@ export function AuthModal() {
 
   const verifyOtp = () => {
     if (otp.replace(/\D/g, "").length !== 6) {
-      setError("Enter the 6-digit OTP. Any 6 digits work in this demo.");
+      setError(t("auth", "errorOtp"));
       return;
     }
     signIn({
@@ -82,15 +84,15 @@ export function AuthModal() {
       <div className="relative w-full max-w-md rounded-t-xl border border-subtle bg-bg-secondary p-4 shadow-2xl animate-slide-up sm:rounded-xl sm:p-6">
         <div className="flex items-start gap-3">
           <div>
-            <h2 className="text-[17px] font-bold text-content-primary">Sign up / Log in</h2>
+            <h2 className="text-[17px] font-bold text-content-primary">{t("auth", "title")}</h2>
             <p className="mt-0.5 text-[13px] text-content-secondary">
-              Trade Indian events in ₹. No wallet needed.
+              {t("auth", "subtitle")}
             </p>
           </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label="Close"
+            aria-label={t("bottomNav", "close")}
             className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg text-content-secondary transition-colors hover:bg-bg-tertiary hover:text-content-primary"
           >
             <X className="h-4 w-4" />
@@ -111,41 +113,40 @@ export function AuthModal() {
             className="mt-0.5 h-4 w-4 shrink-0 accent-[#7C5CFF]"
           />
           <span className="text-[12px] leading-relaxed text-content-secondary">
-            I confirm I am 18 or older and accept the{" "}
+            {t("auth", "ageConfirm")}{" "}
             <Link
               href="/terms"
               className="font-semibold text-accent-blue underline-offset-2 hover:underline"
             >
-              Terms of Use
-            </Link>{" "}
-            and{" "}
+              {t("auth", "termsLink")}
+            </Link>
+            {" · "}
             <Link
               href="/privacy"
               className="font-semibold text-accent-blue underline-offset-2 hover:underline"
             >
-              Privacy Policy
+              {t("auth", "privacyLink")}
             </Link>
-            .
           </span>
         </label>
 
         <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-bg-tertiary p-1">
-          {(["phone", "google"] as Tab[]).map((t) => (
+          {(["phone", "google"] as Tab[]).map((tab2) => (
             <button
-              key={t}
+              key={tab2}
               type="button"
               onClick={() => {
-                setTab(t);
+                setTab(tab2);
                 setError(null);
               }}
               className={cn(
                 "rounded-md py-2 text-[13px] font-semibold transition-colors",
-                tab === t
+                tab === tab2
                   ? "bg-bg-secondary text-content-primary"
                   : "text-content-secondary hover:text-content-primary"
               )}
             >
-              {t === "phone" ? "Phone" : "Google"}
+              {tab2 === "phone" ? t("auth", "tabPhone") : t("auth", "tabGoogle")}
             </button>
           ))}
         </div>
@@ -158,7 +159,7 @@ export function AuthModal() {
                   className="text-[12px] font-medium text-content-secondary"
                   htmlFor="auth-phone"
                 >
-                  Mobile number
+                  {t("auth", "mobileNumber")}
                 </label>
                 <div className="flex items-center gap-2 rounded-lg border border-subtle bg-bg-tertiary px-3 focus-within:border-accent-blue">
                   <span className="tnum shrink-0 text-[15px] font-semibold text-content-secondary">
@@ -185,7 +186,7 @@ export function AuthModal() {
                   className="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Phone className="h-4 w-4" />
-                  Send OTP
+                  {t("auth", "sendOtp")}
                 </button>
               </>
             ) : (
@@ -199,19 +200,21 @@ export function AuthModal() {
                   className="flex w-fit items-center gap-1 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  Change number
+                  {t("auth", "changeNumber")}
                 </button>
                 <label
                   className="text-[12px] font-medium text-content-secondary"
                   htmlFor="auth-otp"
                 >
-                  Enter the OTP sent to +91 {digits.slice(0, 5)} {digits.slice(5)}
+                  {t("auth", "otpSentTo", {
+                    number: `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`,
+                  })}
                 </label>
                 <input
                   id="auth-otp"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  placeholder="6-digit code"
+                  placeholder={t("auth", "otpPlaceholder")}
                   value={otp}
                   onChange={(e) => {
                     setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
@@ -226,10 +229,10 @@ export function AuthModal() {
                   className="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong"
                 >
                   <Check className="h-4 w-4" />
-                  Verify &amp; continue
+                  {t("auth", "verify")}
                 </button>
                 <p className="text-center text-[11px] text-content-secondary">
-                  Demo mode — any 6 digits will verify.
+                  {t("auth", "demoOtpNote")}
                 </p>
               </>
             )}
@@ -237,7 +240,7 @@ export function AuthModal() {
         ) : (
           <div className="mt-4 flex flex-col gap-2">
             <p className="text-[12px] text-content-secondary">
-              Choose a demo Google account to continue.
+              {t("auth", "chooseGoogle")}
             </p>
             {DEMO_ACCOUNTS.map((a) => (
               <button
@@ -274,8 +277,7 @@ export function AuthModal() {
 
         <p className="mt-4 flex items-start gap-2 text-[11px] leading-relaxed text-content-secondary">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
-          Demo authentication only — no OTP is actually sent and no credentials leave your
-          browser.
+          {t("auth", "demoNote")}
         </p>
       </div>
     </div>

@@ -4,6 +4,15 @@ import { defineConfig, devices } from "@playwright/test";
  * Runs the tests against a production build so the suite exercises the same
  * output that ships, not the dev server with Fast Refresh in the way.
  */
+/**
+ * Port defaults to 3000 as specified. In the Alloy sandbox the dev server
+ * already owns :3000, so run with E2E_PORT=3100 to test a real production
+ * build instead of silently reusing the dev server.
+ */
+const PORT = Number(process.env.E2E_PORT ?? 3000);
+const BASE_URL = `http://localhost:${PORT}`;
+const DIST = process.env.E2E_PORT ? ".next-e2e" : ".next";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
@@ -15,7 +24,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
 
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: BASE_URL,
     trace: "off",
     screenshot: "only-on-failure",
   },
@@ -33,8 +42,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run build && npm run start",
-    url: "http://localhost:3000",
+    command: `NEXT_DIST_DIR=${DIST} npx next build && NEXT_DIST_DIR=${DIST} npx next start -p ${PORT}`,
+    url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
     stdout: "ignore",

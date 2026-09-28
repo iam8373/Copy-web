@@ -36,6 +36,12 @@ export interface Market {
   outcomes: Outcome[];
   resolutionSource: string;
   isBinary: boolean;
+  /**
+   * Optional localised copy (Phase E). Market text stays English for now; the
+   * UI can prefer `title_hi` etc. once translated titles exist.
+   */
+  title_hi?: string;
+  description_hi?: string;
   /** Indian-first metadata */
   currency: "INR";
   region: string;
