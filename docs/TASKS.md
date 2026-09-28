@@ -5,12 +5,12 @@ Tracking for the BharatPredict work order (Phases A–E).
 | Phase | Scope | Status |
 | --- | --- | --- |
 | A | Trade-success animation | **Done** — commit `feat: trade success animation` |
-| — | Fix: live countdowns going stale; leftover USD labels | **Done** — commit `fix: ...` |
+| — | Fix: live countdowns going stale; leftover USD labels | **Done** (landed inside `da5cd83`) |
 | B | ESLint + scripts + Playwright suites + fill 5 empty chips | **Done** |
 | C | Persist positions per user in localStorage | **Done** |
 | D | 18+ age restriction, dedicated `/terms` | **Done** |
 | E1 | Compliance pages + i18n infrastructure + Hindi | **Done** |
-| E2 | Marathi, Bengali, Tamil, Telugu | **Not started** |
+| E2 | Marathi, Bengali, Tamil, Telugu | **Done** — one commit each |
 
 ## Phase A — detail
 
@@ -51,3 +51,29 @@ Tracking for the BharatPredict work order (Phases A–E).
 - Desktop language selector added to the header; mobile uses the More sheet chips.
 - Market titles/descriptions stay English; `Market.title_hi?` / `description_hi?` exist.
 - Subfilter chips translated for display via a `chips` section; filter keys stay English (D-006).
+
+## Phase E2 — detail
+
+- `mr.ts`, `bn.ts`, `ta.ts`, `te.ts`, each 142 keys + 85 chip labels, typed as
+  `Dictionary`. Generated from reviewed source maps by a script that refuses to emit a
+  file with missing/extra keys or altered `{placeholders}`.
+- Parity, empty-string and placeholder checks run for every translated locale; a guard
+  fails if any advertised locale falls back to English instead of shipping a dictionary.
+- 375px overflow check runs per locale. It caught a real bug in Tamil (sort row pushed the
+  page 30px wide); fixed in layout, not by shortening the string.
+- Fixed an auth-modal race found while stabilising the suite (form reset raced the 18+
+  checkbox).
+
+## Final state
+
+- 12 commits on the session branch, suite **174 passed** on `chromium-desktop` +
+  `mobile-pixel5`, twice in a row. `npm run check` green (typecheck, lint, 116-page build).
+
+## Open items (owner decisions)
+
+1. **Legal review — skipped by owner instruction.** All legal copy stays marked
+   "Draft — pending legal review". Must be reviewed by Indian counsel before launch.
+2. **Native-speaker review** of `hi`, `mr`, `bn`, `ta`, `te` — all machine-drafted.
+3. Non-live markets with 2026 titles still carry past end dates (see D-004).
+4. First paint is English for non-English users (client-side i18n, D-006).
+5. Helpline numbers and the Grievance Officer are placeholders.

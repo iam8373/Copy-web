@@ -65,15 +65,21 @@ src/store/          useMarketStore.ts — markets, session, positions, lastFill,
 - The Next.js client router cache can serve a stale RSC payload after a data edit —
   a hard reload is needed to confirm whether a data bug is real.
 
-## Running the e2e suite
+## Running checks and the e2e suite
 
 ```bash
-npm run typecheck && npm run lint && npm run build   # or: npm run check
-npm run test:e2e                                     # both projects
-npx playwright test --project=chromium-desktop        # one project
+npm run check                       # typecheck + lint + build (CI / fresh machine)
+npm run test:e2e                    # production build on :3000 (CI / fresh machine)
+
+# Inside the Alloy dev container, where the dev server already owns :3000:
+NEXT_DIST_DIR=.next-e2e npm run check   # build without clobbering the dev server
+npm run test:e2e:sandbox                # = E2E_PORT=3100, prod build in .next-e2e
 ```
 
-**One-time per container:** Playwright needs its browser and system libraries.
+Never run plain `npm run build` inside the dev container — it overwrites the dev
+server's `.next` (see "Dev-server gotcha" below).
+
+**Once per container start:** Playwright needs its browser and system libraries.
 `PLAYWRIGHT_BROWSERS_PATH=/workspace/.playwright-browsers` is set in the compose file so
 the binaries survive container restarts, but the apt libraries do not:
 
@@ -103,3 +109,10 @@ npx playwright install-deps chromium   # system libs (re-run after a container r
 Running `npm run build` inside the dev container overwrites `.next`, after which the dev
 server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 `docker compose -f docker-compose.alloy.yaml restart web` and wait ~45s.
+
+## Status snapshot (end of work order)
+
+- Phases A–E complete. 12 commits. 174 e2e tests pass on desktop + mobile.
+- All six locales ship real dictionaries; all non-English ones are machine-drafted.
+- Legal review was skipped at the owner's instruction; copy is still flagged draft.
+- `git push` has never worked in this sandbox (no GitHub credentials) — commits are local.

@@ -39,10 +39,20 @@ npm run dev                  # http://localhost:3000
 Other scripts:
 
 ```bash
-npm run build     # production build
-npm run start     # serve the production build
-npm run lint      # next lint
-npx tsc --noEmit  # type-check
+npm run build              # production build
+npm run start              # serve the production build
+npm run typecheck          # tsc --noEmit
+npm run lint               # next lint (next/core-web-vitals)
+npm run check              # typecheck + lint + build
+npm run test:e2e           # Playwright, desktop + Pixel 5, against a production build
+npm run test:e2e:sandbox   # same, on :3100 in .next-e2e (when a dev server owns :3000)
+```
+
+First-time Playwright setup:
+
+```bash
+npx playwright install chromium
+npx playwright install-deps chromium   # system libraries (Linux)
 ```
 
 ### Running in Docker (Alloy sandbox)
@@ -57,8 +67,8 @@ is what `.alloy/environment.json` points at.
 ## Environment variables
 
 Everything is mocked today, so no variable is required to boot. `.env.example` documents the
-keys the real integrations will need: OTP provider credentials, Google OAuth, a UPI/payment
-gateway, and live score/market data feeds. See that file for the full list.
+keys the real integrations will need (OTP provider, Google OAuth, UPI/payment gateway, live
+data feeds) plus the optional `NEXT_DIST_DIR` / `E2E_PORT` testing knobs.
 
 ## Project structure
 
@@ -70,10 +80,12 @@ src/
 │  ├─ market/[slug]/            # market detail: chart, order book, trade panel, activity
 │  ├─ dashboard/                # positions, portfolio value, resolved history
 │  ├─ profit/                   # realised/unrealised P&L breakdown + chart
-│  ├─ learn/                    # Predictions 101 / help / terms / privacy
+│  ├─ learn/                    # Predictions 101 / help
+│  ├─ terms/ privacy/ responsible-play/ grievance/   # draft legal pages
 │  └─ api/                      # mock REST: markets, markets/[slug], trade
 ├─ components/                  # Header, CategoryNav, BottomNav, MarketCard, modals, views
-├─ data/markets.ts              # 80+ mock markets, all India-tagged
+├─ data/markets.ts              # 91 mock markets, all India-tagged
+├─ i18n/                        # en (shape) + hi, mr, bn, ta, te; LanguageProvider, useT()
 ├─ lib/
 │  ├─ types.ts                  # Category union, CATEGORIES nav config, subfilter chips
 │  ├─ utils.ts                  # ₹ / lakh / crore formatting, date and odds helpers
@@ -97,10 +109,17 @@ under Entertainment, RBI and Budget under Economy, Football and Hockey under Spo
 - **Binary and multi-outcome cards** — large probability numbers, Yes/No or per-candidate rows
 - **Simulated price movement** — odds drift every few seconds and flash green/red on change
 - **Quick trade** from any card, plus a full trade panel on the market detail page
-- **Auth** via mobile number + OTP or Google, with a session-aware header avatar
+- **Auth** via mobile number + OTP or Google, with a required self-declared 18+
+  confirmation and a session-aware header avatar
+- **Per-account persistence** of positions in `localStorage`, validated on load
 - **Dashboard and P&L** — portfolio value, open positions, resolved history, per-market profit
-- **Mobile bottom nav** — Home, Dashboard, Profit, and a More sheet with help, terms and a
-  language selector (English, हिन्दी, বাংলা, मराठी, தமிழ், తెలుగు)
+- **Mobile bottom nav** — Home, Dashboard, Profit, and a More sheet with help, legal pages
+  and a language selector
+- **Six languages** — English, हिन्दी, मराठी, বাংলা, தமிழ், తెలుగు — switchable on desktop
+  (header) and mobile (More sheet). Non-English text is machine-drafted.
+- **Trade confirmation animation** that respects `prefers-reduced-motion`
+- **Legal pages** — `/terms` (18+ eligibility), `/privacy`, `/responsible-play`,
+  `/grievance`. All are draft placeholder copy pending legal review.
 - **Dark and light themes** persisted to `localStorage`
 - **Command palette** search on `Cmd/Ctrl + K` or `Shift + /`
 
@@ -116,7 +135,8 @@ under Entertainment, RBI and Budget under Economy, Football and Hockey under Spo
 
 - Real OTP and Google OAuth sessions
 - UPI deposits and withdrawals in ₹
-- Full Indic language localisation beyond the language picker
+- Native-speaker review of all five Indic dictionaries
+- Legal review of every policy page by Indian counsel
 - Live cricket and market data feeds replacing `src/data/markets.ts`
 - Compliance review for state-level real-money gaming rules
 

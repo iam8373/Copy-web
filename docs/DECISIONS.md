@@ -2,6 +2,30 @@
 
 Architecture and product decisions, newest first.
 
+## D-007 — E2E runs against a production build in its own distDir
+
+**Date:** Phase E1
+**Status:** Accepted
+
+The spec asks for `baseURL http://localhost:3000` and a production `webServer`. In the
+Alloy sandbox the dev server must keep owning :3000, so `reuseExistingServer` silently
+tested the dev server instead, and building clobbered its `.next`.
+
+`next.config.js` reads `distDir` from `NEXT_DIST_DIR`. `playwright.config.ts` defaults to
+:3000 / `.next` (spec-compliant for CI), and `E2E_PORT=3100` switches to a production build
+in `.next-e2e`. Side effect: the suite got faster (≈2.7m vs 4.5m) and the dev-compile
+flakes disappeared.
+
+## D-008 — Legal review skipped by owner instruction
+
+**Date:** Phases D–E
+**Status:** Accepted with risk
+
+The owner explicitly instructed that legal review be skipped for now. Nothing was removed:
+every legal page and the auth consent line still carry "Draft — pending legal review", and
+the copy still makes no claim that prediction markets are lawful in any Indian state. This
+is a launch blocker, not a closed item.
+
 ## D-006 — Client-side i18n, no locale-prefixed routes
 
 **Date:** Phase E1
