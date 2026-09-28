@@ -22,6 +22,12 @@ export interface Session {
   /** Display handle: masked mobile number or email */
   handle: string;
   initial: string;
+  /**
+   * ISO timestamp of the self-declared 18+ confirmation (Phase D). Sessions
+   * restored from before this field existed will be missing it, which forces a
+   * re-confirmation before the next order.
+   */
+  ageConfirmedAt?: string;
 }
 
 /** Emitted after a successful order so the success animation can outlive the modal. */
@@ -258,11 +264,25 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     const outcome = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
     const shares = amount / Math.max(outcome.price, 0.01);
 
-    if (!get().session) {
+    const current = get().session;
+
+    if (!current) {
       set({ trade: null, authOpen: true });
       get().pushToast({
         title: "Sign in to place an order",
         description: "Use your mobile number or Google account.",
+        tone: "info",
+      });
+      return;
+    }
+
+    // A session restored from before the 18+ confirmation existed must
+    // re-confirm before it can trade again.
+    if (!current.ageConfirmedAt) {
+      set({ trade: null, authOpen: true });
+      get().pushToast({
+        title: "Confirm your age to continue",
+        description: "Please confirm you are 18 or older and accept the Terms of Use.",
         tone: "info",
       });
       return;

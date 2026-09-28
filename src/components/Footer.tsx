@@ -3,8 +3,10 @@ import Link from "next/link";
 const LINKS = [
   { label: "Predictions 101", href: "/learn" },
   { label: "Join the mailing list", href: "/learn#mailing-list" },
-  { label: "Terms", href: "/learn#terms" },
-  { label: "Privacy", href: "/learn#privacy" },
+  { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Responsible play", href: "/responsible-play" },
+  { label: "Grievance", href: "/grievance" },
 ];
 
 export function Footer() {

@@ -8,7 +8,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | — | Fix: live countdowns going stale; leftover USD labels | **Done** — commit `fix: ...` |
 | B | ESLint + scripts + Playwright suites + fill 5 empty chips | **Done** |
 | C | Persist positions per user in localStorage | **Done** |
-| D | 18+ age restriction, dedicated `/terms` | **Not started** |
+| D | 18+ age restriction, dedicated `/terms` | **Done** |
 | E1 | Compliance pages + i18n infrastructure + Hindi | **Not started** |
 | E2 | Marathi, Bengali, Tamil, Telugu | **Not started** |
 

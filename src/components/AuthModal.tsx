@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ArrowLeft, Check, Phone, ShieldCheck, X } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ export function AuthModal() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [stage, setStage] = useState<"number" | "otp">("number");
+  const [ageOk, setAgeOk] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,6 +31,7 @@ export function AuthModal() {
       setPhone("");
       setOtp("");
       setStage("number");
+      setAgeOk(false);
       setError(null);
     }
   }, [open]);
@@ -47,6 +50,10 @@ export function AuthModal() {
   const phoneValid = /^[6-9]\d{9}$/.test(digits);
 
   const sendOtp = () => {
+    if (!ageOk) {
+      setError("Please confirm you are 18 or older to continue.");
+      return;
+    }
     if (!phoneValid) {
       setError("Enter a valid 10-digit Indian mobile number.");
       return;
@@ -64,6 +71,7 @@ export function AuthModal() {
       method: "phone",
       handle: `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`,
       initial: digits.slice(-1),
+      ageConfirmedAt: new Date().toISOString(),
     });
   };
 
@@ -89,7 +97,39 @@ export function AuthModal() {
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-1 rounded-lg bg-bg-tertiary p-1">
+        {/* DRAFT copy — pending legal review. Self-declared, no DOB collected. */}
+        <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-lg border border-subtle bg-bg-tertiary p-3">
+          <input
+            type="checkbox"
+            required
+            data-testid="age-confirm"
+            checked={ageOk}
+            onChange={(e) => {
+              setAgeOk(e.target.checked);
+              setError(null);
+            }}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[#7C5CFF]"
+          />
+          <span className="text-[12px] leading-relaxed text-content-secondary">
+            I confirm I am 18 or older and accept the{" "}
+            <Link
+              href="/terms"
+              className="font-semibold text-accent-blue underline-offset-2 hover:underline"
+            >
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="font-semibold text-accent-blue underline-offset-2 hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
+
+        <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-bg-tertiary p-1">
           {(["phone", "google"] as Tab[]).map((t) => (
             <button
               key={t}
@@ -141,7 +181,8 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={sendOtp}
-                  className="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong"
+                  disabled={!ageOk}
+                  className="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Phone className="h-4 w-4" />
                   Send OTP
@@ -203,10 +244,16 @@ export function AuthModal() {
                 key={a.email}
                 type="button"
                 data-testid="google-account"
+                disabled={!ageOk}
                 onClick={() =>
-                  signIn({ method: "google", handle: a.email, initial: a.initial })
+                  signIn({
+                    method: "google",
+                    handle: a.email,
+                    initial: a.initial,
+                    ageConfirmedAt: new Date().toISOString(),
+                  })
                 }
-                className="flex items-center gap-3 rounded-lg border border-subtle bg-bg-tertiary px-3 py-2.5 text-left transition-colors hover:border-accent-blue"
+                className="flex items-center gap-3 rounded-lg border border-subtle bg-bg-tertiary px-3 py-2.5 text-left transition-colors hover:border-accent-blue disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent-blue to-accent-strong text-[13px] font-bold text-white">
                   {a.initial}

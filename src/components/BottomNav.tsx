@@ -5,11 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   FileText,
+  HeartHandshake,
   Home,
   LayoutDashboard,
   LifeBuoy,
   Languages,
+  MessageSquareWarning,
   MoreHorizontal,
+  ShieldCheck,
   TrendingUp,
   X,
 } from "lucide-react";
@@ -98,12 +101,36 @@ export function BottomNav() {
                 Help Center
               </Link>
               <Link
-                href="/learn#terms"
+                href="/terms"
                 onClick={() => setSheetOpen(false)}
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
               >
                 <FileText className="h-4 w-4 text-content-secondary" />
                 Terms of Use
+              </Link>
+              <Link
+                href="/privacy"
+                onClick={() => setSheetOpen(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+              >
+                <ShieldCheck className="h-4 w-4 text-content-secondary" />
+                Privacy Policy
+              </Link>
+              <Link
+                href="/responsible-play"
+                onClick={() => setSheetOpen(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+              >
+                <HeartHandshake className="h-4 w-4 text-content-secondary" />
+                Responsible play
+              </Link>
+              <Link
+                href="/grievance"
+                onClick={() => setSheetOpen(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+              >
+                <MessageSquareWarning className="h-4 w-4 text-content-secondary" />
+                Grievance redressal
               </Link>
             </div>
 

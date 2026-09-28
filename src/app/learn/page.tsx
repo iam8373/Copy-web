@@ -76,20 +76,24 @@ export default function LearnPage() {
         </form>
       </section>
 
+      {/* Kept as anchors so older /learn#terms and /learn#privacy links resolve. */}
       <section id="terms" className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">Terms</h2>
+        <h2 className="text-[15px] font-bold text-content-primary">Legal &amp; policies</h2>
         <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
           This is a demonstration interface with simulated market data. No real funds are
           custodied, no orders reach a live exchange, and nothing here is an offer to
-          participate in real-money gaming or trading.
+          participate in real-money gaming or trading. You must be 18 or older to place an
+          order.
         </p>
-      </section>
-
-      <section id="privacy" className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">Privacy</h2>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
-          Only your theme preference and demo session are stored locally in your browser. No mobile number, email or personal data is transmitted anywhere.
-        </p>
+        <nav
+          id="privacy"
+          className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-accent-blue"
+        >
+          <Link href="/terms">Terms of Use (incl. 18+ eligibility)</Link>
+          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/responsible-play">Responsible play</Link>
+          <Link href="/grievance">Grievance redressal</Link>
+        </nav>
       </section>
 
       <Link
