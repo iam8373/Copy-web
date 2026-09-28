@@ -2,6 +2,7 @@ import en, { type Dictionary } from "./en";
 import hi from "./hi";
 import mr from "./mr";
 import bn from "./bn";
+import ta from "./ta";
 
 export const LOCALES = ["en", "hi", "mr", "bn", "ta", "te"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -27,7 +28,7 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
   hi,
   mr,
   bn,
-  ta: en,
+  ta,
   te: en,
 };
 

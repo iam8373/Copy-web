@@ -96,7 +96,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
         })}
       </div>
 
-      <div className="flex items-center gap-1 border-b border-subtle pb-2">
+      <div className="flex flex-wrap items-center gap-x-1 gap-y-1.5 border-b border-subtle pb-2">
         {SORT_OPTIONS.map((s) => (
           <button
             key={s}
@@ -118,7 +118,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
           </button>
         ))}
         <span
-          className="tnum ml-auto text-[12px] text-content-secondary"
+          className="tnum ml-auto whitespace-nowrap pl-2 text-[12px] text-content-secondary"
           data-testid="shown-count"
         >
           {t("category", "shown", { count: filtered.length })}
