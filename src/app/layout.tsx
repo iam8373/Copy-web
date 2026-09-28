@@ -9,6 +9,7 @@ import { AuthModal } from "@/components/AuthModal";
 import { BottomNav } from "@/components/BottomNav";
 import { TradeModal } from "@/components/TradeModal";
 import { Toaster } from "@/components/Toaster";
+import { TradeSuccess } from "@/components/TradeSuccess";
 import { LiveTicker } from "@/components/LiveTicker";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SearchModal />
           <AuthModal />
           <TradeModal />
+          <TradeSuccess />
           <Toaster />
         </ThemeProvider>
       </body>

@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
-import { cn, formatPercent } from "@/lib/utils";
+import { cn, formatPercent, formatRupees } from "@/lib/utils";
 
-const PRESETS = [10, 50, 100];
+const PRESETS = [100, 500, 1000];
 
 export function TradeModal() {
   const trade = useMarketStore((s) => s.trade);
@@ -13,13 +13,13 @@ export function TradeModal() {
   const closeTrade = useMarketStore((s) => s.closeTrade);
   const placeOrder = useMarketStore((s) => s.placeOrder);
 
-  const [amount, setAmount] = useState(50);
+  const [amount, setAmount] = useState(500);
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
 
   useEffect(() => {
     if (trade) {
       setOutcomeId(trade.outcomeId);
-      setAmount(50);
+      setAmount(500);
     }
   }, [trade]);
 
@@ -92,7 +92,7 @@ export function TradeModal() {
 
         <div className="mt-4 flex flex-col gap-2">
           <label className="text-[12px] font-medium text-content-secondary" htmlFor="amount">
-            Amount (USDC)
+            Amount (₹)
           </label>
           <input
             id="amount"
@@ -104,9 +104,10 @@ export function TradeModal() {
           />
           <input
             type="range"
-            min={1}
-            max={500}
-            value={Math.min(amount, 500)}
+            min={100}
+            max={10000}
+            step={100}
+            value={Math.min(amount, 10000)}
             onChange={(e) => setAmount(Number(e.target.value))}
             className="h-1.5 w-full accent-[#7C5CFF]"
             aria-label="Amount slider"
@@ -119,12 +120,12 @@ export function TradeModal() {
                 onClick={() => setAmount(p)}
                 className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
               >
-                ${p}
+                ₹{p.toLocaleString("en-IN")}
               </button>
             ))}
             <button
               type="button"
-              onClick={() => setAmount(500)}
+              onClick={() => setAmount(10000)}
               className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
             >
               Max
@@ -139,7 +140,7 @@ export function TradeModal() {
           </div>
           <div className="flex justify-between">
             <dt className="text-content-secondary">If correct, you receive</dt>
-            <dd className="tnum font-semibold text-accent-green">${shares.toFixed(2)}</dd>
+            <dd className="tnum font-semibold text-accent-green">{formatRupees(shares)}</dd>
           </div>
         </dl>
 

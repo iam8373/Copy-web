@@ -34,6 +34,19 @@ function multi(entries: Array<[string, number, number]>, volume: number): Outcom
   }));
 }
 
+/**
+ * Live markets use offsets from module load instead of hardcoded dates, so
+ * their countdowns never read "Closed" as real time passes.
+ *
+ * The baseline is rounded to the top of the hour so the value the server
+ * renders and the value the client computes agree (live cards render the
+ * client-only <Countdown>, so no date text is server-rendered for them).
+ */
+const HOUR_MS = 3_600_000;
+const BASELINE = Math.floor(Date.now() / HOUR_MS) * HOUR_MS;
+const inHours = (h: number) => new Date(BASELINE + h * HOUR_MS).toISOString();
+const inDays = (d: number) => inHours(d * 24);
+
 type Seed = {
   title: string;
   category: Category;
@@ -96,7 +109,7 @@ const SEEDS: Seed[] = [
     subcategory: "IPL",
     description:
       "Resolves to the winner of the IPL 2026 league fixture at Wankhede Stadium. A no-result or abandoned match resolves 50/50.",
-    endDate: "2026-09-26T14:00:00.000Z",
+    endDate: inHours(6),
     isLive: true,
     totalVolume: 38470000,
     volumeChange24h: 6120000,
@@ -139,7 +152,7 @@ const SEEDS: Seed[] = [
     subcategory: "Test",
     description:
       "Resolves to the result of the third Test of the Border-Gavaskar Trophy. A draw resolves to the Draw outcome.",
-    endDate: "2026-09-27T11:00:00.000Z",
+    endDate: inHours(28),
     isLive: true,
     totalVolume: 74210000,
     volumeChange24h: 8940000,
@@ -318,7 +331,7 @@ const SEEDS: Seed[] = [
     subcategory: "Parliament",
     description:
       "Resolves Yes if both Houses pass more than 20 bills during the 2026 monsoon session of Parliament.",
-    endDate: "2026-10-02T18:30:00.000Z",
+    endDate: inDays(9),
     isLive: true,
     totalVolume: 18240000,
     volumeChange24h: 940000,
@@ -370,7 +383,7 @@ const SEEDS: Seed[] = [
     subcategory: "Bigg Boss",
     description:
       "Resolves to the contestant declared winner in the Bigg Boss 19 grand finale. Wildcard entrants are eligible.",
-    endDate: "2026-09-28T16:30:00.000Z",
+    endDate: inDays(4),
     isLive: true,
     totalVolume: 94820000,
     volumeChange24h: 12400000,
@@ -569,7 +582,7 @@ const SEEDS: Seed[] = [
     subcategory: "Budget",
     description:
       "Resolves Yes if the Union Budget 2026-27 announces any change to personal income tax slab rates or thresholds.",
-    endDate: "2026-10-05T12:00:00.000Z",
+    endDate: inDays(12),
     isLive: true,
     totalVolume: 248120000,
     volumeChange24h: 18400000,
@@ -670,7 +683,7 @@ const SEEDS: Seed[] = [
     subcategory: "Gold",
     description:
       "Resolves Yes if the MCX spot price for 24-carat gold exceeds ₹1,20,000 per 10 grams at any point in 2026.",
-    endDate: "2026-12-31T18:30:00.000Z",
+    endDate: inDays(94),
     isLive: true,
     totalVolume: 184920000,
     volumeChange24h: 14200000,
@@ -727,7 +740,7 @@ const SEEDS: Seed[] = [
     subcategory: "Stocks",
     description:
       "Resolves Up if HDFC Bank closes higher than the previous session close on the NSE, otherwise Down.",
-    endDate: "2026-09-25T10:00:00.000Z",
+    endDate: inHours(3),
     isLive: true,
     totalVolume: 42180000,
     volumeChange24h: 8420000,
@@ -813,7 +826,7 @@ const SEEDS: Seed[] = [
     category: "sports",
     subcategory: "Football",
     description: "Resolves to the club that wins the Indian Super League 2025-26 final.",
-    endDate: "2026-10-10T14:00:00.000Z",
+    endDate: inDays(17),
     isLive: true,
     totalVolume: 42180000,
     volumeChange24h: 4820000,
@@ -926,7 +939,7 @@ const SEEDS: Seed[] = [
     subcategory: "BGMI",
     description:
       "Resolves to the team that finishes first in the BGMI Masters Series 2026 grand finals.",
-    endDate: "2026-10-18T14:00:00.000Z",
+    endDate: inDays(25),
     isLive: true,
     totalVolume: 48210000,
     volumeChange24h: 6240000,
@@ -1216,7 +1229,7 @@ const SEEDS: Seed[] = [
     subcategory: "India Defense",
     description:
       "Resolves Yes if the Union Budget allocates more than ₹7,00,000 crore to the Ministry of Defence for FY2026-27.",
-    endDate: "2026-10-05T12:00:00.000Z",
+    endDate: inDays(12),
     isLive: true,
     totalVolume: 68420000,
     volumeChange24h: 8420000,
@@ -1331,7 +1344,7 @@ const SEEDS: Seed[] = [
     subcategory: "AI",
     description:
       "Resolves to the organisation holding the top position on the public text arena leaderboard on 31 December 2026.",
-    endDate: "2026-12-31T23:59:00.000Z",
+    endDate: inDays(94),
     isLive: true,
     totalVolume: 128420000,
     volumeChange24h: 9840000,

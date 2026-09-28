@@ -24,6 +24,16 @@ export interface Session {
   initial: string;
 }
 
+/** Emitted after a successful order so the success animation can outlive the modal. */
+export interface Fill {
+  marketId: string;
+  outcomeLabel: string;
+  shares: number;
+  price: number;
+  /** Timestamp, also used as the animation key so rapid fills restart cleanly. */
+  at: number;
+}
+
 export interface Position {
   marketId: string;
   outcomeId: string;
@@ -51,6 +61,7 @@ interface MarketState {
   searchOpen: boolean;
   trade: TradeIntent | null;
   positions: Position[];
+  lastFill: Fill | null;
   toasts: Toast[];
   tick: () => void;
   signIn: (session: Session) => void;
@@ -60,6 +71,7 @@ interface MarketState {
   openTrade: (market: Market, outcomeId: string) => void;
   closeTrade: () => void;
   placeOrder: (args: { market: Market; outcomeId: string; amount: number }) => void;
+  clearFill: () => void;
   pushToast: (t: Omit<Toast, "id">) => void;
   dismissToast: (id: string) => void;
 }
@@ -111,6 +123,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   searchOpen: false,
   trade: null,
   positions: SEED_POSITIONS,
+  lastFill: null,
   toasts: [],
 
   tick: () =>
@@ -199,6 +212,13 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       return {
         trade: null,
         positions,
+        lastFill: {
+          marketId: market.id,
+          outcomeLabel: outcome.label,
+          shares,
+          price: outcome.price,
+          at: Date.now(),
+        },
         markets: state.markets.map((m) =>
           m.id === market.id ? { ...m, totalVolume: m.totalVolume + amount } : m
         ),
@@ -210,6 +230,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       tone: "success",
     });
   },
+
+  clearFill: () => set({ lastFill: null }),
 
   pushToast: (t) => {
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;

@@ -24,6 +24,7 @@ import {
   formatChange,
   formatEndDate,
   formatPercent,
+  formatRupees,
   formatVolumeFull,
 } from "@/lib/utils";
 
@@ -39,7 +40,7 @@ type Activity = {
   minutesAgo: number;
 };
 
-const PRESETS = [10, 50, 100];
+const PRESETS = [100, 500, 1000];
 
 export function MarketDetail({
   market: initial,
@@ -57,7 +58,7 @@ export function MarketDetail({
   const market = markets.find((m) => m.id === initial.id) ?? initial;
 
   const [outcomeId, setOutcomeId] = useState(market.outcomes[0].id);
-  const [amount, setAmount] = useState(50);
+  const [amount, setAmount] = useState(500);
   const [rulesOpen, setRulesOpen] = useState(false);
 
   const selected = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
@@ -251,9 +252,9 @@ export function MarketDetail({
                   {market.resolutionSource}
                 </p>
                 <p>
-                  Outcome shares are minted as conditional tokens against USDC collateral. Idle
-                  collateral accrues yield via Venus Protocol on BNB Chain until the market is
-                  resolved by the Chainlink oracle.
+                  Outcome shares are backed one-for-one by rupee balances held against this
+                  market. Settlement pays ₹1 per share to the winning outcome once the named
+                  resolution source publishes a result.
                 </p>
               </div>
             )}
@@ -324,7 +325,7 @@ export function MarketDetail({
             className="mt-4 block text-[12px] font-medium text-content-secondary"
             htmlFor="detail-amount"
           >
-            Amount (USDC)
+            Amount (₹)
           </label>
           <input
             id="detail-amount"
@@ -336,9 +337,10 @@ export function MarketDetail({
           />
           <input
             type="range"
-            min={1}
-            max={500}
-            value={Math.min(amount, 500)}
+            min={100}
+            max={10000}
+            step={100}
+            value={Math.min(amount, 10000)}
             onChange={(e) => setAmount(Number(e.target.value))}
             className="mt-3 h-1.5 w-full accent-[#7C5CFF]"
             aria-label="Amount slider"
@@ -351,12 +353,12 @@ export function MarketDetail({
                 onClick={() => setAmount(p)}
                 className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
               >
-                ${p}
+                ₹{p.toLocaleString("en-IN")}
               </button>
             ))}
             <button
               type="button"
-              onClick={() => setAmount(500)}
+              onClick={() => setAmount(10000)}
               className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
             >
               Max
@@ -372,7 +374,7 @@ export function MarketDetail({
             </div>
             <div className="flex justify-between gap-2">
               <dt className="text-content-secondary">If correct, you receive</dt>
-              <dd className="tnum font-semibold text-accent-green">${shares.toFixed(2)}</dd>
+              <dd className="tnum font-semibold text-accent-green">{formatRupees(shares)}</dd>
             </div>
             <div className="flex justify-between gap-2">
               <dt className="text-content-secondary">Avg price</dt>

@@ -49,6 +49,20 @@ const config: Config = {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
+        // Phase A: order-confirmation success animation.
+        "check-draw": {
+          from: { strokeDashoffset: "1" },
+          to: { strokeDashoffset: "0" },
+        },
+        "fill-pop": {
+          "0%": { transform: "scale(0.82)", opacity: "0" },
+          "55%": { transform: "scale(1.03)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "fill-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
         "pulse-dot": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.25" },
@@ -60,6 +74,9 @@ const config: Config = {
         "slide-up": "slide-up 220ms ease-out",
         "fade-in": "fade-in 160ms ease-out",
         "pulse-dot": "pulse-dot 1.4s ease-in-out infinite",
+        "check-draw": "check-draw 420ms ease-out 120ms forwards",
+        "fill-pop": "fill-pop 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both",
+        "fill-out": "fill-out 220ms ease-in 940ms forwards",
       },
     },
   },
