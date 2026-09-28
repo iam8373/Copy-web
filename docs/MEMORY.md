@@ -64,3 +64,22 @@ src/store/          useMarketStore.ts — markets, session, positions, lastFill,
   module evaluation, so anything time-derived must be hydration-safe.
 - The Next.js client router cache can serve a stale RSC payload after a data edit —
   a hard reload is needed to confirm whether a data bug is real.
+
+## Running the e2e suite
+
+```bash
+npm run typecheck && npm run lint && npm run build   # or: npm run check
+npm run test:e2e                                     # both projects
+npx playwright test --project=chromium-desktop        # one project
+```
+
+**One-time per container:** Playwright needs its browser and system libraries.
+`PLAYWRIGHT_BROWSERS_PATH=/workspace/.playwright-browsers` is set in the compose file so
+the binaries survive container restarts, but the apt libraries do not:
+
+```bash
+npx playwright install chromium        # binaries (persisted on the bind mount)
+npx playwright install-deps chromium   # system libs (re-run after a container restart)
+```
+
+`.playwright-browsers/`, `playwright-report/` and `test-results/` are gitignored.

@@ -7,3 +7,8 @@ dist
 *.log
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Playwright browser binaries (large; installed locally)
+.playwright-browsers
+playwright-report
+test-results

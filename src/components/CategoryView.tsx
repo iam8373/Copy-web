@@ -64,6 +64,9 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
             <button
               key={f.label}
               type="button"
+              data-testid="subfilter-chip"
+              data-highlighted={f.isHighlighted ? "true" : "false"}
+              data-active={active ? "true" : "false"}
               onClick={() => setSubFilter(f.label)}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
@@ -99,15 +102,24 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
             {s}
           </button>
         ))}
-        <span className="tnum ml-auto text-[12px] text-content-secondary">
+        <span
+          className="tnum ml-auto text-[12px] text-content-secondary"
+          data-testid="shown-count"
+        >
           {filtered.length} shown
         </span>
       </div>
 
       {liveMarkets.length > 0 && (
-        <section className="rounded-xl border border-accent-red/25 bg-accent-red/[0.04] p-3 sm:p-4">
+        <section
+          className="rounded-xl border border-accent-red/25 bg-accent-red/[0.04] p-3 sm:p-4"
+          data-testid="live-section"
+        >
           <div className="mb-3 flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-accent-red animate-pulse-dot" />
+            <span
+              className="h-2 w-2 rounded-full bg-accent-red animate-pulse-dot"
+              data-testid="live-pulse"
+            />
             <h2 className="text-[15px] font-bold text-content-primary">Live</h2>
             <span className="tnum ml-auto text-[12px] text-content-secondary">
               {liveMarkets.length} markets

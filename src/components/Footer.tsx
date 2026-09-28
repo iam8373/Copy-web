@@ -16,7 +16,7 @@ export function Footer() {
             B
           </span>
           <span className="text-[13px] text-content-secondary">
-            India's prediction market — priced in ₹.
+            India&apos;s prediction market — priced in ₹.
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">

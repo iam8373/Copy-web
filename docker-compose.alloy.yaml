@@ -8,6 +8,8 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: "3000"
       NEXT_TELEMETRY_DISABLED: "1"
+      # Keep Playwright browsers on the bind mount so they survive container restarts.
+      PLAYWRIGHT_BROWSERS_PATH: /workspace/.playwright-browsers
     volumes:
       - .:/workspace
     command: bash -lc "npm install --no-audit --no-fund && npm run dev"

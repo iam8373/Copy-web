@@ -202,6 +202,7 @@ export function AuthModal() {
               <button
                 key={a.email}
                 type="button"
+                data-testid="google-account"
                 onClick={() =>
                   signIn({ method: "google", handle: a.email, initial: a.initial })
                 }
