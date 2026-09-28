@@ -3,6 +3,7 @@ import hi from "./hi";
 import mr from "./mr";
 import bn from "./bn";
 import ta from "./ta";
+import te from "./te";
 
 export const LOCALES = ["en", "hi", "mr", "bn", "ta", "te"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -19,17 +20,14 @@ export const LOCALE_META: Record<Locale, { label: string; script: Script }> = {
 
 export type Script = "latin" | "devanagari" | "bengali" | "tamil" | "telugu";
 
-/**
- * Locales added in E2 fall back to English until their dictionary lands, which
- * is exactly the documented fallback behaviour rather than a missing-key crash.
- */
+/** One dictionary per supported locale. Missing keys fall back to English at runtime. */
 export const DICTIONARIES: Record<Locale, Dictionary> = {
   en,
   hi,
   mr,
   bn,
   ta,
-  te: en,
+  te,
 };
 
 export const STORAGE_KEY = "bp-lang";

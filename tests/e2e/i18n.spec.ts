@@ -4,7 +4,8 @@ import hi from "../../src/i18n/hi";
 import mr from "../../src/i18n/mr";
 import bn from "../../src/i18n/bn";
 import ta from "../../src/i18n/ta";
-import { LOCALES, LOCALE_META, STORAGE_KEY } from "../../src/i18n";
+import te from "../../src/i18n/te";
+import { DICTIONARIES, LOCALES, LOCALE_META, STORAGE_KEY } from "../../src/i18n";
 import { resetState } from "./helpers";
 
 /** Flattens a dictionary to "section.key" strings for exact comparison. */
@@ -15,7 +16,7 @@ function flatten(dict: Record<string, Record<string, string>>) {
 }
 
 /** Every translated locale. English is the reference, so it is excluded. */
-const TRANSLATED = { hi, mr, bn, ta } as const;
+const TRANSLATED = { hi, mr, bn, ta, te } as const;
 
 test.describe("dictionary parity", () => {
   for (const [code, dict] of Object.entries(TRANSLATED)) {
@@ -37,6 +38,14 @@ test.describe("dictionary parity", () => {
       }
     });
   }
+
+  test("every advertised locale ships its own dictionary", () => {
+    const shipped = Object.keys(TRANSLATED).sort();
+    expect(shipped).toEqual(LOCALES.filter((l) => l !== "en").sort());
+    for (const code of shipped) {
+      expect(DICTIONARIES[code as keyof typeof DICTIONARIES]).not.toBe(en);
+    }
+  });
 
   test("every advertised locale has metadata", () => {
     for (const l of LOCALES) {
