@@ -97,3 +97,22 @@ test("legal pages render and old anchors still resolve", async ({ page }) => {
     "/privacy"
   );
 });
+
+test("reopening the modal starts unticked, and an immediate tick sticks", async ({
+  page,
+}) => {
+  // Regression: the form used to reset in an effect after opening, which could
+  // untick a box the user had already ticked.
+  await openAuthModal(page);
+  const box = page.locator('[data-testid="age-confirm"]');
+  await box.check();
+  await page.keyboard.press("Escape");
+
+  await openAuthModal(page);
+  await expect(box).not.toBeChecked();
+  await box.check();
+  await page.waitForTimeout(300);
+  await expect(box).toBeChecked();
+  await page.getByRole("button", { name: /^Google$/ }).click();
+  await expect(page.locator('[data-testid="google-account"]').first()).toBeEnabled();
+});

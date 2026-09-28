@@ -50,6 +50,7 @@ export async function acceptAgeIfPresent(page: Page) {
   const box = page.locator('[data-testid="age-confirm"]');
   if ((await box.count()) > 0) {
     await box.check();
+    await expect(box).toBeChecked();
   }
 }
 

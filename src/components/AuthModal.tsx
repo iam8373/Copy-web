@@ -27,8 +27,11 @@ export function AuthModal() {
   const [error, setError] = useState<string | null>(null);
   const { t } = useT();
 
+  // Reset on CLOSE, not on open. Resetting in an effect after opening raced
+  // with fast input: ticking the 18+ box before the effect ran got undone,
+  // leaving the sign-in buttons disabled. Initial state is already clean.
   useEffect(() => {
-    if (open) {
+    if (!open) {
       setTab("phone");
       setPhone("");
       setOtp("");
