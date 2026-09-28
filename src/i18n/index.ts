@@ -1,5 +1,6 @@
 import en, { type Dictionary } from "./en";
 import hi from "./hi";
+import mr from "./mr";
 
 export const LOCALES = ["en", "hi", "mr", "bn", "ta", "te"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -23,7 +24,7 @@ export type Script = "latin" | "devanagari" | "bengali" | "tamil" | "telugu";
 export const DICTIONARIES: Record<Locale, Dictionary> = {
   en,
   hi,
-  mr: en,
+  mr,
   bn: en,
   ta: en,
   te: en,

@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import en from "../../src/i18n/en";
 import hi from "../../src/i18n/hi";
+import mr from "../../src/i18n/mr";
 import { LOCALES, LOCALE_META, STORAGE_KEY } from "../../src/i18n";
 import { resetState } from "./helpers";
 
@@ -11,21 +12,29 @@ function flatten(dict: Record<string, Record<string, string>>) {
     .sort();
 }
 
-test.describe("dictionary parity", () => {
-  test("hindi has exactly the same keys as english", () => {
-    expect(flatten(hi as never)).toEqual(flatten(en as never));
-  });
+/** Every translated locale. English is the reference, so it is excluded. */
+const TRANSLATED = { hi, mr } as const;
 
-  test("no locale has an empty string", () => {
-    for (const [section, entries] of Object.entries(hi as never) as [
-      string,
-      Record<string, string>,
-    ][]) {
-      for (const [key, value] of Object.entries(entries)) {
-        expect(value.trim(), `hi.${section}.${key} is empty`).not.toBe("");
+test.describe("dictionary parity", () => {
+  for (const [code, dict] of Object.entries(TRANSLATED)) {
+    test(`${code} has exactly the same keys as english`, () => {
+      expect(flatten(dict as never)).toEqual(flatten(en as never));
+    });
+
+    test(`${code} has no empty strings and keeps every placeholder`, () => {
+      for (const [section, entries] of Object.entries(dict as never) as [
+        string,
+        Record<string, string>,
+      ][]) {
+        for (const [key, value] of Object.entries(entries)) {
+          expect(value.trim(), `${code}.${section}.${key} is empty`).not.toBe("");
+          const want = ((en as never)[section][key] as string).match(/\{\w+\}/g) ?? [];
+          const got = value.match(/\{\w+\}/g) ?? [];
+          expect(got.sort(), `${code}.${section}.${key} placeholders`).toEqual(want.sort());
+        }
       }
-    }
-  });
+    });
+  }
 
   test("every advertised locale has metadata", () => {
     for (const l of LOCALES) {
@@ -99,37 +108,70 @@ test.describe("language switching", () => {
   });
 });
 
+test.describe("each translated locale renders", () => {
+  for (const [code, dict] of Object.entries(TRANSLATED)) {
+    test(`${code}: html lang, script and nav chrome switch over`, async ({ page }) => {
+      await resetState(page);
+      await page.evaluate(([k, v]) => window.localStorage.setItem(k, v), [STORAGE_KEY, code]);
+      await page.goto("/markets/cricket");
+
+      await expect(page.locator("html")).toHaveAttribute("lang", code);
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-script",
+        LOCALE_META[code as keyof typeof LOCALE_META].script
+      );
+      await expect(
+        page.getByRole("link", { name: dict.nav.cricket, exact: true })
+      ).toBeVisible();
+      await expect(page.getByRole("button", { name: dict.sort.popular })).toBeVisible();
+      // Digits and currency stay Latin / rupee regardless of locale.
+      await expect(page.locator("body")).toContainText("₹");
+      expect(await page.locator('[data-testid="shown-count"]').innerText()).toMatch(/[0-9]/);
+    });
+  }
+});
+
 test.describe("layout at 375px with the longest translations", () => {
   test.use({ viewport: { width: 375, height: 800 } });
 
-  test("category nav, chips, bottom nav and trade modal do not overflow", async ({
-    page,
-  }) => {
-    await resetState(page);
-    await page.evaluate((k) => window.localStorage.setItem(k, "hi"), STORAGE_KEY);
-    await page.goto("/markets/entertainment");
+  for (const [code, dict] of Object.entries(TRANSLATED)) {
+    test(`${code}: category nav, chips, bottom nav and trade modal do not overflow`, async ({
+      page,
+    }) => {
+      await resetState(page);
+      await page.evaluate(([k, v]) => window.localStorage.setItem(k, v), [STORAGE_KEY, code]);
+      await page.goto("/markets/entertainment");
+      await expect(page.locator("html")).toHaveAttribute("lang", code);
 
-    const docWidth = await page.evaluate(() => document.documentElement.clientWidth);
+      const docWidth = await page.evaluate(() => document.documentElement.clientWidth);
+      const noOverflow = async () =>
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth)
+        ).toBeLessThanOrEqual(docWidth + 1);
 
-    // Nothing may push the document into horizontal scroll.
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(scrollWidth).toBeLessThanOrEqual(docWidth + 1);
+      // Nav and chips scroll horizontally inside their own rows, never the page.
+      await noOverflow();
 
-    // The bottom nav must fit its four items on one row.
-    const nav = page.locator("nav").last();
-    const navBox = await nav.boundingBox();
-    expect(navBox!.width).toBeLessThanOrEqual(docWidth + 1);
+      // Bottom nav: all four labels on one row, each within its column.
+      const bottom = page.locator("nav").last();
+      const navBox = await bottom.boundingBox();
+      expect(navBox!.width).toBeLessThanOrEqual(docWidth + 1);
+      const items = bottom.locator("a, button");
+      await expect(items).toHaveCount(4);
+      for (let i = 0; i < 4; i++) {
+        const b = await items.nth(i).boundingBox();
+        expect(b!.x + b!.width).toBeLessThanOrEqual(docWidth + 1);
+        expect(b!.height).toBeLessThan(80);
+      }
 
-    // The trade modal must stay inside the viewport too.
-    await page.getByRole("button", { name: new RegExp(hi.card.trade) }).first().click();
-    await expect(page.getByRole("button", { name: hi.trade.placeOrder })).toBeVisible();
-    const modalBox = await page
-      .getByRole("button", { name: hi.trade.placeOrder })
-      .boundingBox();
-    expect(modalBox!.x).toBeGreaterThanOrEqual(0);
-    expect(modalBox!.x + modalBox!.width).toBeLessThanOrEqual(docWidth + 1);
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth)
-    ).toBeLessThanOrEqual(docWidth + 1);
-  });
+      // Trade modal stays inside the viewport with the longest labels.
+      await page.getByRole("button", { name: new RegExp(dict.card.trade) }).first().click();
+      const place = page.getByRole("button", { name: dict.trade.placeOrder });
+      await expect(place).toBeVisible();
+      const box = await place.boundingBox();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(docWidth + 1);
+      await noOverflow();
+    });
+  }
 });
