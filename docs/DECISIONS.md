@@ -2,6 +2,18 @@
 
 Architecture and product decisions, newest first.
 
+## D-015 — CI is secret-free, least-privilege and SHA-pinned
+
+**Date:** Phase 7
+**Status:** Accepted
+
+The workflow reads the repo and nothing else: `contents: read`, no secrets, checkout
+without persisted credentials. Third-party actions are pinned to commit SHAs so a moved tag
+cannot change what runs. The translation script is never run in CI; CI only validates the
+committed translations offline. Build-output guarantees from earlier phases (no test
+trigger, no OpenAI, no Google Fonts) are enforced by `scripts/verify-build.sh` rather than
+trusted.
+
 ## D-014 — Market content: translate once offline, read at runtime
 
 **Date:** Phase 6

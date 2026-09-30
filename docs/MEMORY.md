@@ -112,7 +112,8 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 
 ## Status snapshot (end of work order)
 
-- Phases A–E complete. 12 commits. 174 e2e tests pass on desktop + mobile.
+- Work order 1 (A–E) and work order 2 (phases 1–7) complete. 306 e2e tests pass on
+  desktop + mobile.
 - All six locales ship real dictionaries; all non-English ones are machine-drafted.
 - Legal review was skipped at the owner's instruction; copy is still flagged draft.
 - `git push` has never worked in this sandbox (no GitHub credentials) — commits are local.
@@ -139,3 +140,6 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   App code must not import `services/translation/{translate,run,store}` (ESLint enforces).
 - **Secret scan:** `npm run check:secrets`. Inside the Alloy container, git reports
   "dubious ownership", so the scan fails closed there; run it on the host or in CI.
+- **CI** (Phase 7, D-015): `.github/workflows/ci.yml`. To bump an action, resolve the new
+  tag to its commit SHA and keep the `# vX.Y.Z` comment. Lint the workflow with
+  `actionlint`. `scripts/verify-build.sh <distDir>` checks a normal build's output.

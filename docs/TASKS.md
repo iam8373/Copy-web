@@ -90,7 +90,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | 4 | Error boundaries and loading states | **Done** |
 | 5 | Trade amount validation | **Done** |
 | 6 | Stored AI translations for market content | **Done** |
-| 7 | CI workflow | Not started |
+| 7 | CI workflow | **Done** |
 
 ## Phase 1 — detail
 
@@ -216,3 +216,25 @@ activity feed) is still English-only; it predates i18n and was out of scope here
   openai.com).
 - **Bug found and fixed:** the runtime hash cache was keyed by market id, so an edited
   market would keep showing its old translation. Now keyed by the source text.
+
+## Phase 7 — detail
+
+- `.github/workflows/ci.yml`: on `pull_request` and `push` to `main`. `permissions:
+  contents: read`, no secrets, `persist-credentials: false`, concurrency cancels stale
+  runs, 30-minute timeout.
+- Steps: checkout → Node `lts/*` with npm cache → `npm ci` → `check:secrets` → typecheck →
+  lint → `validate:translations` → `build` → `scripts/verify-build.sh` → install Playwright
+  chromium (`--with-deps`) → `test:e2e` → upload `playwright-report/` + `test-results/`
+  on failure (7-day retention).
+- Actions pinned to full commit SHAs, resolved from the GitHub API:
+  checkout v4.2.2 `11bd719…`, setup-node v4.4.0 `49933ea…`, upload-artifact v4.6.2
+  `ea165f8…`.
+- `scripts/verify-build.sh` asserts on a normal build: the test-only error trigger is
+  compiled out, no OpenAI references, no Google Fonts URLs in pages/CSS. Proven both ways:
+  passes on a normal build, fails on a build made with the e2e flag.
+- `playwright.config.ts` also writes the HTML report when `CI` is set.
+- Verified locally: `actionlint` 1.7.12 reports no problems; `npm ci` lockfile in sync;
+  every CI step replayed in order in the container; e2e with `CI=true` → 306 passed.
+
+**Not verified:** the workflow has never run on GitHub itself — `git push` has no
+credentials in this sandbox.

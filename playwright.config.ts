@@ -19,7 +19,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: [["list"]],
+  // CI also writes the HTML report, uploaded as an artifact when a run fails.
+  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   timeout: 60_000,
   expect: { timeout: 10_000 },
 

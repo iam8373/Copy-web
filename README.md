@@ -51,6 +51,12 @@ npm run check:secrets          # fail if an API-key-like string is in a tracked 
 npm run translate:markets -- --dry-run   # list markets needing translation (0 API calls)
 ```
 
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`: secret scan,
+typecheck, lint, translation validation, build, build-output checks, and the Playwright
+suite. It uses no secrets and read-only permissions.
+
 ### Market content translations
 
 Market titles and descriptions are translated **once**, offline, and committed to
