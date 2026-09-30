@@ -82,7 +82,6 @@ src/
 │  ├─ profit/                   # realised/unrealised P&L breakdown + chart
 │  ├─ learn/                    # Predictions 101 / help
 │  ├─ terms/ privacy/ responsible-play/ grievance/   # draft legal pages
-│  └─ api/                      # mock REST: markets, markets/[slug], trade
 ├─ components/                  # Header, CategoryNav, BottomNav, MarketCard, modals, views
 ├─ data/markets.ts              # 91 mock markets, all India-tagged
 ├─ i18n/                        # en (shape) + hi, mr, bn, ta, te; LanguageProvider, useT()
@@ -123,13 +122,12 @@ under Entertainment, RBI and Budget under Economy, Football and Hockey under Spo
 - **Dark and light themes** persisted to `localStorage`
 - **Command palette** search on `Cmd/Ctrl + K` or `Shift + /`
 
-## Mock API
+## API
 
-| Method | Route | Notes |
-| --- | --- | --- |
-| `GET` | `/api/markets` | Supports `?category=`, `?sort=`, `?search=` |
-| `GET` | `/api/markets/[slug]` | Market plus price history, order book and activity |
-| `POST` | `/api/trade` | Body: `{ slug, outcomeId, amount }`; returns a simulated fill |
+There is no API. The earlier mock routes (`/api/markets`, `/api/markets/[slug]`,
+`/api/trade`) were unauthenticated and unused, so they were removed; all data is read
+from `src/data/` at build time. See `docs/DECISIONS.md` (D-009) for the rules any future
+server-side trading route must follow.
 
 ## Roadmap
 

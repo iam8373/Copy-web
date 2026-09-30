@@ -77,3 +77,25 @@ Tracking for the BharatPredict work order (Phases A–E).
 3. Non-live markets with 2026 titles still carry past end dates (see D-004).
 4. First paint is English for non-English users (client-side i18n, D-006).
 5. Helpline numbers and the Grievance Officer are placeholders.
+
+---
+
+# Work order 2 — hardening
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1 | Remove unauthenticated API surface | **Done** |
+| 2 | Self-host Noto Sans fonts | Not started |
+| 3 | robots + sitemap + noindex | Not started |
+| 4 | Error boundaries and loading states | Not started |
+| 5 | Trade amount validation | Not started |
+| 6 | Stored AI translations for market content | Not started |
+| 7 | CI workflow | Not started |
+
+## Phase 1 — detail
+
+- Deleted `src/app/api/{markets,markets/[slug],trade}`.
+- No helpers became unused: `getMarketBySlug`, `buildHistory`, `buildOrderBook` and
+  `buildActivity` are all still used by `/market/[slug]`. (`getMarketsByCategory` was
+  already unused before this phase and is left as-is, since it did not *become* unused.)
+- `api-removed.spec.ts` asserts 404 for all three paths.

@@ -48,7 +48,7 @@ seeds each. `categories.spec.ts` fails if any chip ever renders empty again.
 ## Layout map
 
 ```
-src/app/            routes: /, markets/[category], market/[slug], dashboard, profit, learn, api/*
+src/app/            routes: /, markets/[category], market/[slug], dashboard, profit, learn, legal pages (no API — D-009)
 src/components/     Header, CategoryNav, BottomNav, MarketCard/Grid, Auth/Trade/Search modals,
                     TradeSuccess, Dashboard/Profit views, Toaster, LiveTicker
 src/data/markets.ts 80 seeds → MARKETS, plus buildHistory/buildOrderBook/buildActivity
@@ -116,3 +116,8 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - All six locales ship real dictionaries; all non-English ones are machine-drafted.
 - Legal review was skipped at the owner's instruction; copy is still flagged draft.
 - `git push` has never worked in this sandbox (no GitHub credentials) — commits are local.
+
+## Work order 2
+
+- **No API routes exist** (Phase 1, D-009). Do not add one without server-side session
+  verification, the 18+ check, `trade-limits.ts` validation and rate limiting.

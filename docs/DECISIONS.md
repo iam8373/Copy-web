@@ -2,6 +2,25 @@
 
 Architecture and product decisions, newest first.
 
+## D-009 — No API surface; rules for any future trading route
+
+**Date:** Phase 1 (second work order)
+**Status:** Accepted
+
+`/api/markets`, `/api/markets/[slug]` and `/api/trade` were deleted. Nothing in the app
+called them, and `/api/trade` accepted orders with no session, no 18+ check and no
+positive-amount check. Market pages read `src/data/` directly at build time, and stored
+market translations (Phase 6) are read from committed JSON, so no API is needed.
+
+**Any future server-side trading route must verify the session server-side, enforce the
+18+ confirmation, validate the amount, and be rate limited.** A client-supplied session
+object or `ageConfirmedAt` is not proof of either; both must come from a server-verified
+session. Amount validation must reuse `src/lib/trade-limits.ts` (Phase 5) so client and
+server agree.
+
+`api-removed.spec.ts` asserts all three paths return 404, so a route cannot quietly
+reappear without failing CI.
+
 ## D-007 — E2E runs against a production build in its own distDir
 
 **Date:** Phase E1
