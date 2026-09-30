@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { fontVariables } from "@/fonts/fonts";
+import { indexingAllowed } from "@/lib/indexing";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { Header } from "@/components/Header";
@@ -15,6 +16,9 @@ import { TradeSuccess } from "@/components/TradeSuccess";
 import { LiveTicker } from "@/components/LiveTicker";
 
 export const metadata: Metadata = {
+  // noindex/nofollow on every page unless ALLOW_INDEXING === "true". Covers
+  // crawlers that ignore robots.txt. Pages inherit this from the root layout.
+  robots: indexingAllowed() ? { index: true, follow: true } : { index: false, follow: false },
   title: "BharatPredict — India's Prediction Market",
   description:
     "Trade the outcome of Indian and global events — cricket, elections, Bollywood, the economy and markets, priced in ₹.",

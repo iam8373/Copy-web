@@ -123,3 +123,5 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   verification, the 18+ check, `trade-limits.ts` validation and rate limiting.
 - **Fonts are local** (Phase 2, D-010): `src/fonts/fonts.ts` via `next/font/local`. Never
   reintroduce `next/font/google` or a Google Fonts `@import`; `fonts.spec.ts` will fail.
+- **Crawling is off by default** (Phase 3, D-011). `ALLOW_INDEXING=true` + rebuild to
+  enable; only after legal review.

@@ -86,7 +86,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | --- | --- | --- |
 | 1 | Remove unauthenticated API surface | **Done** |
 | 2 | Self-host Noto Sans fonts | **Done** |
-| 3 | robots + sitemap + noindex | Not started |
+| 3 | robots + sitemap + noindex | **Done** |
 | 4 | Error boundaries and loading states | Not started |
 | 5 | Trade amount validation | Not started |
 | 6 | Stored AI translations for market content | Not started |
@@ -122,3 +122,16 @@ Tracking for the BharatPredict work order (Phases A–E).
 `next/dist/shared/lib/constants.js`, bundled into the Pages-Router runtime (`main-*.js`,
 loaded by 0 of 112 app pages) and one server chunk. It is a constant, never a request, and
 cannot be removed without patching Next. See D-010.
+
+## Phase 3 — detail
+
+- `src/lib/indexing.ts`: `indexingAllowed()` is true only for `ALLOW_INDEXING === "true"`;
+  `siteUrl()` normalises `NEXT_PUBLIC_SITE_URL`.
+- `src/app/robots.ts`: default `Disallow: /` with no sitemap; when allowed, `Allow: /`,
+  `Disallow: /dashboard, /profit`, sitemap URL.
+- `src/app/sitemap.ts`: home, 12 category pages, 91 market pages, 5 info/legal pages;
+  returns `[]` when indexing is off, so the catalogue is not advertised.
+- Root layout `metadata.robots` = noindex/nofollow unless allowed; every page inherits it.
+- `crawling.spec.ts`: HTTP checks on the default build, plus direct calls to the route
+  handlers with the env flipped (covers the allowed branch without a second build, and
+  proves `"TRUE"`, `"1"`, `" true"` etc. stay blocked).

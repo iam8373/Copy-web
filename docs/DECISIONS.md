@@ -2,6 +2,17 @@
 
 Architecture and product decisions, newest first.
 
+## D-011 — Crawling is opt-in and tied to legal review
+
+**Date:** Phase 3
+**Status:** Accepted
+
+Indexing is off unless `ALLOW_INDEXING` is exactly `"true"`, which should only be set
+after legal review of the compliance pages (still pending — D-008). Off means
+`Disallow: /`, an empty sitemap, and `noindex, nofollow` meta on every page; the meta tag
+covers crawlers that ignore robots.txt. `/dashboard` and `/profit` are excluded even when
+on. The flag is read at build time, so flipping it needs a rebuild.
+
 ## D-010 — All fonts are self-hosted
 
 **Date:** Phase 2
