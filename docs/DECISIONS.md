@@ -2,6 +2,23 @@
 
 Architecture and product decisions, newest first.
 
+## D-010 — All fonts are self-hosted
+
+**Date:** Phase 2
+**Status:** Accepted
+
+Builds and page views never contact Google Fonts. Fonts are committed under `src/fonts/`
+and loaded with `next/font/local`; see `src/fonts/README.md` for sources, versions and
+the OFL license.
+
+- Inter was also self-hosted (the work order named only Noto), because it was loaded via a
+  CSS `@import` from `fonts.googleapis.com`, which contradicted the phase's acceptance.
+- Noto is limited to 400 and 600 as specified; 700 text in Indic locales renders at 600 or
+  is synthesised.
+- **Accepted residue:** Next.js bundles its internal `GOOGLE_FONT_PROVIDER` string constant
+  into framework chunks that App-Router pages do not load. It is inert. Removing it would
+  mean patching `node_modules/next`, which is not worth the maintenance cost.
+
 ## D-009 — No API surface; rules for any future trading route
 
 **Date:** Phase 1 (second work order)

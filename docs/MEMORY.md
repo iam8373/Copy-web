@@ -121,3 +121,5 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 
 - **No API routes exist** (Phase 1, D-009). Do not add one without server-side session
   verification, the 18+ check, `trade-limits.ts` validation and rate limiting.
+- **Fonts are local** (Phase 2, D-010): `src/fonts/fonts.ts` via `next/font/local`. Never
+  reintroduce `next/font/google` or a Google Fonts `@import`; `fonts.spec.ts` will fail.

@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
-import {
-  Noto_Sans_Bengali,
-  Noto_Sans_Devanagari,
-  Noto_Sans_Tamil,
-  Noto_Sans_Telugu,
-} from "next/font/google";
 import "./globals.css";
+import { fontVariables } from "@/fonts/fonts";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { Header } from "@/components/Header";
@@ -19,42 +14,6 @@ import { Toaster } from "@/components/Toaster";
 import { TradeSuccess } from "@/components/TradeSuccess";
 import { LiveTicker } from "@/components/LiveTicker";
 
-/**
- * Indic webfonts. Each exposes a CSS variable; globals.css applies the right
- * one via [data-script], so a font is only used when its locale is active.
- */
-const notoDevanagari = Noto_Sans_Devanagari({
-  subsets: ["devanagari"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-devanagari",
-  display: "swap",
-});
-const notoBengali = Noto_Sans_Bengali({
-  subsets: ["bengali"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-bengali",
-  display: "swap",
-});
-const notoTamil = Noto_Sans_Tamil({
-  subsets: ["tamil"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-tamil",
-  display: "swap",
-});
-const notoTelugu = Noto_Sans_Telugu({
-  subsets: ["telugu"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-telugu",
-  display: "swap",
-});
-
-const fontVars = [
-  notoDevanagari.variable,
-  notoBengali.variable,
-  notoTamil.variable,
-  notoTelugu.variable,
-].join(" ");
-
 export const metadata: Metadata = {
   title: "BharatPredict — India's Prediction Market",
   description:
@@ -63,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={fontVars}>
+    <html lang="en" className={fontVariables}>
       <body className="min-h-screen bg-bg-primary font-sans text-content-primary antialiased">
         <LanguageProvider>
         <ThemeProvider>

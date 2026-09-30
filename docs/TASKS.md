@@ -85,7 +85,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Remove unauthenticated API surface | **Done** |
-| 2 | Self-host Noto Sans fonts | Not started |
+| 2 | Self-host Noto Sans fonts | **Done** |
 | 3 | robots + sitemap + noindex | Not started |
 | 4 | Error boundaries and loading states | Not started |
 | 5 | Trade amount validation | Not started |
@@ -99,3 +99,26 @@ Tracking for the BharatPredict work order (Phases A–E).
   `buildActivity` are all still used by `/market/[slug]`. (`getMarketsByCategory` was
   already unused before this phase and is left as-is, since it did not *become* unused.)
 - `api-removed.spec.ts` asserts 404 for all three paths.
+
+## Phase 2 — detail
+
+- Removed every `next/font/google` import **and** the Inter `@import` from
+  `fonts.googleapis.com` in `globals.css` (not in the known-facts list, but it also broke
+  the "no Google Fonts URLs" acceptance).
+- `src/fonts/`: Noto Sans Devanagari/Bengali/Tamil/Telugu at 400 + 600, Inter latin at
+  400/500/600/700, all from `@fontsource/*` 5.3.0, OFL-1.1, license texts included. The
+  `@fontsource` packages were installed into a scratch directory only; they are not in
+  `package.json`.
+- Loaded with `next/font/local`, `display: "swap"`. Inter `preload: true`; Noto
+  `preload: false`, referenced only under `html[data-script=...]`.
+- `optimizeFonts: false` in `next.config.js`.
+- Verified: build succeeds with both Google hosts blackholed in `/etc/hosts` (IPv4 + IPv6);
+  0 Google references in rendered HTML, RSC payloads and CSS.
+- `fonts.spec.ts`: no page requests Google; English loads Inter only; Hindi loads
+  Devanagari and none of the other scripts.
+
+**Known residue:** two Next.js framework chunks still contain the literal string
+`https://fonts.googleapis.com/` — Next's own `GOOGLE_FONT_PROVIDER` constant from
+`next/dist/shared/lib/constants.js`, bundled into the Pages-Router runtime (`main-*.js`,
+loaded by 0 of 112 app pages) and one server chunk. It is a constant, never a request, and
+cannot be removed without patching Next. See D-010.
