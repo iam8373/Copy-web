@@ -87,7 +87,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | 1 | Remove unauthenticated API surface | **Done** |
 | 2 | Self-host Noto Sans fonts | **Done** |
 | 3 | robots + sitemap + noindex | **Done** |
-| 4 | Error boundaries and loading states | Not started |
+| 4 | Error boundaries and loading states | **Done** |
 | 5 | Trade amount validation | Not started |
 | 6 | Stored AI translations for market content | Not started |
 | 7 | CI workflow | Not started |
@@ -135,3 +135,23 @@ cannot be removed without patching Next. See D-010.
 - `crawling.spec.ts`: HTTP checks on the default build, plus direct calls to the route
   handlers with the env flipped (covers the allowed branch without a second build, and
   proves `"TRUE"`, `"1"`, `" true"` etc. stay blocked).
+
+## Phase 4 — detail
+
+- `src/app/error.tsx` (client, inside the root layout, "Try again" calls `reset`, link
+  home), `src/app/global-error.tsx` (own `<html>/<body>`, imports `globals.css`, reads
+  `bp-lang` directly because `LanguageProvider` is unavailable there).
+- Loading skeletons: root, `/markets/[category]`, `/market/[slug]`, `/dashboard`,
+  `/profit` — each matches its page's shape. Shared `Skeleton.tsx`; pulses use
+  `motion-safe:animate-pulse`. Regions use `aria-busy` + a translated sr-only label, not
+  `role="status"` (reserved for the trade confirmation overlay).
+- New i18n sections `errors` (5 keys) and `loading` (1 key) in all six locales; parity
+  tests cover them automatically.
+- No `error.message` or stack is ever rendered or logged; only Next's opaque `digest`.
+- Test-only trigger: `/e2e-error` + `E2EThrower`. `next.config.js` inlines
+  `NEXT_PUBLIC_E2E_ERROR_TRIGGER` as `"1"`/`"0"`; with `"0"` the `require` is folded away.
+  Verified: a normal build contains 0 references to the thrower; the Playwright build
+  (which sets the flag) contains it. In a normal build the route renders 404.
+- `errors.spec.ts`: error UI + working Try again, persistent failure, Hindi, no leaked
+  message/stack, skeleton pulse on/off under reduced motion.
+- Locale files are now the source of truth; `.scratch/` generators are not committed.

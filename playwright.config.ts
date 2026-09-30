@@ -42,7 +42,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: `NEXT_DIST_DIR=${DIST} npx next build && NEXT_DIST_DIR=${DIST} npx next start -p ${PORT}`,
+    // NEXT_PUBLIC_E2E_ERROR_TRIGGER=1 bundles the test-only /e2e-error route;
+    // a normal `npm run build` compiles it out (see src/app/e2e-error).
+    command: `NEXT_PUBLIC_E2E_ERROR_TRIGGER=1 NEXT_DIST_DIR=${DIST} npx next build && NEXT_DIST_DIR=${DIST} npx next start -p ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

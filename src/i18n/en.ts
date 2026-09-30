@@ -276,6 +276,18 @@ export const en = {
     "eSports": "eSports",
   },
 
+  errors: {
+    title: "Something went wrong",
+    body: "This page hit an unexpected problem. Your positions and settings are safe.",
+    retry: "Try again",
+    home: "Go to home",
+    reference: "Reference: {digest}",
+  },
+
+  loading: {
+    label: "Loading…",
+  },
+
   legal: {
     englishPrevails:
       "Legal pages are published in English. The English version prevails in case of any difference.",

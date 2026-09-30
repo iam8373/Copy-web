@@ -125,3 +125,8 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   reintroduce `next/font/google` or a Google Fonts `@import`; `fonts.spec.ts` will fail.
 - **Crawling is off by default** (Phase 3, D-011). `ALLOW_INDEXING=true` + rebuild to
   enable; only after legal review.
+- **Error UI** (Phase 4, D-012): `app/error.tsx`, `app/global-error.tsx`, per-route
+  `loading.tsx`. Test the boundary via `/e2e-error` + `localStorage["bp-e2e-throw"]="1"`;
+  only works in builds with `NEXT_PUBLIC_E2E_ERROR_TRIGGER=1` (Playwright sets it).
+- **Adding i18n keys:** add the section/keys to `en.ts` and all five other locale files
+  (typecheck enforces it). The old `.scratch` generators are gitignored scratch tools.

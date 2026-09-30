@@ -2,6 +2,20 @@
 
 Architecture and product decisions, newest first.
 
+## D-012 — Error boundaries never expose internals; test trigger is compiled out
+
+**Date:** Phase 4
+**Status:** Accepted
+
+Error UIs show translated copy, a retry and a home link, plus the opaque `digest` when
+present. `error.message` and stacks are never rendered or logged by app code.
+
+The only way to exercise the boundary in e2e is `/e2e-error`, gated by a build-time
+constant (`NEXT_PUBLIC_E2E_ERROR_TRIGGER`, inlined via `next.config.js` `env`). Normal
+builds fold the condition and drop the throwing module entirely. CI checks this by
+grepping a normal build for the component (Phase 7). The e2e suite therefore runs against
+a production build that differs from the shipped one only by that flag.
+
 ## D-011 — Crawling is opt-in and tied to legal review
 
 **Date:** Phase 3
