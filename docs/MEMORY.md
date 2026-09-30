@@ -130,3 +130,5 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   only works in builds with `NEXT_PUBLIC_E2E_ERROR_TRIGGER=1` (Playwright sets it).
 - **Adding i18n keys:** add the section/keys to `en.ts` and all five other locale files
   (typecheck enforces it). The old `.scratch` generators are gitignored scratch tools.
+- **Order limits** (Phase 5, D-013): `src/lib/trade-limits.ts`. Use `<AmountField>` for
+  any amount input; never hard-code min/max/step.

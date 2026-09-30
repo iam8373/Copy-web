@@ -2,6 +2,17 @@
 
 Architecture and product decisions, newest first.
 
+## D-013 — One source of truth for order limits, checked twice
+
+**Date:** Phase 5
+**Status:** Accepted
+
+`src/lib/trade-limits.ts` owns the limits (₹1 – ₹1,00,000 for the demo). The UI uses it
+for attributes, messages and the disabled state; `placeOrder` re-runs `validateAmount`
+so a bypassed UI still cannot place an invalid order. A future server route must call the
+same function (D-009). Typed values above the max are not clamped silently: clamping would
+change what the user asked for without telling them.
+
 ## D-012 — Error boundaries never expose internals; test trigger is compiled out
 
 **Date:** Phase 4

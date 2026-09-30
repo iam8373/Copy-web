@@ -68,6 +68,11 @@ export const en = {
     priceMoved: "Price moved to {price} since you opened this order.",
     settlementNote: "Off-chain matching · rupee settlement",
     orderConfirmed: "Order confirmed",
+    limits: "Min {min} · Max {max}",
+    errorInvalid: "Enter an amount in rupees.",
+    errorMin: "Minimum order is {min}.",
+    errorMax: "Maximum order is {max}.",
+    slider: "Amount slider",
   },
 
   auth: {
@@ -147,6 +152,8 @@ export const en = {
     confirmAge: "Confirm your age to continue",
     confirmAgeBody: "Please confirm you are 18 or older and accept the Terms of Use.",
     dismiss: "Dismiss",
+    invalidAmount: "Order not placed",
+    invalidAmountBody: "Amount must be between {min} and {max}.",
   },
 
   bottomNav: {

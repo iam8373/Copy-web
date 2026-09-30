@@ -72,6 +72,11 @@ export const bn: Dictionary = {
     priceMoved: "অর্ডার খোলার পর দাম {price} হয়েছে।",
     settlementNote: "অফ-চেন ম্যাচিং · টাকায় নিষ্পত্তি",
     orderConfirmed: "অর্ডার নিশ্চিত হয়েছে",
+    limits: "সর্বনিম্ন {min} · সর্বোচ্চ {max}",
+    errorInvalid: "টাকায় পরিমাণ লিখুন।",
+    errorMin: "সর্বনিম্ন অর্ডার {min}।",
+    errorMax: "সর্বোচ্চ অর্ডার {max}।",
+    slider: "পরিমাণ স্লাইডার",
   },
 
   auth: {
@@ -149,6 +154,8 @@ export const bn: Dictionary = {
     confirmAge: "এগিয়ে যেতে বয়স নিশ্চিত করুন",
     confirmAgeBody: "অনুগ্রহ করে নিশ্চিত করুন যে আপনার বয়স ১৮ বা তার বেশি এবং শর্তাবলি মেনে নিন।",
     dismiss: "বন্ধ করুন",
+    invalidAmount: "অর্ডার দেওয়া হয়নি",
+    invalidAmountBody: "পরিমাণ {min} থেকে {max}-এর মধ্যে হতে হবে।",
   },
 
   bottomNav: {

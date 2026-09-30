@@ -17,6 +17,9 @@ import {
 } from "recharts";
 import type { Market } from "@/lib/types";
 import { useMarketStore } from "@/store/useMarketStore";
+import { useT } from "@/i18n/LanguageProvider";
+import { AmountField } from "@/components/AmountField";
+import { validateAmount } from "@/lib/trade-limits";
 import { Countdown } from "@/components/Countdown";
 import { FlashValue } from "@/components/FlashValue";
 import {
@@ -40,7 +43,6 @@ type Activity = {
   minutesAgo: number;
 };
 
-const PRESETS = [100, 500, 1000];
 
 export function MarketDetail({
   market: initial,
@@ -58,11 +60,13 @@ export function MarketDetail({
   const market = markets.find((m) => m.id === initial.id) ?? initial;
 
   const [outcomeId, setOutcomeId] = useState(market.outcomes[0].id);
-  const [amount, setAmount] = useState(500);
+  const [amount, setAmount] = useState("500");
+  const { t } = useT();
   const [rulesOpen, setRulesOpen] = useState(false);
 
   const selected = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
-  const shares = amount / Math.max(selected.price, 0.01);
+  const check = validateAmount(amount);
+  const shares = check.ok ? check.value / Math.max(selected.price, 0.01) : 0;
 
   const chartData = useMemo(() => {
     const data = [...history];
@@ -321,63 +325,23 @@ export function MarketDetail({
             })}
           </div>
 
-          <label
-            className="mt-4 block text-[12px] font-medium text-content-secondary"
-            htmlFor="detail-amount"
-          >
-            Amount (₹)
-          </label>
-          <input
-            id="detail-amount"
-            type="number"
-            min={1}
-            value={amount}
-            onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
-            className="tnum mt-1.5 h-11 w-full rounded-lg border border-subtle bg-bg-tertiary px-3 text-[15px] font-semibold text-content-primary outline-none focus:border-accent-blue"
-          />
-          <input
-            type="range"
-            min={100}
-            max={10000}
-            step={100}
-            value={Math.min(amount, 10000)}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            className="mt-3 h-1.5 w-full accent-[#7C5CFF]"
-            aria-label="Amount slider"
-          />
-          <div className="mt-3 flex gap-2">
-            {PRESETS.map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setAmount(p)}
-                className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
-              >
-                ₹{p.toLocaleString("en-IN")}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setAmount(10000)}
-              className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
-            >
-              Max
-            </button>
+          <div className="mt-4">
+            <AmountField id="detail-amount" value={amount} onChange={setAmount} />
           </div>
 
           <dl className="mt-4 flex flex-col gap-1.5 rounded-lg bg-bg-tertiary p-3 text-[13px]">
             <div className="flex justify-between gap-2">
-              <dt className="text-content-secondary">You will receive</dt>
+              <dt className="text-content-secondary">{t("trade", "youWillReceive")}</dt>
               <dd className="tnum font-semibold text-content-primary">
-                ~{shares.toFixed(1)} shares
+                {t("trade", "shares", { count: shares.toFixed(1) })}
               </dd>
             </div>
             <div className="flex justify-between gap-2">
-              <dt className="text-content-secondary">If correct, you receive</dt>
+              <dt className="text-content-secondary">{t("trade", "ifCorrect")}</dt>
               <dd className="tnum font-semibold text-accent-green">{formatRupees(shares)}</dd>
             </div>
             <div className="flex justify-between gap-2">
-              <dt className="text-content-secondary">Avg price</dt>
+              <dt className="text-content-secondary">{t("trade", "avgPrice")}</dt>
               <dd className="tnum font-semibold text-content-primary">
                 {selected.price.toFixed(2)}
               </dd>
@@ -386,14 +350,17 @@ export function MarketDetail({
 
           <button
             type="button"
-            onClick={() => placeOrder({ market, outcomeId: selected.id, amount })}
-            disabled={amount <= 0}
+            // The store re-validates; this is only the UI half of the check.
+            onClick={() =>
+              placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })
+            }
+            disabled={!check.ok}
             className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
           >
-            Place Order
+            {t("trade", "placeOrder")}
           </button>
           <p className="mt-2 text-center text-[11px] text-content-secondary">
-            Off-chain CLOB matching · on-chain settlement
+            {t("trade", "settlementNote")}
           </p>
         </aside>
       </div>

@@ -88,7 +88,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | 2 | Self-host Noto Sans fonts | **Done** |
 | 3 | robots + sitemap + noindex | **Done** |
 | 4 | Error boundaries and loading states | **Done** |
-| 5 | Trade amount validation | Not started |
+| 5 | Trade amount validation | **Done** |
 | 6 | Stored AI translations for market content | Not started |
 | 7 | CI workflow | Not started |
 
@@ -155,3 +155,24 @@ cannot be removed without patching Next. See D-010.
 - `errors.spec.ts`: error UI + working Try again, persistent failure, Hindi, no leaked
   message/stack, skeleton pulse on/off under reduced motion.
 - Locale files are now the source of truth; `.scratch/` generators are not committed.
+
+## Phase 5 — detail
+
+- `src/lib/trade-limits.ts`: `MIN_TRADE = 1`, `MAX_TRADE = 100_000`, `TRADE_STEP = 1`,
+  `TRADE_PRESETS`, `validateAmount()` → `{ ok, value }` / `{ ok: false, reason }`
+  (`notNumber` | `belowMin` | `aboveMax`), `clampAmount()`, `formatLimit()` (en-IN).
+- `AmountField.tsx`: one control used by the quick-trade modal **and** the market detail
+  panel (which had the same input/slider mismatch). Parent owns the raw string, so empty
+  is representable; input, slider, presets and Max share min/max/step and always agree.
+  Out-of-range typing is kept and explained inline (not silently clamped); the slider pins
+  to the nearest bound; Place order is disabled for any invalid amount.
+- `placeOrder` validates first and refuses with an `error` toast; the modal stays open.
+- New keys `trade.{limits,errorInvalid,errorMin,errorMax,slider}` and
+  `toast.{invalidAmount,invalidAmountBody}` in all six locales. The detail panel's
+  previously hard-coded English (Amount, shares, Avg price, Place Order, settlement note)
+  now uses existing keys.
+- `trade-limits.spec.ts`: validator unit tests, store-level refusal with no UI, and UI tests
+  for 0 / -5 / empty / 1e9, ₹1 and max, and input↔slider sync.
+
+**Known gap:** the rest of the market detail page (chart heading, order book, rules,
+activity feed) is still English-only; it predates i18n and was out of scope here.

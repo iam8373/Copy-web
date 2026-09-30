@@ -64,6 +64,11 @@ export const hi: Dictionary = {
     priceMoved: "ऑर्डर खोलने के बाद भाव {price} हो गया है।",
     settlementNote: "ऑफ-चेन मैचिंग · रुपये में निपटान",
     orderConfirmed: "ऑर्डर पूरा हुआ",
+    limits: "न्यूनतम {min} · अधिकतम {max}",
+    errorInvalid: "रुपये में राशि दर्ज करें।",
+    errorMin: "न्यूनतम ऑर्डर {min} है।",
+    errorMax: "अधिकतम ऑर्डर {max} है।",
+    slider: "राशि स्लाइडर",
   },
 
   auth: {
@@ -144,6 +149,8 @@ export const hi: Dictionary = {
     confirmAgeBody:
       "कृपया पुष्टि करें कि आपकी उम्र 18 वर्ष या अधिक है और शर्तें स्वीकार करें।",
     dismiss: "बंद करें",
+    invalidAmount: "ऑर्डर नहीं लगा",
+    invalidAmountBody: "राशि {min} और {max} के बीच होनी चाहिए।",
   },
 
   bottomNav: {

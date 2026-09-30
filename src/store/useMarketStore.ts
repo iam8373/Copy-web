@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { MARKETS } from "@/data/markets";
 import type { Market } from "@/lib/types";
+import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
 
 /**
  * Toasts store i18n coordinates rather than resolved strings: the store has no
@@ -263,7 +264,22 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   openTrade: (market, outcomeId) => set({ trade: { market, outcomeId } }),
   closeTrade: () => set({ trade: null }),
 
-  placeOrder: ({ market, outcomeId, amount }) => {
+  placeOrder: ({ market, outcomeId, amount: rawAmount }) => {
+    // Defense in depth (Phase 5): never trust the UI. An invalid amount is
+    // refused here even if the form's disabled state was bypassed. The trade
+    // modal stays open so the user can correct it.
+    const check = validateAmount(rawAmount);
+    if (!check.ok) {
+      get().pushToast({
+        titleKey: "invalidAmount",
+        bodyKey: "invalidAmountBody",
+        vars: { min: formatLimit(MIN_TRADE), max: formatLimit(MAX_TRADE) },
+        tone: "error",
+      });
+      return;
+    }
+    const amount = check.value;
+
     const outcome = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
     const shares = amount / Math.max(outcome.price, 0.01);
 

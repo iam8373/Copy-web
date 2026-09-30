@@ -5,8 +5,8 @@ import { AlertTriangle, X } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
-
-const PRESETS = [100, 500, 1000];
+import { AmountField } from "@/components/AmountField";
+import { validateAmount } from "@/lib/trade-limits";
 
 export function TradeModal() {
   const trade = useMarketStore((s) => s.trade);
@@ -14,14 +14,14 @@ export function TradeModal() {
   const closeTrade = useMarketStore((s) => s.closeTrade);
   const placeOrder = useMarketStore((s) => s.placeOrder);
 
-  const [amount, setAmount] = useState(500);
+  const [amount, setAmount] = useState("500");
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
   const { t } = useT();
 
   useEffect(() => {
     if (trade) {
       setOutcomeId(trade.outcomeId);
-      setAmount(500);
+      setAmount("500");
     }
   }, [trade]);
 
@@ -36,7 +36,8 @@ export function TradeModal() {
     market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
   const openedAt = trade.market.outcomes.find((o) => o.id === selected.id)?.price ?? selected.price;
   const slipped = Math.abs(selected.price - openedAt) > 0.01;
-  const shares = amount / Math.max(selected.price, 0.01);
+  const check = validateAmount(amount);
+  const shares = check.ok ? check.value / Math.max(selected.price, 0.01) : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
@@ -92,47 +93,8 @@ export function TradeModal() {
           })}
         </div>
 
-        <div className="mt-4 flex flex-col gap-2">
-          <label className="text-[12px] font-medium text-content-secondary" htmlFor="amount">
-            {t("trade", "amount")}
-          </label>
-          <input
-            id="amount"
-            type="number"
-            min={1}
-            value={amount}
-            onChange={(e) => setAmount(Math.max(0, Number(e.target.value)))}
-            className="tnum h-11 w-full rounded-lg border border-subtle bg-bg-tertiary px-3 text-[15px] font-semibold text-content-primary outline-none focus:border-accent-blue"
-          />
-          <input
-            type="range"
-            min={100}
-            max={10000}
-            step={100}
-            value={Math.min(amount, 10000)}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            className="h-1.5 w-full accent-[#7C5CFF]"
-            aria-label="Amount slider"
-          />
-          <div className="flex gap-2">
-            {PRESETS.map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setAmount(p)}
-                className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
-              >
-                ₹{p.toLocaleString("en-IN")}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setAmount(10000)}
-              className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
-            >
-              {t("trade", "max")}
-            </button>
-          </div>
+        <div className="mt-4">
+          <AmountField id="amount" value={amount} onChange={setAmount} />
         </div>
 
         <dl className="mt-4 flex flex-col gap-1.5 rounded-lg bg-bg-tertiary p-3 text-[13px]">
@@ -157,8 +119,9 @@ export function TradeModal() {
 
         <button
           type="button"
-          onClick={() => placeOrder({ market, outcomeId: selected.id, amount })}
-          disabled={amount <= 0}
+          // The store re-validates; this is only the UI half of the check.
+          onClick={() => placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })}
+          disabled={!check.ok}
           className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
         >
           {t("trade", "placeOrder")}

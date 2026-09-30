@@ -72,6 +72,11 @@ export const mr: Dictionary = {
     priceMoved: "ऑर्डर उघडल्यानंतर भाव {price} झाला आहे.",
     settlementNote: "ऑफ-चेन मॅचिंग · रुपयांत सेटलमेंट",
     orderConfirmed: "ऑर्डर पूर्ण झाली",
+    limits: "किमान {min} · कमाल {max}",
+    errorInvalid: "रुपयांत रक्कम टाका.",
+    errorMin: "किमान ऑर्डर {min} आहे.",
+    errorMax: "कमाल ऑर्डर {max} आहे.",
+    slider: "रक्कम स्लायडर",
   },
 
   auth: {
@@ -149,6 +154,8 @@ export const mr: Dictionary = {
     confirmAge: "पुढे जाण्यासाठी वयाची पुष्टी करा",
     confirmAgeBody: "कृपया तुमचे वय १८ किंवा अधिक असल्याची पुष्टी करा आणि अटी स्वीकारा.",
     dismiss: "बंद करा",
+    invalidAmount: "ऑर्डर दिली गेली नाही",
+    invalidAmountBody: "रक्कम {min} ते {max} दरम्यान असावी.",
   },
 
   bottomNav: {

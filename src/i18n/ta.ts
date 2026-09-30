@@ -72,6 +72,11 @@ export const ta: Dictionary = {
     priceMoved: "ஆர்டரைத் திறந்த பிறகு விலை {price} ஆக மாறியுள்ளது.",
     settlementNote: "ஆஃப்-செயின் பொருத்தம் · ரூபாயில் தீர்வு",
     orderConfirmed: "ஆர்டர் உறுதியானது",
+    limits: "குறைந்தது {min} · அதிகபட்சம் {max}",
+    errorInvalid: "ரூபாயில் தொகையை உள்ளிடவும்.",
+    errorMin: "குறைந்தபட்ச ஆர்டர் {min}.",
+    errorMax: "அதிகபட்ச ஆர்டர் {max}.",
+    slider: "தொகை ஸ்லைடர்",
   },
 
   auth: {
@@ -149,6 +154,8 @@ export const ta: Dictionary = {
     confirmAge: "தொடர வயதை உறுதிசெய்யவும்",
     confirmAgeBody: "உங்களுக்கு 18 வயது அல்லது அதற்கு மேல் என்பதை உறுதிசெய்து விதிமுறைகளை ஏற்கவும்.",
     dismiss: "மூடு",
+    invalidAmount: "ஆர்டர் வைக்கப்படவில்லை",
+    invalidAmountBody: "தொகை {min} முதல் {max} வரை இருக்க வேண்டும்.",
   },
 
   bottomNav: {

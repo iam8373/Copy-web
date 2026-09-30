@@ -72,6 +72,11 @@ export const te: Dictionary = {
     priceMoved: "ఆర్డర్ తెరిచిన తర్వాత ధర {price}కి మారింది.",
     settlementNote: "ఆఫ్-చెయిన్ మ్యాచింగ్ · రూపాయల్లో సెటిల్‌మెంట్",
     orderConfirmed: "ఆర్డర్ నిర్ధారించబడింది",
+    limits: "కనీసం {min} · గరిష్ఠం {max}",
+    errorInvalid: "రూపాయల్లో మొత్తం నమోదు చేయండి.",
+    errorMin: "కనీస ఆర్డర్ {min}.",
+    errorMax: "గరిష్ఠ ఆర్డర్ {max}.",
+    slider: "మొత్తం స్లైడర్",
   },
 
   auth: {
@@ -149,6 +154,8 @@ export const te: Dictionary = {
     confirmAge: "కొనసాగడానికి వయస్సు నిర్ధారించండి",
     confirmAgeBody: "దయచేసి మీ వయస్సు 18 లేదా అంతకంటే ఎక్కువ అని నిర్ధారించి నిబంధనలను అంగీకరించండి.",
     dismiss: "మూసివేయండి",
+    invalidAmount: "ఆర్డర్ చేయబడలేదు",
+    invalidAmountBody: "మొత్తం {min} మరియు {max} మధ్య ఉండాలి.",
   },
 
   bottomNav: {
