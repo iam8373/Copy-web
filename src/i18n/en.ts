@@ -295,6 +295,23 @@ export const en = {
     label: "Loading…",
   },
 
+  terms: {
+    yes: "Yes",
+    no: "No",
+    buy: "Buy",
+    sell: "Sell",
+    probability: "Probability",
+    volume: "Volume",
+    marketCloses: "Market closes",
+    resolves: "Resolves",
+    liquidity: "Liquidity",
+    position: "Position",
+  },
+
+  market: {
+    translatedNote: "Translated automatically",
+  },
+
   legal: {
     englishPrevails:
       "Legal pages are published in English. The English version prevails in case of any difference.",

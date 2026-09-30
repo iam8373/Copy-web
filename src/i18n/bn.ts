@@ -296,6 +296,23 @@ export const bn: Dictionary = {
     label: "লোড হচ্ছে…",
   },
 
+  terms: {
+    yes: "হ্যাঁ",
+    no: "না",
+    buy: "কিনুন",
+    sell: "বিক্রি করুন",
+    probability: "সম্ভাবনা",
+    volume: "ভলিউম",
+    marketCloses: "মার্কেট বন্ধ হবে",
+    resolves: "নিষ্পত্তি",
+    liquidity: "তারল্য",
+    position: "পজিশন",
+  },
+
+  market: {
+    translatedNote: "স্বয়ংক্রিয়ভাবে অনূদিত",
+  },
+
   legal: {
     englishPrevails: "আইনি পৃষ্ঠাগুলি ইংরেজিতে প্রকাশিত। কোনো পার্থক্য হলে ইংরেজি সংস্করণই প্রযোজ্য হবে।",
   },

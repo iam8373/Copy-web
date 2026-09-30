@@ -20,6 +20,8 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { AmountField } from "@/components/AmountField";
 import { validateAmount } from "@/lib/trade-limits";
+import { useMarketText } from "@/lib/market-text";
+import { Languages } from "lucide-react";
 import { Countdown } from "@/components/Countdown";
 import { FlashValue } from "@/components/FlashValue";
 import {
@@ -61,7 +63,8 @@ export function MarketDetail({
 
   const [outcomeId, setOutcomeId] = useState(market.outcomes[0].id);
   const [amount, setAmount] = useState("500");
-  const { t } = useT();
+  const { t, locale } = useT();
+  const text = useMarketText(market);
   const [rulesOpen, setRulesOpen] = useState(false);
 
   const selected = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
@@ -114,14 +117,24 @@ export function MarketDetail({
             </span>
           )}
           <span className="text-content-secondary">
-            Resolves {formatEndDate(market.endDate)}
+            {t("terms", "resolves")} {formatEndDate(market.endDate)}
           </span>
         </div>
         <h1 className="text-xl font-bold leading-tight tracking-tight text-content-primary sm:text-2xl">
-          {market.title}
+          {text.title}
         </h1>
+        {/* Saved AI translation, not yet reviewed by a native speaker. */}
+        {text.translated && locale !== "en" && (
+          <p
+            data-testid="translated-note"
+            className="flex w-fit items-center gap-1.5 rounded-md bg-bg-tertiary px-2 py-0.5 text-[11px] font-medium text-content-secondary"
+          >
+            <Languages className="h-3 w-3" aria-hidden="true" />
+            {t("market", "translatedNote")}
+          </p>
+        )}
         <p className="tnum text-[13px] text-content-secondary">
-          Volume {formatVolumeFull(market.totalVolume)}
+          {t("terms", "volume")} {formatVolumeFull(market.totalVolume)}
         </p>
       </header>
 
@@ -250,7 +263,7 @@ export function MarketDetail({
             </button>
             {rulesOpen && (
               <div className="flex flex-col gap-3 border-t border-subtle p-4 text-[13px] leading-relaxed text-content-secondary">
-                <p>{market.description}</p>
+                <p>{text.description}</p>
                 <p>
                   <span className="font-semibold text-content-primary">Resolution source: </span>
                   {market.resolutionSource}

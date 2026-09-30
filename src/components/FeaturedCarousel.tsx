@@ -6,11 +6,14 @@ import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { FlashValue } from "@/components/FlashValue";
 import { cn, formatEndDate, formatPercent, formatVolume } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
+import { getMarketText } from "@/lib/market-text";
 
 export function FeaturedCarousel() {
   const markets = useMarketStore((s) => s.markets);
   const featured = [...markets].sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 5);
   const [index, setIndex] = useState(0);
+  const { locale } = useT();
 
   useEffect(() => {
     const id = setInterval(() => setIndex((i) => (i + 1) % featured.length), 7000);
@@ -19,6 +22,7 @@ export function FeaturedCarousel() {
 
   const market = featured[index];
   if (!market) return null;
+  const text = getMarketText(market, locale);
 
   return (
     <section className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
@@ -52,10 +56,10 @@ export function FeaturedCarousel() {
           {market.category} • {market.subcategory}
         </p>
         <h3 className="mt-1 text-xl font-bold leading-tight text-content-primary sm:text-2xl">
-          {market.title}
+          {text.title}
         </h3>
         <p className="mt-2 line-clamp-2 max-w-3xl text-[13px] leading-relaxed text-content-secondary">
-          {market.description}
+          {text.description}
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">

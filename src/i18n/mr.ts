@@ -296,6 +296,23 @@ export const mr: Dictionary = {
     label: "लोड होत आहे…",
   },
 
+  terms: {
+    yes: "होय",
+    no: "नाही",
+    buy: "खरेदी करा",
+    sell: "विक्री करा",
+    probability: "शक्यता",
+    volume: "व्हॉल्यूम",
+    marketCloses: "मार्केट बंद होईल",
+    resolves: "निकाल",
+    liquidity: "तरलता",
+    position: "पोझिशन",
+  },
+
+  market: {
+    translatedNote: "स्वयंचलितपणे अनुवादित",
+  },
+
   legal: {
     englishPrevails: "कायदेशीर पाने इंग्रजीत प्रकाशित आहेत. कोणत्याही फरकाच्या बाबतीत इंग्रजी आवृत्ती ग्राह्य धरली जाईल.",
   },

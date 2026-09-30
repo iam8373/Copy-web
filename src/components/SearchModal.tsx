@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatVolume } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
+import { getMarketText } from "@/lib/market-text";
 
 export function SearchModal() {
   const open = useMarketStore((s) => s.searchOpen);
@@ -14,7 +15,7 @@ export function SearchModal() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
-  const { t } = useT();
+  const { t, locale } = useT();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,9 +54,12 @@ export function SearchModal() {
       .map((m) => {
         const title = m.title.toLowerCase();
         const haystack = `${m.title} ${m.category} ${m.subcategory}`.toLowerCase();
+        // Also match the active locale's saved title (English always matches).
+        const local = getMarketText(m, locale);
+        const localTitle = local.translated ? local.title.toLowerCase() : "";
         let score = 0;
-        if (title.startsWith(q)) score += 20;
-        if (haystack.includes(q)) score += 10;
+        if (title.startsWith(q) || (localTitle && localTitle.startsWith(q))) score += 20;
+        if (haystack.includes(q) || (localTitle && localTitle.includes(q))) score += 10;
         // token-prefix match, so "verst" finds "Verstappen"
         if (haystack.split(/[^a-z0-9$]+/).some((w) => w.startsWith(q))) score += 6;
         return { m, score };
@@ -64,7 +68,7 @@ export function SearchModal() {
       .sort((a, b) => b.score - a.score || b.m.totalVolume - a.m.totalVolume)
       .slice(0, 10)
       .map((r) => r.m);
-  }, [markets, query]);
+  }, [markets, query, locale]);
 
   if (!open) return null;
 
@@ -127,7 +131,7 @@ export function SearchModal() {
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-semibold text-content-primary">
-                  {m.title}
+                  {getMarketText(m, locale).title}
                 </p>
                 <p className="truncate text-[11px] uppercase tracking-wide text-content-secondary">
                   {m.category} • {m.subcategory} • Vol {formatVolume(m.totalVolume)}

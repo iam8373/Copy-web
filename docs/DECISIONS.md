@@ -2,6 +2,45 @@
 
 Architecture and product decisions, newest first.
 
+## D-014 — Market content: translate once offline, read at runtime
+
+**Date:** Phase 6
+**Status:** Accepted
+
+UI chrome stays in `src/i18n`. Market titles and descriptions are translated **once per
+market** by `npm run translate:markets` and committed to
+`src/data/market-translations.json`. The app only reads that file: zero AI calls at build,
+test or page-view time, zero per-user requests.
+
+- **Staleness:** each entry stores `sourceHash` = sha256(title + "\n" + description +
+  "\n" + subcategory). The runtime recomputes it with the same sync implementation
+  (`src/lib/sha256.ts`) and shows English if it differs, so an edited market can never show
+  a translation of its old text.
+- **One request, all locales:** one Chat Completions call per market with a strict
+  `json_schema`; plain `fetch`, no SDK dependency. The model name comes only from
+  `OPENAI_MODEL`; there is no default.
+- **Protected terms** (Yes, No, Buy, Sell, Probability, Volume, Market closes, Resolves,
+  Liquidity, Position) are defined in the UI dictionaries' `terms` section. The prompt
+  requires those exact renderings and the validator rejects anything else.
+- **Failure policy:** at most two attempts per market; then the market stays English and
+  is reported. A stale entry that fails re-translation is deleted rather than kept.
+- **Cost guard:** `--max-markets` (default 25) caps a run; the rest are deferred.
+- **Accepted trade-off:** the JSON is bundled into client JS. At 91 markets × 5 locales
+  that is roughly 150 KB uncompressed. Split per locale if the catalogue grows.
+
+### Review status — native-speaker review is required before launch
+
+Every generated entry is `"status": "machine-drafted"`, and the market page shows a
+"Translated automatically" note in non-English locales. A native speaker must review each
+entry before launch. To mark one reviewed, edit its text as needed in
+`market-translations.json` and set `"status": "reviewed"`; leave `sourceHash` unchanged.
+The script never overwrites a reviewed entry while its hash still matches. If the English
+source changes, the entry is re-translated, drops back to `"machine-drafted"`, and needs
+review again.
+
+The 8 committed entries were drafted by the coding assistant (no API key was available),
+not by the script. They pass `validate.ts` but carry the same review requirement.
+
 ## D-013 — One source of truth for order limits, checked twice
 
 **Date:** Phase 5

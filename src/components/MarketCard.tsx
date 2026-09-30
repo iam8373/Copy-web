@@ -16,6 +16,7 @@ import {
 } from "@/lib/utils";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
+import { useMarketText } from "@/lib/market-text";
 
 function CategoryBadge({ market }: { market: Market }) {
   return (
@@ -131,6 +132,7 @@ function MultiOutcomes({ market }: { market: Market }) {
 export function MarketCard({ market }: { market: Market }) {
   const openTrade = useMarketStore((s) => s.openTrade);
   const { t } = useT();
+  const text = useMarketText(market);
 
   return (
     <Link
@@ -155,7 +157,7 @@ export function MarketCard({ market }: { market: Market }) {
       </div>
 
       <h3 className="line-clamp-2 min-h-[42px] text-[15px] font-bold leading-[1.35] text-content-primary sm:text-base">
-        {market.title}
+        {text.title}
       </h3>
 
       {market.isBinary ? <BinaryOutcomes market={market} /> : <MultiOutcomes market={market} />}

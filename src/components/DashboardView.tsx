@@ -6,6 +6,7 @@ import { usePortfolio, type EnrichedPosition } from "@/lib/usePortfolio";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
+import { getMarketText, useMarketText } from "@/lib/market-text";
 
 function StatCard({
   label,
@@ -37,6 +38,7 @@ function StatCard({
 }
 
 function PositionRow({ row }: { row: EnrichedPosition }) {
+  const text = useMarketText(row.market);
   const up = row.pnl >= 0;
   return (
     <tr className="border-t border-subtle">
@@ -45,7 +47,7 @@ function PositionRow({ row }: { row: EnrichedPosition }) {
           href={`/market/${row.market.slug}`}
           className="line-clamp-2 text-[13px] font-semibold text-content-primary transition-colors hover:text-accent-blue"
         >
-          {row.market.title}
+          {text.title}
         </Link>
         <p className="mt-0.5 text-[11px] uppercase tracking-wide text-content-secondary">
           {row.market.category} • {row.market.subcategory}
@@ -86,6 +88,7 @@ function PositionRow({ row }: { row: EnrichedPosition }) {
 }
 
 function PositionCard({ row }: { row: EnrichedPosition }) {
+  const text = useMarketText(row.market);
   const up = row.pnl >= 0;
   return (
     <Link
@@ -110,7 +113,7 @@ function PositionCard({ row }: { row: EnrichedPosition }) {
         )}
       </div>
       <p className="line-clamp-2 text-[14px] font-bold leading-snug text-content-primary">
-        {row.market.title}
+        {text.title}
       </p>
       <div className="flex items-center gap-2">
         <span className="rounded-md bg-bg-tertiary px-2 py-0.5 text-[12px] font-semibold text-content-primary">
@@ -139,7 +142,7 @@ function PositionCard({ row }: { row: EnrichedPosition }) {
 }
 
 export function DashboardView() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const session = useMarketStore((s) => s.session);
   const setAuthOpen = useMarketStore((s) => s.setAuthOpen);
   const {
@@ -299,7 +302,7 @@ export function DashboardView() {
                       href={`/market/${row.market.slug}`}
                       className="min-w-0 flex-1 truncate text-[13px] font-semibold text-content-primary transition-colors hover:text-accent-blue"
                     >
-                      {row.market.title}
+                      {getMarketText(row.market, locale).title}
                     </Link>
                     <span className="tnum shrink-0 text-[12px] text-content-secondary">
                       {row.outcomeLabel} @ {row.avgPrice.toFixed(2)} ·{" "}

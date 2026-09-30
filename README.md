@@ -46,7 +46,25 @@ npm run lint               # next lint (next/core-web-vitals)
 npm run check              # typecheck + lint + build
 npm run test:e2e           # Playwright, desktop + Pixel 5, against a production build
 npm run test:e2e:sandbox   # same, on :3100 in .next-e2e (when a dev server owns :3000)
+npm run validate:translations  # locale key parity + stored market translations (offline)
+npm run check:secrets          # fail if an API-key-like string is in a tracked file
+npm run translate:markets -- --dry-run   # list markets needing translation (0 API calls)
 ```
+
+### Market content translations
+
+Market titles and descriptions are translated **once**, offline, and committed to
+`src/data/market-translations.json`; the app never calls an AI service. To (re)translate
+new or edited markets, put `OPENAI_API_KEY` and `OPENAI_MODEL` in `.env.local`, then:
+
+```bash
+npm run translate:markets                      # up to 25 markets per run
+npm run translate:markets -- --market mkt_004  # one market
+npm run translate:markets -- --max-markets 5   # smaller batch
+```
+
+Every entry is saved as `machine-drafted` and needs native-speaker review
+(see `docs/DECISIONS.md`, D-014).
 
 First-time Playwright setup:
 

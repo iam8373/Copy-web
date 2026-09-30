@@ -296,6 +296,23 @@ export const te: Dictionary = {
     label: "లోడ్ అవుతోంది…",
   },
 
+  terms: {
+    yes: "అవును",
+    no: "కాదు",
+    buy: "కొనండి",
+    sell: "అమ్మండి",
+    probability: "సంభావ్యత",
+    volume: "వాల్యూమ్",
+    marketCloses: "మార్కెట్ ముగుస్తుంది",
+    resolves: "పరిష్కారం",
+    liquidity: "ద్రవ్యత",
+    position: "పొజిషన్",
+  },
+
+  market: {
+    translatedNote: "స్వయంచాలకంగా అనువదించబడింది",
+  },
+
   legal: {
     englishPrevails: "చట్టపరమైన పేజీలు ఆంగ్లంలో ప్రచురించబడ్డాయి. ఏదైనా తేడా ఉంటే ఆంగ్ల వెర్షన్ చెల్లుబాటు అవుతుంది.",
   },

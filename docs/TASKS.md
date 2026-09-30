@@ -89,7 +89,7 @@ Tracking for the BharatPredict work order (Phases A–E).
 | 3 | robots + sitemap + noindex | **Done** |
 | 4 | Error boundaries and loading states | **Done** |
 | 5 | Trade amount validation | **Done** |
-| 6 | Stored AI translations for market content | Not started |
+| 6 | Stored AI translations for market content | **Done** |
 | 7 | CI workflow | Not started |
 
 ## Phase 1 — detail
@@ -176,3 +176,43 @@ cannot be removed without patching Next. See D-010.
 
 **Known gap:** the rest of the market detail page (chart heading, order book, rules,
 activity feed) is still English-only; it predates i18n and was out of scope here.
+
+## Phase 6 — detail
+
+- **Data:** `src/data/market-translations.json`, keyed by market id, each entry
+  `{ sourceHash, translatedAt, status, locales: { hi, mr, bn, ta, te } }`.
+- **Service** `src/services/translation/`: `types.ts`, `hash.ts` (sha256 of
+  title + description + subcategory), `glossary.ts`, `prompt.ts`, `validate.ts`,
+  `translate.ts` (ONE `fetch` to Chat Completions per market, `json_schema` strict, all
+  five locales), `store.ts` (read/write + `planWork`), `run.ts` (the testable runner).
+- **Script** `npm run translate:markets` (`scripts/translate-markets.ts`, via `tsx`):
+  loads `.env.local`, translates only missing/stale markets, `--dry-run`, `--market <id>`,
+  `--max-markets N` (default 25). Nothing to do → 0 API calls and no key needed.
+- **Runtime** `src/lib/market-text.ts`: `getMarketText()` / `useMarketText()` read the
+  JSON; English fallback for `en`, missing market, missing locale, or stale hash. Used by
+  MarketCard (text source only), market detail (title, description, "Translated
+  automatically" note), search (display + matches saved title), dashboard/profit rows,
+  featured carousel and trade modal header.
+- **Protected terms** live in the UI i18n (`terms` section, all six locales); the prompt
+  and validator are built from them.
+- **Validator** rejects: missing/altered numbers, ₹ amounts or tickers; added numbers;
+  empty; > 2× source length; identical to English or containing a run of 3 lowercase
+  English source words (capitalised proper nouns allowed); wrong protected-term
+  rendering; wrong JSON shape. Retries once, then leaves English and reports.
+- **Security:** `.env*` ignored except `.env.example`; `OPENAI_API_KEY`/`OPENAI_MODEL`
+  blank in `.env.example`, no default model; ESLint `no-restricted-imports` stops app code
+  importing `translate`/`run`/`store`; `translate.ts` throws if loaded in a browser; key
+  never logged. `npm run check:secrets` (fails closed on git errors) and
+  `npm run validate:translations` are ready for CI.
+- **Seed content:** 8 markets (mkt_001, 002, 012, 021, 030, 038, 047, 056) translated into
+  all five locales. **Drafted by the coding assistant, not by the script** — no API key
+  exists in this sandbox. They pass the same validator and are `machine-drafted`. The other
+  83 markets show English until the script is run with a real key.
+- **Tests** `translation.spec.ts` (58 across both projects): sha256 parity, validator
+  accept/reject cases, runner behaviour against a fake OpenAI (twice → 0 calls, one title
+  change → one call, reviewed not overwritten, retry once, stale entry removed on failure,
+  missing key/model, dry-run, `--market`, `--max-markets`, key never logged), runtime
+  fallback, and browser checks (Hindi cards, English fallback, note, search, 0 requests to
+  openai.com).
+- **Bug found and fixed:** the runtime hash cache was keyed by market id, so an edited
+  market would keep showing its old translation. Now keyed by the source text.

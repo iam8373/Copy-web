@@ -16,9 +16,10 @@ import {
 import { usePortfolio } from "@/lib/usePortfolio";
 import { cn, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
+import { getMarketText } from "@/lib/market-text";
 
 export function ProfitView() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const { rows, open, settled, realized, unrealized, netPnl, wins, losses } = usePortfolio();
 
   const chartData = useMemo(
@@ -27,13 +28,13 @@ export function ProfitView() {
         .sort((a, b) => b.pnl - a.pnl)
         .slice(0, 8)
         .map((r) => ({
-          name:
-            r.market.title.length > 22
-              ? `${r.market.title.slice(0, 22)}…`
-              : r.market.title,
+          name: (() => {
+            const title = getMarketText(r.market, locale).title;
+            return title.length > 22 ? `${title.slice(0, 22)}…` : title;
+          })(),
           pnl: Math.round(r.pnl),
         })),
-    [rows]
+    [rows, locale]
   );
 
   const invested = rows.reduce((s, r) => s + r.cost, 0);
@@ -189,7 +190,7 @@ export function ProfitView() {
                   href={`/market/${row.market.slug}`}
                   className="min-w-0 flex-1 truncate text-[13px] font-semibold text-content-primary transition-colors hover:text-accent-blue"
                 >
-                  {row.market.title}
+                  {getMarketText(row.market, locale).title}
                 </Link>
                 <span className="tnum shrink-0 text-[12px] text-content-secondary">
                   {row.outcomeLabel} · {Math.round(row.shares).toLocaleString("en-IN")} sh ·{" "}

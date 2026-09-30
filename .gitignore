@@ -2,8 +2,9 @@ node_modules
 .next
 out
 dist
-.env
-.env.local
+# Any env file except the committed template.
+.env*
+!.env.example
 *.log
 next-env.d.ts
 tsconfig.tsbuildinfo

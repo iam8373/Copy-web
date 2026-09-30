@@ -6,6 +6,7 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import { AmountField } from "@/components/AmountField";
+import { getMarketText } from "@/lib/market-text";
 import { validateAmount } from "@/lib/trade-limits";
 
 export function TradeModal() {
@@ -16,7 +17,7 @@ export function TradeModal() {
 
   const [amount, setAmount] = useState("500");
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
-  const { t } = useT();
+  const { t, locale } = useT();
 
   useEffect(() => {
     if (trade) {
@@ -50,7 +51,7 @@ export function TradeModal() {
               {market.category} • {market.subcategory}
             </p>
             <h2 className="mt-0.5 line-clamp-2 text-[15px] font-bold text-content-primary">
-              {market.title}
+              {getMarketText(market, locale).title}
             </h2>
           </div>
           <button

@@ -132,3 +132,10 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   (typecheck enforces it). The old `.scratch` generators are gitignored scratch tools.
 - **Order limits** (Phase 5, D-013): `src/lib/trade-limits.ts`. Use `<AmountField>` for
   any amount input; never hard-code min/max/step.
+- **Market translations** (Phase 6, D-014): read with `useMarketText(market)` /
+  `getMarketText(market, locale)` from `@/lib/market-text` — never `market.title`
+  directly in UI. Regenerate with `npm run translate:markets` (needs `OPENAI_API_KEY` and
+  `OPENAI_MODEL` in `.env.local`); check with `npm run validate:translations`.
+  App code must not import `services/translation/{translate,run,store}` (ESLint enforces).
+- **Secret scan:** `npm run check:secrets`. Inside the Alloy container, git reports
+  "dubious ownership", so the scan fails closed there; run it on the host or in CI.

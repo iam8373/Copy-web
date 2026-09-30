@@ -8,5 +8,36 @@
     "out/",
     "playwright-report/",
     "test-results/"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/app/**/*",
+        "src/components/**/*",
+        "src/lib/**/*",
+        "src/store/**/*",
+        "src/i18n/**/*"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/services/translation/translate",
+                  "@/services/translation/run",
+                  "@/services/translation/store",
+                  "**/services/translation/translate",
+                  "**/services/translation/run",
+                  "**/services/translation/store"
+                ],
+                "message": "The translation service is script/server-only (it handles the OpenAI key and the filesystem). App code may only import services/translation/{types,hash} and lib/market-text."
+              }
+            ]
+          }
+        ]
+      }
+    }
   ]
 }

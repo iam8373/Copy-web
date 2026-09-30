@@ -10,7 +10,10 @@
     "lint": "next lint",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run build",
-    "test:e2e:sandbox": "E2E_PORT=3100 playwright test"
+    "test:e2e:sandbox": "E2E_PORT=3100 playwright test",
+    "translate:markets": "tsx scripts/translate-markets.ts",
+    "check:secrets": "bash scripts/check-secrets.sh",
+    "validate:translations": "tsx scripts/validate-translations.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -32,6 +35,7 @@
     "eslint-config-next": "14.2.35",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
 }

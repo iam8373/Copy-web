@@ -291,6 +291,23 @@ export const hi: Dictionary = {
     label: "लोड हो रहा है…",
   },
 
+  terms: {
+    yes: "हाँ",
+    no: "नहीं",
+    buy: "खरीदें",
+    sell: "बेचें",
+    probability: "संभावना",
+    volume: "वॉल्यूम",
+    marketCloses: "मार्केट बंद होगा",
+    resolves: "निपटान",
+    liquidity: "तरलता",
+    position: "पोज़िशन",
+  },
+
+  market: {
+    translatedNote: "स्वचालित रूप से अनुवादित",
+  },
+
   legal: {
     englishPrevails:
       "कानूनी पृष्ठ अंग्रेज़ी में प्रकाशित हैं। किसी भी अंतर की स्थिति में अंग्रेज़ी संस्करण मान्य होगा।",

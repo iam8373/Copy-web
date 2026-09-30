@@ -296,6 +296,23 @@ export const ta: Dictionary = {
     label: "ஏற்றப்படுகிறது…",
   },
 
+  terms: {
+    yes: "ஆம்",
+    no: "இல்லை",
+    buy: "வாங்கு",
+    sell: "விற்பனை",
+    probability: "நிகழ்தகவு",
+    volume: "அளவு",
+    marketCloses: "சந்தை மூடப்படும்",
+    resolves: "தீர்வு",
+    liquidity: "நீர்மை",
+    position: "நிலை",
+  },
+
+  market: {
+    translatedNote: "தானியங்கியாக மொழிபெயர்க்கப்பட்டது",
+  },
+
   legal: {
     englishPrevails: "சட்டப் பக்கங்கள் ஆங்கிலத்தில் வெளியிடப்படுகின்றன. ஏதேனும் வேறுபாடு இருந்தால் ஆங்கிலப் பதிப்பே செல்லுபடியாகும்.",
   },
