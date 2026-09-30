@@ -32,10 +32,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next-e2e/types/**/*.ts",
-    ".next-check/types/**/*.ts",
-    ".next-ci/types/**/*.ts",
-    ".next-flag/types/**/*.ts"
+    ".next-e2e/types/**/*.ts"
   ],
   "exclude": [
     ".next-e2e",
