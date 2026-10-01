@@ -143,3 +143,22 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - **CI** (Phase 7, D-015): `.github/workflows/ci.yml`. To bump an action, resolve the new
   tag to its commit SHA and keep the `# vX.Y.Z` comment. Lint the workflow with
   `actionlint`. `scripts/verify-build.sh <distDir>` checks a normal build's output.
+
+## Work order 3 — backend (Supabase)
+
+- **Schema** lives only in `supabase/migrations/`; after any change run `npm run db:types`
+  and commit `src/types/database.ts`. Tests: `supabase test db` (pgTAP in
+  `supabase/tests/`).
+- **Never write tables from the client.** RLS is SELECT-only; writes = service role on the
+  server or SECURITY DEFINER functions.
+- **`legacy_id` / `legacy_key`** map DB rows to the old static ids (`mkt_001`, `yes`).
+  Only the seed uses `src/data/markets.ts` going forward (Phase 3 removes runtime use).
+- **Sandbox stand-in for `supabase start`:** `supabase start` fails here ("unable to
+  derive the IP value for host-gateway") because the sandbox Docker daemon runs with
+  `--bridge=none` and cannot be restarted. Instead, containers run with `--network host`:
+  `bp-pg` (supabase/postgres 17, port 54322), `bp-rest` (PostgREST, 54330), `bp-kong`
+  (Kong, 54321 → `/rest/v1/`). `.scratch/db-apply.sh` = `db reset`. Local JWTs in
+  `.scratch/localstack/keys.json`; `.env.local` points at them. GoTrue and Realtime are
+  not running yet (Phase 2/3). On a normal machine just use `supabase start`.
+- **Supabase CLI** is a downloaded binary in `.scratch/` here, not a project dependency
+  (awaiting approval to add `supabase` as a devDependency).

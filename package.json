@@ -13,9 +13,13 @@
     "test:e2e:sandbox": "E2E_PORT=3100 playwright test",
     "translate:markets": "tsx scripts/translate-markets.ts",
     "check:secrets": "bash scripts/check-secrets.sh",
-    "validate:translations": "tsx scripts/validate-translations.ts"
+    "validate:translations": "tsx scripts/validate-translations.ts",
+    "db:seed": "tsx scripts/db-seed.ts",
+    "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
+    "db:test": "supabase test db"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "clsx": "^2.1.1",
     "lucide-react": "^0.454.0",
     "next": "14.2.35",

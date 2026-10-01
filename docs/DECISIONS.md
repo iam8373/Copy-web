@@ -2,6 +2,36 @@
 
 Architecture and product decisions, newest first.
 
+## D-017 — LMSR liquidity default needs an owner decision
+
+**Date:** Backend Phase 1
+**Status:** Open
+
+`default_liquidity_b` is 1,000 and `max_trade` is 100,000 credits. With b = 1,000 a single
+maximum order on a 50/50 market moves its price to ~100%. `b` should be sized to expected
+volume (the market maker's worst-case loss is b·ln(#outcomes), in virtual credits).
+Suggested: b ≈ 10,000–50,000 for headline markets, or lower `max_trade`. Admins can set b
+per market in Phase 6.
+
+## D-016 — Wallet is an append-only ledger; balance enforced in the database
+
+**Date:** Backend Phase 1
+**Status:** Accepted
+
+Balance = Σ ledger_entries.amount. A cached `wallets.balance` is maintained by a BEFORE
+INSERT trigger on the ledger and protected by `CHECK (balance >= 0)`, so an overdraft is
+impossible regardless of caller (client, service role or SQL function). Ledger, orders,
+price history and audit log reject UPDATE/DELETE via triggers that apply to every role.
+One `signup_credit` per user is a unique index, not application logic.
+
+Clients never write any table: RLS has SELECT policies only and write privileges are
+revoked from `anon`/`authenticated`. All writes go through the service role on the server
+or SECURITY DEFINER functions (from Phase 2/4). Admin reads use the service role after a
+server-side role check; there is intentionally no "admin can read all" RLS policy.
+
+Units: all money columns are virtual credits (`numeric(18,2)`); shares and LMSR
+quantities `numeric(24,8)`; prices `numeric(12,10)`. Nothing is labelled rupees in the DB.
+
 ## D-015 — CI is secret-free, least-privilege and SHA-pinned
 
 **Date:** Phase 7

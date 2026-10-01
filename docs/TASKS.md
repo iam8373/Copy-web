@@ -238,3 +238,60 @@ activity feed) is still English-only; it predates i18n and was out of scope here
 
 **Not verified:** the workflow has never run on GitHub itself — `git push` has no
 credentials in this sandbox.
+
+---
+
+# Work order 3 — real backend + admin panel
+
+Stack: Supabase (Postgres, Auth, Realtime, RLS), Next.js server components / actions /
+route handlers, zod, Vercel. Virtual play credits only.
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1 | Schema, RLS, seed | **Done** |
+| 2 | Real authentication | Not started |
+| 3 | Read path from the database | Not started |
+| 4 | Trading engine + wallet | Not started |
+| 5 | Portfolio from the database | Not started |
+| 6 | Admin panel (core) | Not started |
+| 7 | Translations in the admin panel | Not started |
+| 8 | Admin: users, compliance, safety | Not started |
+| 9 | Hardening and tests | Not started |
+| 10 | Deployment | Not started |
+
+## Phase 1 — detail
+
+- `supabase/config.toml` (`supabase init`, project id `bharat-predict`; analytics and
+  edge runtime disabled).
+- `supabase/migrations/20261001000100_core_schema.sql`: 12 tables (profiles, markets,
+  outcomes, market_translations, wallets, ledger_entries, orders, positions,
+  price_history, audit_log, grievances, app_settings). uuid keys, CHECK constraints for
+  every enum, composite FKs so an order/position/price row can't name an outcome from a
+  different market, `updated_at` triggers on mutable tables.
+- Ledger: `ledger_entries` is append-only (trigger rejects UPDATE/DELETE for every role);
+  a BEFORE INSERT trigger applies each entry to `wallets.balance`, which is
+  `CHECK (balance >= 0)`, so no entry can overdraw. Partial unique index allows one
+  `signup_credit` per user. `orders`, `price_history`, `audit_log` are append-only too.
+- `supabase/migrations/20261001000200_rls.sql`: RLS on all 12 tables; only SELECT
+  policies (public non-draft market data; own profile/wallet/ledger/orders/positions);
+  all anon/authenticated privileges revoked then SELECT re-granted; service role granted
+  explicitly.
+- `supabase/seed.sql`: `app_settings` defaults (trading_enabled, min/max trade,
+  signup_credit 10,000, default_liquidity_b 1,000).
+- `npm run db:seed` (`scripts/db-seed.ts` + pure `scripts/seed-rows.ts`): imports 91
+  markets, 227 outcomes and 40 saved translations via the service role. Insert-if-missing,
+  so re-runs are no-ops. Initial prices are normalised to sum to 1 and converted to LMSR
+  quantities. Past end dates seed as `closed`; top 5 by volume are `is_featured`.
+- `src/lib/lmsr.ts`: reference LMSR math (prices, cost, quantities, shares-for-amount in
+  log space).
+- `src/types/database.ts`: generated with `supabase gen types`; `npm run db:types`.
+- Tests: `supabase/tests/001_schema_rls.test.sql` (pgTAP, 31 checks) and
+  `tests/e2e/db-schema.spec.ts` (14 node checks: category CHECK = CATEGORIES, every table
+  has RLS, no write grants/policies, LMSR math, seed rows).
+
+**Results:** typecheck, lint, build clean; pgTAP 31/31; Playwright 334/334 (desktop +
+mobile); seed run twice → `+91/+227/+40` then `+0/+0/+0`; max |Σprice − 1| = 1e-10.
+
+**Bugs found:** (1) `sharesForAmount` overflowed (`e^{amount/b}`) for large orders — now
+evaluated in log space. (2) Recreating the schema dropped the service role's grants, so the
+seed got "permission denied"; the migration now grants it explicitly.
