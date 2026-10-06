@@ -34,7 +34,7 @@ export function BottomNav() {
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-subtle bg-bg-secondary/95 backdrop-blur-xl sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-subtle bg-surface-2/95 backdrop-blur-xl sm:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="grid grid-cols-4">
@@ -47,8 +47,8 @@ export function BottomNav() {
                 href={item.href}
                 aria-label={t("bottomNav", item.key)}
                 className={cn(
-                  "flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors",
-                  active ? "text-accent-blue" : "text-content-secondary"
+                  "flex flex-col items-center gap-1 py-3 text-11 font-semibold transition-colors",
+                  active ? "text-brand" : "text-secondary"
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -60,8 +60,8 @@ export function BottomNav() {
             type="button"
             onClick={() => setSheetOpen(true)}
             className={cn(
-              "flex flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors",
-              sheetOpen ? "text-accent-blue" : "text-content-secondary"
+              "flex flex-col items-center gap-1 py-3 text-11 font-semibold transition-colors",
+              sheetOpen ? "text-brand" : "text-secondary"
             )}
           >
             <MoreHorizontal className="h-5 w-5" />
@@ -77,16 +77,16 @@ export function BottomNav() {
             onClick={() => setSheetOpen(false)}
           />
           <div
-            className="relative w-full rounded-t-xl border border-subtle bg-bg-secondary p-4 shadow-2xl animate-slide-up"
+            className="relative w-full rounded-t-dialog border border-subtle bg-surface-2 p-4 shadow-dialog animate-slide-up"
             style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
           >
             <div className="flex items-center">
-              <h2 className="text-[15px] font-bold text-content-primary">{t("bottomNav", "more")}</h2>
+              <h2 className="text-16 font-bold text-primary">{t("bottomNav", "more")}</h2>
               <button
                 type="button"
                 onClick={() => setSheetOpen(false)}
                 aria-label={t("bottomNav", "close")}
-                className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-content-secondary transition-colors hover:bg-bg-tertiary"
+                className="ml-auto grid h-8 w-8 place-items-center rounded-btn text-secondary transition-colors hover:bg-surface-3"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -96,47 +96,47 @@ export function BottomNav() {
               <Link
                 href="/learn"
                 onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
               >
-                <LifeBuoy className="h-4 w-4 text-content-secondary" />
+                <LifeBuoy className="h-4 w-4 text-secondary" />
                 {t("bottomNav", "helpCentre")}
               </Link>
               <Link
                 href="/terms"
                 onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
               >
-                <FileText className="h-4 w-4 text-content-secondary" />
+                <FileText className="h-4 w-4 text-secondary" />
                 {t("bottomNav", "terms")}
               </Link>
               <Link
                 href="/privacy"
                 onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
               >
-                <ShieldCheck className="h-4 w-4 text-content-secondary" />
+                <ShieldCheck className="h-4 w-4 text-secondary" />
                 {t("bottomNav", "privacy")}
               </Link>
               <Link
                 href="/responsible-play"
                 onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
               >
-                <HeartHandshake className="h-4 w-4 text-content-secondary" />
+                <HeartHandshake className="h-4 w-4 text-secondary" />
                 {t("bottomNav", "responsiblePlay")}
               </Link>
               <Link
                 href="/grievance"
                 onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold text-content-primary transition-colors hover:bg-bg-tertiary"
+                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
               >
-                <MessageSquareWarning className="h-4 w-4 text-content-secondary" />
+                <MessageSquareWarning className="h-4 w-4 text-secondary" />
                 {t("bottomNav", "grievance")}
               </Link>
             </div>
 
             <div className="mt-3 border-t border-subtle pt-3">
-              <p className="flex items-center gap-2 px-3 text-[12px] font-semibold text-content-secondary">
+              <p className="flex items-center gap-2 px-3 text-12 font-semibold text-secondary">
                 <Languages className="h-4 w-4" />
                 {t("bottomNav", "language")}
               </p>

@@ -27,13 +27,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={fontVariables}>
-      <body className="min-h-screen bg-bg-primary font-sans text-content-primary antialiased">
+      <body className="min-h-screen bg-surface-1 font-sans text-primary antialiased">
         <LanguageProvider>
         <ThemeProvider>
           <LiveTicker />
           <Header />
           <CategoryNav />
-          <main className="mx-auto max-w-[1400px] px-4 pb-24 pt-4 sm:px-6 sm:pb-10 sm:pt-6">
+          <main className="mx-auto max-w-content px-gutter pb-24 pt-4 sm:pb-12 sm:pt-6">
             {children}
           </main>
           <Footer />

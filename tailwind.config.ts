@@ -9,6 +9,9 @@ const rgb = (v: string) => `rgb(var(${v}) / <alpha-value>)`;
 
 const config: Config = {
   darkMode: "class",
+  // Every hover: variant is emitted inside @media (hover: hover), so touch
+  // devices never get sticky hover states (docs/DESIGN.md).
+  future: { hoverOnlyWhenSupported: true },
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {

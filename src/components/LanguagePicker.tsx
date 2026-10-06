@@ -21,7 +21,7 @@ export function LanguagePicker({
 
   if (variant === "select") {
     return (
-      <label className="flex items-center gap-2 text-[13px] text-content-secondary">
+      <label className="flex items-center gap-2 text-13 text-secondary">
         <Languages className="h-4 w-4" aria-hidden="true" />
         <span className="sr-only">{t("header", "language")}</span>
         <select
@@ -32,7 +32,7 @@ export function LanguagePicker({
             setLocale(e.target.value as (typeof LOCALES)[number]);
             onPick?.();
           }}
-          className="rounded-lg border border-subtle bg-bg-secondary px-2 py-1 text-[13px] font-semibold text-content-primary outline-none focus:border-accent-blue"
+          className="rounded-btn border border-subtle bg-surface-2 px-2 py-1 text-13 font-semibold text-primary outline-none focus:border-brand"
         >
           {LOCALES.map((l) => (
             <option key={l} value={l}>
@@ -57,10 +57,10 @@ export function LanguagePicker({
             onPick?.();
           }}
           className={cn(
-            "rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
+            "rounded-btn border px-3 py-1.5 text-12 font-semibold transition-colors",
             l === locale
-              ? "border-accent-blue bg-accent-blue/15 text-accent-blue"
-              : "border-subtle bg-bg-tertiary text-content-secondary"
+              ? "border-brand bg-brand/15 text-brand"
+              : "border-subtle bg-surface-3 text-secondary"
           )}
         >
           {LOCALE_META[l].label}

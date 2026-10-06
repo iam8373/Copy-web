@@ -26,22 +26,22 @@ export function Toaster() {
         return (
           <div
             key={toast.id}
-            className="pointer-events-auto flex items-start gap-2.5 rounded-xl border border-subtle bg-bg-secondary p-3 shadow-2xl animate-slide-up"
+            className="pointer-events-auto flex items-start gap-3 rounded-card border border-subtle bg-surface-2 p-3 shadow-dialog animate-slide-up"
           >
             <Icon
               className={cn(
-                "mt-0.5 h-4 w-4 shrink-0",
-                toast.tone === "success" && "text-accent-green",
-                toast.tone === "info" && "text-accent-blue",
-                toast.tone === "error" && "text-accent-red"
+                "mt-1 h-4 w-4 shrink-0",
+                toast.tone === "success" && "text-success",
+                toast.tone === "info" && "text-brand",
+                toast.tone === "error" && "text-danger"
               )}
             />
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-semibold text-content-primary">
+              <p className="text-13 font-semibold text-primary">
                 {t("toast", toast.titleKey as keyof Dictionary["toast"], toast.vars)}
               </p>
               {toast.bodyKey && (
-                <p className="mt-0.5 text-[12px] text-content-secondary">
+                <p className="mt-1 text-12 text-secondary">
                   {t("toast", toast.bodyKey as keyof Dictionary["toast"], toast.vars)}
                 </p>
               )}
@@ -50,7 +50,7 @@ export function Toaster() {
               type="button"
               onClick={() => dismiss(toast.id)}
               aria-label={t("toast", "dismiss")}
-              className="shrink-0 text-content-secondary transition-colors hover:text-content-primary"
+              className="shrink-0 text-secondary transition-colors hover:text-primary"
             >
               <X className="h-3.5 w-3.5" />
             </button>
