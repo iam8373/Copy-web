@@ -1,12 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import {
-  MARKETS,
-  buildActivity,
-  buildHistory,
-  buildOrderBook,
-  getMarketBySlug,
-} from "@/data/markets";
+import { MARKETS, getMarketBySlug } from "@/data/markets";
 import { MarketDetail } from "@/components/MarketDetail";
 
 export function generateStaticParams() {
@@ -22,12 +16,6 @@ export default function MarketPage({ params }: { params: { slug: string } }) {
   const market = getMarketBySlug(params.slug);
   if (!market) notFound();
 
-  return (
-    <MarketDetail
-      market={market}
-      history={buildHistory(market)}
-      book={buildOrderBook(market)}
-      activity={buildActivity(market)}
-    />
-  );
+  // Chart, order book and activity come from src/services/markets/market-data.ts.
+  return <MarketDetail market={market} />;
 }

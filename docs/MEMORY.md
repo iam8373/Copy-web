@@ -185,3 +185,7 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - Phase 3 done. Search options are `role="option"` inside `[data-testid="search-dialog"]`
   (the language `<select>` is also a combobox, so scope queries). Arbitrary `max-[Npx]`
   variants fail check:tokens; add a screen token instead (`xs` = 400px exists).
+- Phase 4 done. Market page data only via `src/services/markets/market-data.ts`. Desktop
+  amount input is `#detail-amount` (trade panel); the sheet's is `#amount` and on mobile
+  the panel is hidden — open the sheet from `[data-testid="mobile-trade-bar"]`. The welcome
+  toast is also `role="status"`; assert order toasts by text.

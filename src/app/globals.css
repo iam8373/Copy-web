@@ -12,6 +12,9 @@
      next/font/local on <html> (src/fonts/fonts.ts). */
   --font-indic: system-ui; /* replaced by the active Noto family below */
   --gutter: 16px;
+  /* Height of the mobile BottomNav (0 from sm, where it is hidden). Fixed
+     bars that sit above it (market page Yes/No bar) offset by this. */
+  --bottom-nav-h: 56px;
 
   /* Surfaces, borders, text (dark theme is the default). */
   --surface-1: 10 11 13;      /* #0A0B0D */
@@ -74,6 +77,12 @@ html.light {
   --shadow-card: 0 0 0 1px rgb(10 11 13 / 0.06), 0 1px 2px rgb(10 11 13 / 0.04), 0 2px 8px rgb(10 11 13 / 0.04);
   --shadow-popover: 0 0 0 1px rgb(10 11 13 / 0.06), 0 4px 12px rgb(10 11 13 / 0.08), 0 12px 32px rgb(10 11 13 / 0.08);
   --shadow-dialog: 0 0 0 1px rgb(10 11 13 / 0.06), 0 12px 32px rgb(10 11 13 / 0.12), 0 32px 80px rgb(10 11 13 / 0.12);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --bottom-nav-h: 0px;
+  }
 }
 
 @media (min-width: 768px) {

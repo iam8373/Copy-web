@@ -309,7 +309,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | 1 | Foundations: DESIGN.md, tokens, fonts, hard-coded value cleanup | Done |
 | 2 | Shared components (`src/components/ui/`) | Done |
 | 3 | Home and navigation polish | Done |
-| 4 | Market detail page | Not started |
+| 4 | Market detail page | Done |
 | 5 | Motion pass | Not started |
 | 6 | Tests and docs | Not started |
 | 7 | Jev AI decision layer | Optional — ask first |
@@ -320,6 +320,13 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 - **Sell-back** in the trading engine (LMSR sell), then a Sell tab in the trade panel.
   The panel is buy-only until then.
 - "New" sort chip once the backend exposes `created_at`.
+- **Demo fills ignore price impact.** The order book quotes LMSR costs, but the demo store
+  still fills at the displayed price (`shares = amount / price`). The backend
+  `place_order` fixes this; until then the order book footnote says so.
+- Positions tab on the market page could list the signed-in user's own positions in that
+  market (data already in the store); kept as an empty state per the agreed scope.
+- Market data (category blurbs, sub-categories, outcome labels) is English-only until the
+  backend serves translations.
 
 ## Phase 1 — progress
 
@@ -400,4 +407,43 @@ Playwright 356/356.
 are market data and stay English until the backend serves translations.
 
 **Results:** typecheck, lint, check:tokens clean; Playwright 380/380.
+
+## Phase 4 — progress
+
+- **Data behind three functions** in `src/services/markets/market-data.ts`:
+  `getPriceHistory(market, range)` (seeded demo walk ending at the live price, flagged
+  `isDemo`), `getOrderBook(market, outcomeId)` (LMSR quotes), `getMarketActivity(market)`
+  (empty). The page route no longer builds data; `buildHistory/buildOrderBook/buildActivity`
+  (fake order book in `$`, invented usernames) are deleted.
+- **Layout:** lg+ = content + sticky 360px trade panel (`grid-cols-market`); below lg = a
+  fixed Yes/No bar (multi: "Trade this market") above the BottomNav (`--bottom-nav-h`) that
+  opens the trade sheet.
+- **Chart:** "Demo data" badge + tooltip; 1D/1W/1M/All; binary = one area line with the big
+  "NN% chance" figure; multi = top 4 outcomes in chart-1…4 with a legend; ticks never repeat
+  a date; text summary as the chart's accessible name; draw-in only on first paint and not
+  under reduced motion; series built after mount (no SSR/hydration drift) and anchored so
+  live ticks move only the last point.
+- **Order Book:** honest AMM ladder for 10/50/100/500 shares — avg price, total cost (₹),
+  price after and impact (warning colour above 5 pts). Tooltip explains the market maker;
+  footnote states the liquidity (b = 1,000, D-017) and the demo fill caveat. Yes/No switch
+  for binary; multi follows the selected outcome. Multi-outcome prices that sum to < 1 get a
+  "rest of field" bucket so quotes start at the displayed price.
+- **Outcomes list** (multi): all outcomes by price with chart colours and Buy buttons
+  (selects in the panel on lg, opens the sheet below).
+- **Rules & resolution** accordion (`aria-expanded`), **Activity / Top holders / Positions /
+  Comments** tabs, each an `EmptyState`.
+- **TradeForm** shared by the panel and `TradeModal` (now on `Dialog`): Yes/No tinted
+  outcome buttons (`aria-pressed`), amount, avg price, shares, payout with return %, Place
+  Order. Buy only (Sell is in the backlog).
+- New `Segmented` primitive (sort, chart range, order book outcome).
+- Every page string translated in all six locales (`market.*`); it was mostly hard-coded
+  English before.
+- **Bug fixed on the way:** an element with both a display class (`flex`) and the `hidden`
+  attribute stays visible (the class wins), so the rules panel never collapsed in the first
+  draft; it toggles classes now.
+- Tests: `tests/e2e/market-page.spec.ts` (service functions, chart, order book, empty tabs,
+  rules, Hindi, 360px, desktop panel, mobile bar and sheet). `trade-limits.spec.ts` opens the
+  sheet on mobile.
+
+**Results:** typecheck, lint, check:tokens clean; Playwright 406/406.
 

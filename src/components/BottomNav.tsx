@@ -35,7 +35,7 @@ const MORE_LINKS = [
 ];
 
 const ITEM =
-  "flex min-h-touch flex-col items-center justify-center gap-1 py-2 text-11 font-semibold transition-colors duration-xs " +
+  "flex h-bottom-nav flex-col items-center justify-center gap-1 text-11 font-semibold transition-colors duration-xs " +
   FOCUS_RING;
 
 export function BottomNav() {

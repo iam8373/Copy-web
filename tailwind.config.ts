@@ -88,6 +88,12 @@ const config: Config = {
         touch: "44px",
         // Trade panel column on lg.
         panel: "360px",
+        // Mobile BottomNav height (0 from sm); see --bottom-nav-h.
+        "bottom-nav": "var(--bottom-nav-h)",
+      },
+      gridTemplateColumns: {
+        // Market page on lg: content + sticky trade panel.
+        market: "minmax(0, 1fr) 360px",
       },
       maxWidth: {
         content: "1280px",

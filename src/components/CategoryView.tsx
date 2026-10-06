@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { Star } from "lucide-react";
-import { Chip, FOCUS_RING, HIT_AREA } from "@/components/ui";
+import { Chip, Segmented } from "@/components/ui";
 import { useMarketStore } from "@/store/useMarketStore";
 import { MarketGrid } from "@/components/MarketGrid";
 import { SORT_OPTIONS, type CategoryMeta, type SortOption } from "@/lib/types";
-import { cn, formatVolume } from "@/lib/utils";
+import { formatVolume } from "@/lib/utils";
 import { NAV_KEY_BY_SLUG, type Dictionary } from "@/i18n";
 import { useT } from "@/i18n/LanguageProvider";
 
@@ -102,36 +102,13 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
 
       <div className="flex items-center gap-3 border-b border-subtle pb-3">
         {/* Segmented control, so sorting reads differently from the filter chips. */}
-        <div
-          role="group"
-          aria-label={t("category", "sortBy")}
-          className="flex min-w-0 gap-1 rounded-btn bg-surface-3 p-1"
-        >
-          {SORT_OPTIONS.map((s) => {
-            const selected = s === sort;
-            return (
-              <button
-                key={s}
-                type="button"
-                data-testid="sort-option"
-                data-sort={s}
-                data-active={selected ? "true" : "false"}
-                aria-pressed={selected}
-                onClick={() => setSort(s)}
-                className={cn(
-                  "relative h-8 shrink-0 whitespace-nowrap rounded-chip px-2.5 text-12 font-semibold transition-colors duration-xs sm:px-3 sm:text-13",
-                  HIT_AREA,
-                  FOCUS_RING,
-                  selected
-                    ? "bg-surface-1 text-primary shadow-card"
-                    : "text-secondary hover:text-primary"
-                )}
-              >
-                {t("sort", SORT_KEY[s])}
-              </button>
-            );
-          })}
-        </div>
+        <Segmented
+          label={t("category", "sortBy")}
+          value={sort}
+          onValueChange={setSort}
+          options={SORT_OPTIONS.map((s) => ({ value: s, label: t("sort", SORT_KEY[s]) }))}
+          optionProps={(s) => ({ "data-testid": "sort-option", "data-sort": s })}
+        />
         <span
           className="tnum ml-auto shrink-0 whitespace-nowrap text-12 text-secondary"
           data-testid="shown-count"

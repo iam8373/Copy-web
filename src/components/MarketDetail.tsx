@@ -1,129 +1,95 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import {
+  Activity as ActivityIcon,
   ChevronDown,
   ChevronLeft,
+  Languages,
+  MessageSquare,
+  Users,
+  Wallet,
 } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import type { Market } from "@/lib/types";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
-import { AmountField } from "@/components/AmountField";
-import { validateAmount } from "@/lib/trade-limits";
+import { NAV_KEY_BY_SLUG } from "@/i18n";
 import { useMarketText } from "@/lib/market-text";
-import { color, size, tooltipStyle } from "@/lib/tokens";
-import { Languages } from "lucide-react";
+import { media, chartColor } from "@/lib/tokens";
 import { Countdown } from "@/components/Countdown";
 import { FlashValue } from "@/components/FlashValue";
+import { TradeForm } from "@/components/TradeForm";
+import { PriceChart, chartedOutcomes } from "@/components/market/PriceChart";
+import { OrderBook } from "@/components/market/OrderBook";
 import {
-  cn,
-  formatChange,
-  formatEndDate,
-  formatPercent,
-  formatRupees,
-  formatVolumeFull,
-} from "@/lib/utils";
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  FOCUS_RING,
+  TabPanel,
+  Tabs,
+} from "@/components/ui";
+import { cn, formatChange, formatEndDate, formatPercent, formatVolumeFull } from "@/lib/utils";
+import { getMarketActivity } from "@/services/markets/market-data";
 
-type Point = { t: string; p: number };
-type Book = { asks: Array<{ price: number; size: number }>; bids: Array<{ price: number; size: number }> };
-type Activity = {
-  id: string;
-  user: string;
-  side: string;
-  shares: number;
-  label: string;
-  price: number;
-  minutesAgo: number;
-};
+type Section = "activity" | "holders" | "positions" | "comments";
 
-
-export function MarketDetail({
-  market: initial,
-  history,
-  book,
-  activity,
-}: {
-  market: Market;
-  history: Point[];
-  book: Book;
-  activity: Activity[];
-}) {
+/**
+ * Market page. lg+: content on the left, sticky trade panel on the right.
+ * Below lg: a fixed Yes/No bar opens the trade sheet (TradeModal).
+ */
+export function MarketDetail({ market: initial }: { market: Market }) {
   const markets = useMarketStore((s) => s.markets);
-  const placeOrder = useMarketStore((s) => s.placeOrder);
+  const openTrade = useMarketStore((s) => s.openTrade);
   const market = markets.find((m) => m.id === initial.id) ?? initial;
+  const { t, locale } = useT();
+  const text = useMarketText(market);
 
   const [outcomeId, setOutcomeId] = useState(market.outcomes[0].id);
   const [amount, setAmount] = useState("500");
-  const { t, locale } = useT();
-  const text = useMarketText(market);
-  const [rulesOpen, setRulesOpen] = useState(false);
+  const [section, setSection] = useState<Section>("activity");
 
-  const selected = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
-  const check = validateAmount(amount);
-  const shares = check.ok ? check.value / Math.max(selected.price, 0.01) : 0;
+  const category = t("nav", NAV_KEY_BY_SLUG[market.category]);
+  const activity = getMarketActivity(market);
 
-  const chartData = useMemo(() => {
-    const data = [...history];
-    data[data.length - 1] = {
-      ...data[data.length - 1],
-      p: Number((market.outcomes[0].price * 100).toFixed(1)),
-    };
-    return data.map((d) => ({
-      ...d,
-      label: new Date(d.t).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        timeZone: "UTC",
-      }),
-    }));
-  }, [history, market.outcomes]);
-
-  const up = market.outcomes[0].change24h >= 0;
-  const maxSize = Math.max(...book.asks.map((a) => a.size), ...book.bids.map((b) => b.size));
+  /** Picks an outcome: in the panel on lg, in the trade sheet below. */
+  const buy = (id: string) => {
+    setOutcomeId(id);
+    if (!window.matchMedia(media.lg).matches) openTrade(market, id);
+  };
 
   return (
     <div className="flex flex-col gap-5">
       <Link
         href={`/markets/${market.category}`}
-        className="flex w-fit items-center gap-1 text-13 font-semibold text-secondary transition-colors hover:text-primary"
+        className={cn(
+          "relative -ml-2 flex min-h-touch w-fit items-center gap-1 rounded-btn px-2 text-13 font-semibold text-secondary transition-colors duration-xs hover:text-primary",
+          FOCUS_RING
+        )}
       >
-        <ChevronLeft className="h-4 w-4" />
-        Back to {market.category}
+        <ChevronLeft className="h-4 w-4" aria-hidden />
+        {t("market", "back", { category })}
       </Link>
 
-      <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2 text-11 font-semibold uppercase tracking-wide">
-          <span className="rounded-chip bg-brand/15 px-2 py-1 text-brand">
-            {market.category} • {market.subcategory}
-          </span>
+      <header className="-mt-2 flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone="brand">
+            {category} • {market.subcategory}
+          </Badge>
           {market.isLive ? (
-            <span className="flex items-center gap-1 rounded-chip bg-danger/15 px-2 py-1 text-danger">
-              <span className="h-1.5 w-1.5 rounded-full bg-danger animate-pulse-dot" />
-              Live <Countdown endDate={market.endDate} />
-            </span>
+            <Badge tone="danger" dot="pulse">
+              {t("card", "live")}{" "}
+              <span className="tnum">
+                <Countdown endDate={market.endDate} />
+              </span>
+            </Badge>
           ) : (
-            <span className="rounded-chip bg-surface-3 px-2 py-1 text-secondary">
-              Open
-            </span>
+            <Badge>{t("market", "open")}</Badge>
           )}
-          <span className="text-secondary">
-            {t("terms", "resolves")} {formatEndDate(market.endDate)}
-          </span>
         </div>
-        <h1 className="text-xl font-bold leading-tight tracking-tight text-primary sm:text-2xl">
-          {text.title}
-        </h1>
+        <h1 className="text-20 font-bold tracking-tight text-primary sm:text-24">{text.title}</h1>
         {/* Saved AI translation, not yet reviewed by a native speaker. */}
         {text.translated && locale !== "en" && (
           <p
@@ -134,283 +100,247 @@ export function MarketDetail({
             {t("market", "translatedNote")}
           </p>
         )}
-        <p className="tnum text-13 text-secondary">
-          {t("terms", "volume")} {formatVolumeFull(market.totalVolume)}
-        </p>
+        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-13">
+          <div className="flex gap-1.5">
+            <dt className="text-secondary">{t("terms", "volume")}</dt>
+            <dd className="tnum font-semibold text-primary">{formatVolumeFull(market.totalVolume)}</dd>
+          </div>
+          <div className="flex gap-1.5">
+            <dt className="text-secondary">{t("terms", "marketCloses")}</dt>
+            <dd className="tnum font-semibold text-primary">{formatEndDate(market.endDate)}</dd>
+          </div>
+        </dl>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
-        <div className="flex flex-col gap-4">
-          {/* Probability chart */}
-          <section className="rounded-card border border-subtle bg-surface-2 p-4">
-            <div className="flex items-baseline gap-2">
-              <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
-                {market.outcomes[0].label} probability
-              </h2>
-              <FlashValue
-                value={market.outcomes[0].price}
-                className="ml-auto text-2xl font-bold text-primary"
-              >
-                {formatPercent(market.outcomes[0].price, 1)}
-              </FlashValue>
-              <span
-                className={cn(
-                  "tnum text-13 font-semibold",
-                  up ? "text-success" : "text-danger"
-                )}
-              >
-                {formatChange(market.outcomes[0].change24h)} pts
-              </span>
-            </div>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-market">
+        <div className="flex min-w-0 flex-col gap-5">
+          <PriceChart market={market} />
 
-            <div className="mt-3 h-56 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 4, right: 12, bottom: 0, left: 4 }}>
-                  <defs>
-                    <linearGradient id="prob" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={color.brand} stopOpacity={0.35} />
-                      <stop offset="100%" stopColor={color.brand} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke={color.borderSubtle} vertical={false} />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fill: color.textSecondary, fontSize: size.axisFont }}
-                    stroke={color.borderSubtle}
-                    interval="preserveStartEnd"
-                    minTickGap={72}
-                    tickMargin={8}
-                    padding={{ left: 12, right: 12 }}
-                  />
-                  <YAxis
-                    domain={[0, 100]}
-                    tickFormatter={(v) => `${v}%`}
-                    tick={{ fill: color.textSecondary, fontSize: size.axisFont }}
-                    stroke={color.borderSubtle}
-                    width={size.axisWidth}
-                  />
-                  <Tooltip
-                    contentStyle={tooltipStyle}
-                    formatter={(v) => [`${v}%`, "Probability"]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="p"
-                    stroke={color.brand}
-                    strokeWidth={size.lineWidth}
-                    fill="url(#prob)"
-                    dot={false}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
+          {!market.isBinary && (
+            <OutcomeList market={market} selectedId={outcomeId} onBuy={buy} />
+          )}
 
-          {/* Order book */}
-          <section className="rounded-card border border-subtle bg-surface-2 p-4">
-            <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
-              Order book · {selected.label}
-            </h2>
-            <div className="mt-3 grid grid-cols-[1fr_auto_auto] gap-x-3 text-12">
-              <span className="text-secondary">Price</span>
-              <span className="text-right text-secondary">Shares</span>
-              <span className="text-right text-secondary">Total</span>
+          <OrderBook market={market} outcomeId={outcomeId} onOutcomeChange={setOutcomeId} />
 
-              {book.asks.map((a) => (
-                <Row key={`ask-${a.price}`} row={a} tone="red" maxSize={maxSize} />
-              ))}
+          <Rules market={market} description={text.description} />
 
-              <div className="col-span-3 my-2 flex items-center gap-2 border-y border-subtle py-1.5">
-                <span className="text-12 text-secondary">Last</span>
-                <FlashValue
-                  value={selected.price}
-                  className="text-13 font-bold text-primary"
-                >
-                  {selected.price.toFixed(2)}
-                </FlashValue>
-                <span className="ml-auto text-12 text-secondary">
-                  Spread 0.02
-                </span>
-              </div>
-
-              {book.bids.map((b) => (
-                <Row key={`bid-${b.price}`} row={b} tone="green" maxSize={maxSize} />
-              ))}
-            </div>
-          </section>
-
-          {/* Rules */}
-          <section className="rounded-card border border-subtle bg-surface-2">
-            <button
-              type="button"
-              onClick={() => setRulesOpen((o) => !o)}
-              className="flex w-full items-center gap-2 p-4 text-left"
-            >
-              <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
-                Market rules &amp; resolution
-              </h2>
-              <ChevronDown
-                className={cn(
-                  "ml-auto h-4 w-4 text-secondary transition-transform",
-                  rulesOpen && "rotate-180"
-                )}
+          <Card as="section" padding="none" aria-label={t("market", "details")}>
+            <div className="px-4 sm:px-5">
+              <Tabs
+                id="market"
+                label={t("market", "details")}
+                value={section}
+                onValueChange={setSection}
+                items={[
+                  { value: "activity", label: t("market", "activity") },
+                  { value: "holders", label: t("market", "holders") },
+                  { value: "positions", label: t("market", "positions") },
+                  { value: "comments", label: t("market", "comments") },
+                ]}
               />
-            </button>
-            {rulesOpen && (
-              <div className="flex flex-col gap-3 border-t border-subtle p-4 text-13 leading-relaxed text-secondary">
-                <p>{text.description}</p>
-                <p>
-                  <span className="font-semibold text-primary">Resolution source: </span>
-                  {market.resolutionSource}
-                </p>
-                <p>
-                  Outcome shares are backed one-for-one by rupee balances held against this
-                  market. Settlement pays ₹1 per share to the winning outcome once the named
-                  resolution source publishes a result.
-                </p>
-              </div>
-            )}
-          </section>
-
-          {/* Activity */}
-          <section className="rounded-card border border-subtle bg-surface-2 p-4">
-            <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
-              Activity
-            </h2>
-            <ul className="mt-3 flex flex-col divide-y divide-subtle">
-              {activity.map((a) => (
-                <li key={a.id} className="flex items-center gap-2 py-2 text-13">
-                  <span className="truncate font-semibold text-primary">{a.user}</span>
-                  <span className="text-secondary">{a.side}</span>
-                  <span className="tnum text-primary">{a.shares}</span>
-                  <span
-                    className={cn(
-                      "truncate font-semibold",
-                      a.side === "bought" ? "text-success" : "text-danger"
-                    )}
-                  >
-                    {a.label}
-                  </span>
-                  <span className="tnum text-secondary">@ {a.price.toFixed(2)}</span>
-                  <span className="tnum ml-auto shrink-0 text-12 text-secondary">
-                    {a.minutesAgo}m ago
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
+            </div>
+            <div className="p-4 sm:p-5">
+              <TabPanel id="market" value="activity" selected={section}>
+                {activity.length === 0 && (
+                  <EmptyState
+                    size="compact"
+                    icon={ActivityIcon}
+                    title={t("market", "noActivity")}
+                    body={t("market", "noActivityBody")}
+                  />
+                )}
+              </TabPanel>
+              <TabPanel id="market" value="holders" selected={section}>
+                <EmptyState
+                  size="compact"
+                  icon={Users}
+                  title={t("market", "noHolders")}
+                  body={t("market", "noHoldersBody")}
+                />
+              </TabPanel>
+              <TabPanel id="market" value="positions" selected={section}>
+                <EmptyState
+                  size="compact"
+                  icon={Wallet}
+                  title={t("market", "noPositions")}
+                  body={t("market", "noPositionsBody")}
+                />
+              </TabPanel>
+              <TabPanel id="market" value="comments" selected={section}>
+                <EmptyState
+                  size="compact"
+                  icon={MessageSquare}
+                  title={t("market", "noComments")}
+                  body={t("market", "noCommentsBody")}
+                />
+              </TabPanel>
+            </div>
+          </Card>
         </div>
 
-        {/* Trade panel */}
-        <aside className="h-fit rounded-card border border-subtle bg-surface-2 p-4 lg:sticky lg:top-32">
-          <div
-            className={cn(
-              "grid gap-2",
-              market.isBinary ? "grid-cols-2" : "max-h-44 grid-cols-1 overflow-y-auto thin-scrollbar"
-            )}
-          >
-            {market.outcomes.map((o, i) => {
-              const active = o.id === selected.id;
-              const tone = market.isBinary ? (i === 0 ? "green" : "red") : "blue";
-              return (
-                <button
-                  key={o.id}
-                  type="button"
-                  onClick={() => setOutcomeId(o.id)}
-                  className={cn(
-                    "flex items-center justify-between gap-2 rounded-btn border px-3 py-2 text-13 font-bold transition-colors",
-                    active && tone === "green" && "border-success bg-success/20 text-success",
-                    active && tone === "red" && "border-danger bg-danger/20 text-danger",
-                    active && tone === "blue" && "border-brand bg-brand/20 text-brand",
-                    !active &&
-                      "border-subtle bg-surface-3 text-secondary hover:text-primary"
-                  )}
-                >
-                  <span className="truncate">Buy {o.label}</span>
-                  <span className="tnum shrink-0">{formatPercent(o.price, 1)}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-4">
-            <AmountField id="detail-amount" value={amount} onChange={setAmount} />
-          </div>
-
-          <dl className="mt-4 flex flex-col gap-1.5 rounded-btn bg-surface-3 p-3 text-13">
-            <div className="flex justify-between gap-2">
-              <dt className="text-secondary">{t("trade", "youWillReceive")}</dt>
-              <dd className="tnum font-semibold text-primary">
-                {t("trade", "shares", { count: shares.toFixed(1) })}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt className="text-secondary">{t("trade", "ifCorrect")}</dt>
-              <dd className="tnum font-semibold text-success">{formatRupees(shares)}</dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt className="text-secondary">{t("trade", "avgPrice")}</dt>
-              <dd className="tnum font-semibold text-primary">
-                {selected.price.toFixed(2)}
-              </dd>
-            </div>
-          </dl>
-
-          <button
-            type="button"
-            // The store re-validates; this is only the UI half of the check.
-            onClick={() =>
-              placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })
-            }
-            disabled={!check.ok}
-            className="mt-4 h-11 w-full rounded-btn bg-brand-fill text-14 font-bold text-white transition-colors hover:bg-brand-fill-hover active:brightness-95 disabled:opacity-40"
-          >
-            {t("trade", "placeOrder")}
-          </button>
-          <p className="mt-2 text-center text-11 text-secondary">
-            {t("trade", "settlementNote")}
-          </p>
+        {/* lg+: sticky trade panel. Below lg it is the trade sheet instead. */}
+        <aside className="hidden lg:block" aria-labelledby="trade-panel-heading">
+          <Card radius="panel" className="sticky top-32" data-testid="trade-panel">
+            <h2 id="trade-panel-heading" className="mb-4 text-16 font-bold text-primary">
+              {t("terms", "buy")}
+            </h2>
+            <TradeForm
+              market={market}
+              outcomeId={outcomeId}
+              onOutcomeChange={setOutcomeId}
+              amount={amount}
+              onAmountChange={setAmount}
+              amountId="detail-amount"
+            />
+          </Card>
         </aside>
       </div>
+
+      {/* Room for the fixed bar so it never covers the last section. */}
+      <div aria-hidden className="h-20 lg:hidden" />
+      <MobileTradeBar market={market} onBuy={(id) => openTrade(market, id)} />
     </div>
   );
 }
 
-function Row({
-  row,
-  tone,
-  maxSize,
+function OutcomeList({
+  market,
+  selectedId,
+  onBuy,
 }: {
-  row: { price: number; size: number };
-  tone: "red" | "green";
-  maxSize: number;
+  market: Market;
+  selectedId: string;
+  onBuy: (id: string) => void;
 }) {
+  const { t } = useT();
+  const charted = chartedOutcomes(market).map((o) => o.id);
+  const rows = [...market.outcomes].sort((a, b) => b.price - a.price);
   return (
-    <>
-      <div className="relative col-span-3 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 py-1">
-        <span
-          aria-hidden
+    <Card as="section" padding="none" aria-labelledby="outcomes-heading" data-testid="outcome-list">
+      <h2 id="outcomes-heading" className="px-4 pb-2 pt-4 text-16 font-bold text-primary sm:px-5">
+        {t("market", "outcomes")}
+      </h2>
+      <ul className="divide-y divide-subtle">
+        {rows.map((o) => {
+          const colourIndex = charted.indexOf(o.id);
+          const active = o.id === selectedId;
+          return (
+            <li
+              key={o.id}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 sm:px-5",
+                active && "bg-brand/5"
+              )}
+            >
+              <span
+                aria-hidden
+                className={cn("h-2 w-2 shrink-0 rounded-full", colourIndex < 0 && "bg-surface-3")}
+                style={colourIndex >= 0 ? { background: chartColor(colourIndex) } : undefined}
+              />
+              <span className="min-w-0 flex-1 truncate text-14 font-medium text-primary">{o.label}</span>
+              <span
+                className={cn(
+                  "tnum hidden w-12 text-right text-12 font-semibold sm:block",
+                  o.change24h >= 0 ? "text-success" : "text-danger"
+                )}
+              >
+                {formatChange(o.change24h)}
+              </span>
+              <FlashValue value={o.price} className="w-14 text-right text-14 font-bold text-primary">
+                {formatPercent(o.price, 1)}
+              </FlashValue>
+              <Button
+                size="sm"
+                variant={active ? "primary" : "secondary"}
+                aria-pressed={active}
+                onClick={() => onBuy(o.id)}
+                aria-label={t("trade", "buy", { outcome: o.label })}
+              >
+                {t("terms", "buy")}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
+  );
+}
+
+function Rules({ market, description }: { market: Market; description: string }) {
+  const { t } = useT();
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <Card as="section" padding="none">
+      <h2>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((o) => !o)}
           className={cn(
-            "absolute inset-y-0 right-0",
-            tone === "red" ? "bg-danger/10" : "bg-success/10"
-          )}
-          style={{ width: `${(row.size / maxSize) * 100}%` }}
-        />
-        <span
-          className={cn(
-            "tnum relative font-semibold",
-            tone === "red" ? "text-danger" : "text-success"
+            "flex min-h-touch w-full items-center gap-2 rounded-card px-4 py-3 text-left text-16 font-bold text-primary sm:px-5",
+            FOCUS_RING
           )}
         >
-          {row.price.toFixed(2)}
-        </span>
-        <span className="tnum relative text-right text-primary">
-          {row.size.toLocaleString("en-US")}
-        </span>
-        <span className="tnum relative text-right text-secondary">
-          ${Math.round(row.size * row.price).toLocaleString("en-US")}
-        </span>
+          {t("market", "rules")}
+          <ChevronDown
+            aria-hidden
+            className={cn(
+              "ml-auto h-4 w-4 text-secondary transition-transform duration-sm ease-standard",
+              open && "rotate-180"
+            )}
+          />
+        </button>
+      </h2>
+      <div
+        id={panelId}
+        // A display class would override the `hidden` attribute, so toggle classes.
+        className={cn(
+          "flex-col gap-3 border-t border-subtle px-4 py-4 text-14 text-secondary sm:px-5",
+          open ? "flex" : "hidden"
+        )}
+      >
+        <p>{description}</p>
+        <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-13 sm:grid-cols-[auto_1fr]">
+          <dt className="font-semibold text-primary">{t("market", "resolutionSource")}</dt>
+          <dd>{market.resolutionSource}</dd>
+          <dt className="font-semibold text-primary">{t("terms", "marketCloses")}</dt>
+          <dd className="tnum">{formatEndDate(market.endDate)}</dd>
+        </dl>
+        <p>{t("market", "settlement")}</p>
       </div>
-    </>
+    </Card>
+  );
+}
+
+function MobileTradeBar({ market, onBuy }: { market: Market; onBuy: (id: string) => void }) {
+  const { t } = useT();
+  const [yes, no] = market.outcomes;
+  return (
+    <div
+      data-testid="mobile-trade-bar"
+      className="fixed inset-x-0 z-30 border-t border-subtle bg-surface-1/95 px-gutter py-3 backdrop-blur-xl lg:hidden"
+      style={{ bottom: "calc(var(--bottom-nav-h) + env(safe-area-inset-bottom))" }}
+    >
+      <div className="mx-auto flex max-w-content gap-2">
+        {market.isBinary ? (
+          <>
+            <Button variant="yes" size="lg" className="flex-1" onClick={() => onBuy(yes.id)}>
+              {t("trade", "buy", { outcome: yes.label })}{" "}
+              <span className="tnum">{formatPercent(yes.price, 1)}</span>
+            </Button>
+            <Button variant="no" size="lg" className="flex-1" onClick={() => onBuy(no.id)}>
+              {t("trade", "buy", { outcome: no.label })}{" "}
+              <span className="tnum">{formatPercent(no.price, 1)}</span>
+            </Button>
+          </>
+        ) : (
+          <Button size="lg" fullWidth onClick={() => onBuy(chartedOutcomes(market)[0].id)}>
+            {t("market", "tradeBar")}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

@@ -120,7 +120,8 @@ wordmark only).
 - `< md`: one column, BottomNav visible.
 - `md`: two-column grids.
 - `lg`: market page = chart/info on the left, **sticky trade panel** on the right
-  (~360 px). Below `lg` the trade panel is a bottom sheet opened by sticky Yes/No buttons.
+  (360 px, `grid-cols-market`). Below `lg` the trade panel is a bottom sheet opened by a
+  fixed Yes/No bar that sits on top of the BottomNav (`--bottom-nav-h`, 0 from `sm`).
 
 ## Motion
 
@@ -154,6 +155,7 @@ gallery of all of them is at `/e2e-ui` (dev server and e2e builds only).
 | `Card` | `surface-2` + `border-subtle` + `shadow-card`; `radius="panel"` for the trade panel and chart block; `interactive` for hover border. |
 | `EmptyState` | Icon, title, body, optional action; `size="compact"` inside tabs. Used instead of invented rows. |
 | `Tabs` / `TabPanel` | WAI-ARIA tabs, automatic activation, Left/Right/Home/End, roving tabindex, scrolls at 360 px. `underline` (44 px tall) or `pill`. |
+| `Segmented` | One-of-N switch that changes a view in place (sort, chart range, Yes/No). Buttons with `aria-pressed` in a labelled group; optional `yes`/`no` tone. Use `Tabs` when each option owns a panel. |
 | `Tooltip` | (i) trigger. Opens on hover (hover-capable pointers), keyboard focus or tap; Escape / outside click close; kept inside the viewport. |
 | `Dialog` | Portalled. Bottom sheet below `sm`, centred from `sm` (or `layout="center"`). Focus moves to `[data-autofocus]`, Tab is trapped, Escape/backdrop/close button close it, page scroll locked, focus returns to the trigger. Optional sticky `footer` with safe-area padding. |
 
@@ -163,6 +165,11 @@ only on `:focus-visible`.
 `cn()` uses a `tailwind-merge` configured with our `text-11…32` sizes and
 `shadow-card/popover/dialog`. Without it, `cn("text-13", "text-success")` dropped one of
 the two classes (it read `text-13` as a colour).
+
+## Gotcha
+
+Never combine a display utility (`flex`, `grid`, `block`) with the `hidden` attribute: the
+class wins and the element stays visible. Toggle `hidden`/`flex` classes instead.
 
 ## Enforcement
 

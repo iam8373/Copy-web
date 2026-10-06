@@ -17,5 +17,7 @@ export type { TabItem, TabsProps, TabPanelProps } from "./Tabs";
 export { Tooltip } from "./Tooltip";
 export type { TooltipProps } from "./Tooltip";
 export { Dialog } from "./Dialog";
+export { Segmented } from "./Segmented";
+export type { SegmentedOption, SegmentedProps } from "./Segmented";
 export type { DialogProps } from "./Dialog";
 export { FOCUS_RING, HIT_AREA } from "./focus";

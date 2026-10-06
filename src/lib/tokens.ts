@@ -51,6 +51,12 @@ export const size = {
   dotRadius: 4,
 } as const;
 
+/** Media queries for JS (matchMedia); mirror Tailwind's screens. */
+export const media = {
+  lg: "(min-width: 1024px)",
+  reducedMotion: "(prefers-reduced-motion: reduce)",
+} as const;
+
 /** Motion (ms) for JS-driven animation; mirrors tailwind.config.ts. */
 export const motion = {
   xs: 150,

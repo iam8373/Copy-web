@@ -160,10 +160,12 @@ test.describe("trade modal amount field", () => {
   });
 });
 
-test("the market detail panel uses the same limits", async ({ page }) => {
+test("the market detail panel uses the same limits", async ({ page, isMobile }) => {
   await resetState(page);
   await page.goto("/market/ipl-2026-winner");
-  const input = page.locator("#detail-amount");
+  // Below lg the panel is the trade sheet, opened from the fixed bar.
+  if (isMobile) await page.getByTestId("mobile-trade-bar").getByRole("button").click();
+  const input = page.locator(isMobile ? "#amount" : "#detail-amount");
   await expect(input).toHaveAttribute("max", String(MAX_TRADE));
   await input.fill("0");
   await expect(page.getByRole("button", { name: /place order/i })).toBeDisabled();

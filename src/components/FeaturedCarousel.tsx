@@ -10,21 +10,9 @@ import { cn, formatEndDate, formatPercent, formatVolume } from "@/lib/utils";
 import { NAV_KEY_BY_SLUG } from "@/i18n";
 import { useT } from "@/i18n/LanguageProvider";
 import { getMarketText } from "@/lib/market-text";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const ROTATE_MS = 7000;
-
-/** True when the user asked for reduced motion; tracks changes. */
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  return reduced;
-}
 
 /**
  * Top markets by volume. Auto-rotates every 7s, but (WCAG 2.2.2) it can be
