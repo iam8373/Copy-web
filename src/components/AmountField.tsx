@@ -50,10 +50,10 @@ export function AmountField({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
-        <label className="text-[12px] font-medium text-content-secondary" htmlFor={id}>
+        <label className="text-12 font-medium text-secondary" htmlFor={id}>
           {t("trade", "amount")}
         </label>
-        <span id={limitsId} className="tnum text-[11px] text-content-secondary">
+        <span id={limitsId} className="tnum text-11 text-secondary">
           {t("trade", "limits", { min, max })}
         </span>
       </div>
@@ -71,13 +71,13 @@ export function AmountField({
         aria-invalid={!v.ok}
         aria-describedby={v.ok ? limitsId : `${errorId} ${limitsId}`}
         className={cn(
-          "tnum h-11 w-full rounded-lg border bg-bg-tertiary px-3 text-[15px] font-semibold text-content-primary outline-none",
-          v.ok ? "border-subtle focus:border-accent-blue" : "border-accent-red focus:border-accent-red"
+          "tnum h-11 w-full rounded-btn border bg-surface-3 px-3 text-16 font-semibold text-primary outline-none",
+          v.ok ? "border-subtle focus:border-brand" : "border-danger focus:border-danger"
         )}
       />
 
       {message && (
-        <p id={errorId} data-testid="amount-error" className="text-[12px] font-medium text-accent-red">
+        <p id={errorId} data-testid="amount-error" className="text-12 font-medium text-danger">
           {message}
         </p>
       )}
@@ -100,7 +100,7 @@ export function AmountField({
             key={p}
             type="button"
             onClick={() => onChange(String(p))}
-            className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
+            className="flex-1 rounded-btn border border-subtle bg-surface-3 py-1.5 text-12 font-semibold text-secondary transition-colors hover:text-primary"
           >
             {formatLimit(p)}
           </button>
@@ -108,7 +108,7 @@ export function AmountField({
         <button
           type="button"
           onClick={() => onChange(String(MAX_TRADE))}
-          className="flex-1 rounded-lg border border-subtle bg-bg-tertiary py-1.5 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
+          className="flex-1 rounded-btn border border-subtle bg-surface-3 py-1.5 text-12 font-semibold text-secondary transition-colors hover:text-primary"
         >
           {t("trade", "max")}
         </button>

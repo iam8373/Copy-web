@@ -84,11 +84,11 @@ export function AuthModal() {
     <div className="fixed inset-0 z-[55] flex items-end justify-center sm:items-center sm:p-4">
       <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={() => setOpen(false)} />
 
-      <div className="relative w-full max-w-md rounded-t-xl border border-subtle bg-bg-secondary p-4 shadow-2xl animate-slide-up sm:rounded-xl sm:p-6">
+      <div className="relative w-full max-w-md rounded-t-dialog border border-subtle bg-surface-2 p-4 shadow-dialog animate-slide-up sm:rounded-card sm:p-6">
         <div className="flex items-start gap-3">
           <div>
-            <h2 className="text-[17px] font-bold text-content-primary">{t("auth", "title")}</h2>
-            <p className="mt-0.5 text-[13px] text-content-secondary">
+            <h2 className="text-18 font-bold text-primary">{t("auth", "title")}</h2>
+            <p className="mt-1 text-13 text-secondary">
               {t("auth", "subtitle")}
             </p>
           </div>
@@ -96,14 +96,14 @@ export function AuthModal() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label={t("bottomNav", "close")}
-            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg text-content-secondary transition-colors hover:bg-bg-tertiary hover:text-content-primary"
+            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-btn text-secondary transition-colors hover:bg-surface-3 hover:text-primary"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* DRAFT copy — pending legal review. Self-declared, no DOB collected. */}
-        <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-lg border border-subtle bg-bg-tertiary p-3">
+        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-btn border border-subtle bg-surface-3 p-3">
           <input
             type="checkbox"
             required
@@ -113,27 +113,27 @@ export function AuthModal() {
               setAgeOk(e.target.checked);
               setError(null);
             }}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+            className="mt-1 h-4 w-4 shrink-0 accent-brand"
           />
-          <span className="text-[12px] leading-relaxed text-content-secondary">
+          <span className="text-12 leading-relaxed text-secondary">
             {t("auth", "ageConfirm")}{" "}
             <Link
               href="/terms"
-              className="font-semibold text-accent-blue underline-offset-2 hover:underline"
+              className="font-semibold text-brand underline-offset-2 hover:underline"
             >
               {t("auth", "termsLink")}
             </Link>
             {" · "}
             <Link
               href="/privacy"
-              className="font-semibold text-accent-blue underline-offset-2 hover:underline"
+              className="font-semibold text-brand underline-offset-2 hover:underline"
             >
               {t("auth", "privacyLink")}
             </Link>
           </span>
         </label>
 
-        <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-bg-tertiary p-1">
+        <div className="mt-3 grid grid-cols-2 gap-1 rounded-btn bg-surface-3 p-1">
           {(["phone", "google"] as Tab[]).map((tab2) => (
             <button
               key={tab2}
@@ -143,10 +143,10 @@ export function AuthModal() {
                 setError(null);
               }}
               className={cn(
-                "rounded-md py-2 text-[13px] font-semibold transition-colors",
+                "rounded-chip py-2 text-13 font-semibold transition-colors",
                 tab === tab2
-                  ? "bg-bg-secondary text-content-primary"
-                  : "text-content-secondary hover:text-content-primary"
+                  ? "bg-surface-2 text-primary"
+                  : "text-secondary hover:text-primary"
               )}
             >
               {tab2 === "phone" ? t("auth", "tabPhone") : t("auth", "tabGoogle")}
@@ -159,13 +159,13 @@ export function AuthModal() {
             {stage === "number" ? (
               <>
                 <label
-                  className="text-[12px] font-medium text-content-secondary"
+                  className="text-12 font-medium text-secondary"
                   htmlFor="auth-phone"
                 >
                   {t("auth", "mobileNumber")}
                 </label>
-                <div className="flex items-center gap-2 rounded-lg border border-subtle bg-bg-tertiary px-3 focus-within:border-accent-blue">
-                  <span className="tnum shrink-0 text-[15px] font-semibold text-content-secondary">
+                <div className="flex items-center gap-2 rounded-btn border border-subtle bg-surface-3 px-3 focus-within:border-brand">
+                  <span className="tnum shrink-0 text-16 font-semibold text-secondary">
                     +91
                   </span>
                   <input
@@ -179,14 +179,14 @@ export function AuthModal() {
                       setError(null);
                     }}
                     onKeyDown={(e) => e.key === "Enter" && sendOtp()}
-                    className="tnum h-11 w-full bg-transparent text-[15px] font-semibold text-content-primary outline-none placeholder:font-normal placeholder:text-content-secondary"
+                    className="tnum h-11 w-full bg-transparent text-16 font-semibold text-primary outline-none placeholder:font-normal placeholder:text-secondary"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={sendOtp}
                   disabled={!ageOk}
-                  className="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-11 items-center justify-center gap-2 rounded-btn bg-brand-fill text-14 font-bold text-white transition-colors hover:bg-brand-fill-hover disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Phone className="h-4 w-4" />
                   {t("auth", "sendOtp")}
@@ -200,13 +200,13 @@ export function AuthModal() {
                     setStage("number");
                     setError(null);
                   }}
-                  className="flex w-fit items-center gap-1 text-[12px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
+                  className="flex w-fit items-center gap-1 text-12 font-semibold text-secondary transition-colors hover:text-primary"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   {t("auth", "changeNumber")}
                 </button>
                 <label
-                  className="text-[12px] font-medium text-content-secondary"
+                  className="text-12 font-medium text-secondary"
                   htmlFor="auth-otp"
                 >
                   {t("auth", "otpSentTo", {
@@ -224,17 +224,17 @@ export function AuthModal() {
                     setError(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && verifyOtp()}
-                  className="tnum h-11 w-full rounded-lg border border-subtle bg-bg-tertiary px-3 text-center text-[18px] font-bold tracking-[0.4em] text-content-primary outline-none focus:border-accent-blue"
+                  className="tnum h-11 w-full rounded-btn border border-subtle bg-surface-3 px-3 text-center text-18 font-bold tracking-[0.4em] text-primary outline-none focus:border-brand"
                 />
                 <button
                   type="button"
                   onClick={verifyOtp}
-                  className="flex h-11 items-center justify-center gap-2 rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong"
+                  className="flex h-11 items-center justify-center gap-2 rounded-btn bg-brand-fill text-14 font-bold text-white transition-colors hover:bg-brand-fill-hover"
                 >
                   <Check className="h-4 w-4" />
                   {t("auth", "verify")}
                 </button>
-                <p className="text-center text-[11px] text-content-secondary">
+                <p className="text-center text-11 text-secondary">
                   {t("auth", "demoOtpNote")}
                 </p>
               </>
@@ -242,7 +242,7 @@ export function AuthModal() {
           </div>
         ) : (
           <div className="mt-4 flex flex-col gap-2">
-            <p className="text-[12px] text-content-secondary">
+            <p className="text-12 text-secondary">
               {t("auth", "chooseGoogle")}
             </p>
             {DEMO_ACCOUNTS.map((a) => (
@@ -259,12 +259,12 @@ export function AuthModal() {
                     ageConfirmedAt: new Date().toISOString(),
                   })
                 }
-                className="flex items-center gap-3 rounded-lg border border-subtle bg-bg-tertiary px-3 py-2.5 text-left transition-colors hover:border-accent-blue disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex items-center gap-3 rounded-btn border border-subtle bg-surface-3 px-3 py-3 text-left transition-colors hover:border-brand disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent-blue to-accent-strong text-[13px] font-bold text-white">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-fill to-brand-fill-hover text-13 font-bold text-white">
                   {a.initial}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-content-primary">
+                <span className="min-w-0 flex-1 truncate text-13 font-semibold text-primary">
                   {a.email}
                 </span>
               </button>
@@ -273,13 +273,13 @@ export function AuthModal() {
         )}
 
         {error && (
-          <p className="mt-3 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-2 text-[12px] text-accent-red">
+          <p className="mt-3 rounded-btn border border-danger/30 bg-danger/10 px-3 py-2 text-12 text-danger">
             {error}
           </p>
         )}
 
-        <p className="mt-4 flex items-start gap-2 text-[11px] leading-relaxed text-content-secondary">
-          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
+        <p className="mt-4 flex items-start gap-2 text-11 leading-relaxed text-secondary">
+          <ShieldCheck className="mt-1 h-3.5 w-3.5 shrink-0 text-success" />
           {t("auth", "demoNote")}
         </p>
       </div>

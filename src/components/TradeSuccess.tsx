@@ -61,15 +61,15 @@ export function TradeSuccess() {
         key={lastFill.at}
         className={
           reducedMotion
-            ? "flex flex-col items-center gap-2 rounded-xl border border-accent-green/40 bg-bg-secondary/95 px-5 py-4 shadow-2xl"
-            : "flex flex-col items-center gap-2 rounded-xl border border-accent-green/40 bg-bg-secondary/95 px-5 py-4 shadow-2xl animate-fill-pop motion-reduce:animate-none"
+            ? "flex flex-col items-center gap-2 rounded-card border border-success/40 bg-surface-2/95 px-5 py-4 shadow-dialog"
+            : "flex flex-col items-center gap-2 rounded-card border border-success/40 bg-surface-2/95 px-5 py-4 shadow-dialog animate-fill-pop motion-reduce:animate-none"
         }
       >
         <span
           className={
             reducedMotion
-              ? "grid h-12 w-12 place-items-center rounded-full bg-accent-green/15"
-              : "grid h-12 w-12 place-items-center rounded-full bg-accent-green/15 animate-fill-out motion-reduce:animate-none"
+              ? "grid h-12 w-12 place-items-center rounded-full bg-success/15"
+              : "grid h-12 w-12 place-items-center rounded-full bg-success/15 animate-fill-out motion-reduce:animate-none"
           }
         >
           <svg
@@ -92,10 +92,10 @@ export function TradeSuccess() {
           </svg>
         </span>
 
-        <p className="text-[13px] font-bold text-content-primary">
+        <p className="text-13 font-bold text-primary">
           {t("trade", "orderConfirmed")}
         </p>
-        <p className="tnum max-w-[220px] truncate text-center text-[12px] text-content-secondary">
+        <p className="tnum max-w-56 truncate text-center text-12 text-secondary">
           {lastFill.shares.toFixed(1)} {lastFill.outcomeLabel} @{" "}
           {formatPercent(lastFill.price, 1)}
         </p>

@@ -96,45 +96,45 @@ export function MarketDetail({
     <div className="flex flex-col gap-5">
       <Link
         href={`/markets/${market.category}`}
-        className="flex w-fit items-center gap-1 text-[13px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
+        className="flex w-fit items-center gap-1 text-13 font-semibold text-secondary transition-colors hover:text-primary"
       >
         <ChevronLeft className="h-4 w-4" />
         Back to {market.category}
       </Link>
 
       <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
-          <span className="rounded-md bg-accent-blue/15 px-2 py-0.5 text-accent-blue">
+        <div className="flex flex-wrap items-center gap-2 text-11 font-semibold uppercase tracking-wide">
+          <span className="rounded-chip bg-brand/15 px-2 py-1 text-brand">
             {market.category} • {market.subcategory}
           </span>
           {market.isLive ? (
-            <span className="flex items-center gap-1 rounded-md bg-accent-red/15 px-2 py-0.5 text-accent-red">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent-red animate-pulse-dot" />
+            <span className="flex items-center gap-1 rounded-chip bg-danger/15 px-2 py-1 text-danger">
+              <span className="h-1.5 w-1.5 rounded-full bg-danger animate-pulse-dot" />
               Live <Countdown endDate={market.endDate} />
             </span>
           ) : (
-            <span className="rounded-md bg-bg-tertiary px-2 py-0.5 text-content-secondary">
+            <span className="rounded-chip bg-surface-3 px-2 py-1 text-secondary">
               Open
             </span>
           )}
-          <span className="text-content-secondary">
+          <span className="text-secondary">
             {t("terms", "resolves")} {formatEndDate(market.endDate)}
           </span>
         </div>
-        <h1 className="text-xl font-bold leading-tight tracking-tight text-content-primary sm:text-2xl">
+        <h1 className="text-xl font-bold leading-tight tracking-tight text-primary sm:text-2xl">
           {text.title}
         </h1>
         {/* Saved AI translation, not yet reviewed by a native speaker. */}
         {text.translated && locale !== "en" && (
           <p
             data-testid="translated-note"
-            className="flex w-fit items-center gap-1.5 rounded-md bg-bg-tertiary px-2 py-0.5 text-[11px] font-medium text-content-secondary"
+            className="flex w-fit items-center gap-1.5 rounded-chip bg-surface-3 px-2 py-1 text-11 font-medium text-secondary"
           >
             <Languages className="h-3 w-3" aria-hidden="true" />
             {t("market", "translatedNote")}
           </p>
         )}
-        <p className="tnum text-[13px] text-content-secondary">
+        <p className="tnum text-13 text-secondary">
           {t("terms", "volume")} {formatVolumeFull(market.totalVolume)}
         </p>
       </header>
@@ -142,21 +142,21 @@ export function MarketDetail({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-4">
           {/* Probability chart */}
-          <section className="rounded-xl border border-subtle bg-bg-secondary p-4">
+          <section className="rounded-card border border-subtle bg-surface-2 p-4">
             <div className="flex items-baseline gap-2">
-              <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+              <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
                 {market.outcomes[0].label} probability
               </h2>
               <FlashValue
                 value={market.outcomes[0].price}
-                className="ml-auto text-2xl font-bold text-content-primary"
+                className="ml-auto text-2xl font-bold text-primary"
               >
                 {formatPercent(market.outcomes[0].price, 1)}
               </FlashValue>
               <span
                 className={cn(
-                  "tnum text-[13px] font-semibold",
-                  up ? "text-accent-green" : "text-accent-red"
+                  "tnum text-13 font-semibold",
+                  up ? "text-success" : "text-danger"
                 )}
               >
                 {formatChange(market.outcomes[0].change24h)} pts
@@ -207,28 +207,28 @@ export function MarketDetail({
           </section>
 
           {/* Order book */}
-          <section className="rounded-xl border border-subtle bg-bg-secondary p-4">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+          <section className="rounded-card border border-subtle bg-surface-2 p-4">
+            <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
               Order book · {selected.label}
             </h2>
-            <div className="mt-3 grid grid-cols-[1fr_auto_auto] gap-x-3 text-[12px]">
-              <span className="text-content-secondary">Price</span>
-              <span className="text-right text-content-secondary">Shares</span>
-              <span className="text-right text-content-secondary">Total</span>
+            <div className="mt-3 grid grid-cols-[1fr_auto_auto] gap-x-3 text-12">
+              <span className="text-secondary">Price</span>
+              <span className="text-right text-secondary">Shares</span>
+              <span className="text-right text-secondary">Total</span>
 
               {book.asks.map((a) => (
                 <Row key={`ask-${a.price}`} row={a} tone="red" maxSize={maxSize} />
               ))}
 
               <div className="col-span-3 my-2 flex items-center gap-2 border-y border-subtle py-1.5">
-                <span className="text-[12px] text-content-secondary">Last</span>
+                <span className="text-12 text-secondary">Last</span>
                 <FlashValue
                   value={selected.price}
-                  className="text-[13px] font-bold text-content-primary"
+                  className="text-13 font-bold text-primary"
                 >
                   {selected.price.toFixed(2)}
                 </FlashValue>
-                <span className="ml-auto text-[12px] text-content-secondary">
+                <span className="ml-auto text-12 text-secondary">
                   Spread 0.02
                 </span>
               </div>
@@ -240,27 +240,27 @@ export function MarketDetail({
           </section>
 
           {/* Rules */}
-          <section className="rounded-xl border border-subtle bg-bg-secondary">
+          <section className="rounded-card border border-subtle bg-surface-2">
             <button
               type="button"
               onClick={() => setRulesOpen((o) => !o)}
               className="flex w-full items-center gap-2 p-4 text-left"
             >
-              <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+              <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
                 Market rules &amp; resolution
               </h2>
               <ChevronDown
                 className={cn(
-                  "ml-auto h-4 w-4 text-content-secondary transition-transform",
+                  "ml-auto h-4 w-4 text-secondary transition-transform",
                   rulesOpen && "rotate-180"
                 )}
               />
             </button>
             {rulesOpen && (
-              <div className="flex flex-col gap-3 border-t border-subtle p-4 text-[13px] leading-relaxed text-content-secondary">
+              <div className="flex flex-col gap-3 border-t border-subtle p-4 text-13 leading-relaxed text-secondary">
                 <p>{text.description}</p>
                 <p>
-                  <span className="font-semibold text-content-primary">Resolution source: </span>
+                  <span className="font-semibold text-primary">Resolution source: </span>
                   {market.resolutionSource}
                 </p>
                 <p>
@@ -273,26 +273,26 @@ export function MarketDetail({
           </section>
 
           {/* Activity */}
-          <section className="rounded-xl border border-subtle bg-bg-secondary p-4">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+          <section className="rounded-card border border-subtle bg-surface-2 p-4">
+            <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
               Activity
             </h2>
             <ul className="mt-3 flex flex-col divide-y divide-subtle">
               {activity.map((a) => (
-                <li key={a.id} className="flex items-center gap-2 py-2 text-[13px]">
-                  <span className="truncate font-semibold text-content-primary">{a.user}</span>
-                  <span className="text-content-secondary">{a.side}</span>
-                  <span className="tnum text-content-primary">{a.shares}</span>
+                <li key={a.id} className="flex items-center gap-2 py-2 text-13">
+                  <span className="truncate font-semibold text-primary">{a.user}</span>
+                  <span className="text-secondary">{a.side}</span>
+                  <span className="tnum text-primary">{a.shares}</span>
                   <span
                     className={cn(
                       "truncate font-semibold",
-                      a.side === "bought" ? "text-accent-green" : "text-accent-red"
+                      a.side === "bought" ? "text-success" : "text-danger"
                     )}
                   >
                     {a.label}
                   </span>
-                  <span className="tnum text-content-secondary">@ {a.price.toFixed(2)}</span>
-                  <span className="tnum ml-auto shrink-0 text-[12px] text-content-secondary">
+                  <span className="tnum text-secondary">@ {a.price.toFixed(2)}</span>
+                  <span className="tnum ml-auto shrink-0 text-12 text-secondary">
                     {a.minutesAgo}m ago
                   </span>
                 </li>
@@ -302,7 +302,7 @@ export function MarketDetail({
         </div>
 
         {/* Trade panel */}
-        <aside className="h-fit rounded-xl border border-subtle bg-bg-secondary p-4 lg:sticky lg:top-32">
+        <aside className="h-fit rounded-card border border-subtle bg-surface-2 p-4 lg:sticky lg:top-32">
           <div
             className={cn(
               "grid gap-2",
@@ -318,12 +318,12 @@ export function MarketDetail({
                   type="button"
                   onClick={() => setOutcomeId(o.id)}
                   className={cn(
-                    "flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-[13px] font-bold transition-colors",
-                    active && tone === "green" && "border-accent-green bg-accent-green/20 text-accent-green",
-                    active && tone === "red" && "border-accent-red bg-accent-red/20 text-accent-red",
-                    active && tone === "blue" && "border-accent-blue bg-accent-blue/20 text-accent-blue",
+                    "flex items-center justify-between gap-2 rounded-btn border px-3 py-2 text-13 font-bold transition-colors",
+                    active && tone === "green" && "border-success bg-success/20 text-success",
+                    active && tone === "red" && "border-danger bg-danger/20 text-danger",
+                    active && tone === "blue" && "border-brand bg-brand/20 text-brand",
                     !active &&
-                      "border-subtle bg-bg-tertiary text-content-secondary hover:text-content-primary"
+                      "border-subtle bg-surface-3 text-secondary hover:text-primary"
                   )}
                 >
                   <span className="truncate">Buy {o.label}</span>
@@ -337,20 +337,20 @@ export function MarketDetail({
             <AmountField id="detail-amount" value={amount} onChange={setAmount} />
           </div>
 
-          <dl className="mt-4 flex flex-col gap-1.5 rounded-lg bg-bg-tertiary p-3 text-[13px]">
+          <dl className="mt-4 flex flex-col gap-1.5 rounded-btn bg-surface-3 p-3 text-13">
             <div className="flex justify-between gap-2">
-              <dt className="text-content-secondary">{t("trade", "youWillReceive")}</dt>
-              <dd className="tnum font-semibold text-content-primary">
+              <dt className="text-secondary">{t("trade", "youWillReceive")}</dt>
+              <dd className="tnum font-semibold text-primary">
                 {t("trade", "shares", { count: shares.toFixed(1) })}
               </dd>
             </div>
             <div className="flex justify-between gap-2">
-              <dt className="text-content-secondary">{t("trade", "ifCorrect")}</dt>
-              <dd className="tnum font-semibold text-accent-green">{formatRupees(shares)}</dd>
+              <dt className="text-secondary">{t("trade", "ifCorrect")}</dt>
+              <dd className="tnum font-semibold text-success">{formatRupees(shares)}</dd>
             </div>
             <div className="flex justify-between gap-2">
-              <dt className="text-content-secondary">{t("trade", "avgPrice")}</dt>
-              <dd className="tnum font-semibold text-content-primary">
+              <dt className="text-secondary">{t("trade", "avgPrice")}</dt>
+              <dd className="tnum font-semibold text-primary">
                 {selected.price.toFixed(2)}
               </dd>
             </div>
@@ -363,11 +363,11 @@ export function MarketDetail({
               placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })
             }
             disabled={!check.ok}
-            className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
+            className="mt-4 h-11 w-full rounded-btn bg-brand-fill text-14 font-bold text-white transition-colors hover:bg-brand-fill-hover active:brightness-95 disabled:opacity-40"
           >
             {t("trade", "placeOrder")}
           </button>
-          <p className="mt-2 text-center text-[11px] text-content-secondary">
+          <p className="mt-2 text-center text-11 text-secondary">
             {t("trade", "settlementNote")}
           </p>
         </aside>
@@ -387,27 +387,27 @@ function Row({
 }) {
   return (
     <>
-      <div className="relative col-span-3 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 py-0.5">
+      <div className="relative col-span-3 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 py-1">
         <span
           aria-hidden
           className={cn(
             "absolute inset-y-0 right-0",
-            tone === "red" ? "bg-accent-red/10" : "bg-accent-green/10"
+            tone === "red" ? "bg-danger/10" : "bg-success/10"
           )}
           style={{ width: `${(row.size / maxSize) * 100}%` }}
         />
         <span
           className={cn(
             "tnum relative font-semibold",
-            tone === "red" ? "text-accent-red" : "text-accent-green"
+            tone === "red" ? "text-danger" : "text-success"
           )}
         >
           {row.price.toFixed(2)}
         </span>
-        <span className="tnum relative text-right text-content-primary">
+        <span className="tnum relative text-right text-primary">
           {row.size.toLocaleString("en-US")}
         </span>
-        <span className="tnum relative text-right text-content-secondary">
+        <span className="tnum relative text-right text-secondary">
           ${Math.round(row.size * row.price).toLocaleString("en-US")}
         </span>
       </div>

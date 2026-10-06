@@ -44,13 +44,13 @@ export function TradeModal() {
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
       <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={closeTrade} />
 
-      <div className="relative w-full max-w-md rounded-t-xl border border-subtle bg-bg-secondary p-4 shadow-2xl animate-slide-up sm:rounded-xl sm:p-5">
+      <div className="relative w-full max-w-md rounded-t-dialog border border-subtle bg-surface-2 p-4 shadow-dialog animate-slide-up sm:rounded-card sm:p-5">
         <div className="flex items-start gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-content-secondary">
+            <p className="text-11 font-semibold uppercase tracking-wide text-secondary">
               {market.category} • {market.subcategory}
             </p>
-            <h2 className="mt-0.5 line-clamp-2 text-[15px] font-bold text-content-primary">
+            <h2 className="mt-1 line-clamp-2 text-16 font-bold text-primary">
               {getMarketText(market, locale).title}
             </h2>
           </div>
@@ -58,7 +58,7 @@ export function TradeModal() {
             type="button"
             onClick={closeTrade}
             aria-label={t("bottomNav", "close")}
-            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg text-content-secondary transition-colors hover:bg-bg-tertiary hover:text-content-primary"
+            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-btn text-secondary transition-colors hover:bg-surface-3 hover:text-primary"
           >
             <X className="h-4 w-4" />
           </button>
@@ -79,12 +79,12 @@ export function TradeModal() {
                 type="button"
                 onClick={() => setOutcomeId(o.id)}
                 className={cn(
-                  "flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-[13px] font-bold transition-colors",
-                  active && tone === "green" && "border-accent-green bg-accent-green/20 text-accent-green",
-                  active && tone === "red" && "border-accent-red bg-accent-red/20 text-accent-red",
-                  active && tone === "blue" && "border-accent-blue bg-accent-blue/20 text-accent-blue",
+                  "flex items-center justify-between gap-2 rounded-btn border px-3 py-2 text-13 font-bold transition-colors",
+                  active && tone === "green" && "border-success bg-success/20 text-success",
+                  active && tone === "red" && "border-danger bg-danger/20 text-danger",
+                  active && tone === "blue" && "border-brand bg-brand/20 text-brand",
                   !active &&
-                    "border-subtle bg-bg-tertiary text-content-secondary hover:text-content-primary"
+                    "border-subtle bg-surface-3 text-secondary hover:text-primary"
                 )}
               >
                 <span className="truncate">{t("trade", "buy", { outcome: o.label })}</span>
@@ -98,21 +98,21 @@ export function TradeModal() {
           <AmountField id="amount" value={amount} onChange={setAmount} />
         </div>
 
-        <dl className="mt-4 flex flex-col gap-1.5 rounded-lg bg-bg-tertiary p-3 text-[13px]">
+        <dl className="mt-4 flex flex-col gap-1.5 rounded-btn bg-surface-3 p-3 text-13">
           <div className="flex justify-between">
-            <dt className="text-content-secondary">{t("trade", "youWillReceive")}</dt>
-            <dd className="tnum font-semibold text-content-primary">
+            <dt className="text-secondary">{t("trade", "youWillReceive")}</dt>
+            <dd className="tnum font-semibold text-primary">
               {t("trade", "shares", { count: shares.toFixed(1) })}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-content-secondary">{t("trade", "ifCorrect")}</dt>
-            <dd className="tnum font-semibold text-accent-green">{formatRupees(shares)}</dd>
+            <dt className="text-secondary">{t("trade", "ifCorrect")}</dt>
+            <dd className="tnum font-semibold text-success">{formatRupees(shares)}</dd>
           </div>
         </dl>
 
         {slipped && (
-          <p className="mt-3 flex items-center gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 px-3 py-2 text-[12px] text-accent-yellow">
+          <p className="mt-3 flex items-center gap-2 rounded-btn border border-warning/30 bg-warning/10 px-3 py-2 text-12 text-warning">
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
             {t("trade", "priceMoved", { price: formatPercent(selected.price, 1) })}
           </p>
@@ -123,7 +123,7 @@ export function TradeModal() {
           // The store re-validates; this is only the UI half of the check.
           onClick={() => placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })}
           disabled={!check.ok}
-          className="mt-4 h-11 w-full rounded-lg bg-accent-blue text-[14px] font-bold text-white transition-colors hover:bg-accent-strong active:brightness-95 disabled:opacity-40"
+          className="mt-4 h-11 w-full rounded-btn bg-brand-fill text-14 font-bold text-white transition-colors hover:bg-brand-fill-hover active:brightness-95 disabled:opacity-40"
         >
           {t("trade", "placeOrder")}
         </button>
