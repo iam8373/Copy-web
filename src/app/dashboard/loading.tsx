@@ -8,11 +8,11 @@ export default function Loading() {
         <SkeletonBlock className="h-8 w-48" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
-            <SkeletonBlock key={i} className="h-24 rounded-xl" />
+            <SkeletonBlock key={i} className="h-24 rounded-card" />
           ))}
         </div>
         {Array.from({ length: 5 }, (_, i) => (
-          <SkeletonBlock key={i} className="h-14 rounded-xl" />
+          <SkeletonBlock key={i} className="h-14 rounded-card" />
         ))}
       </div>
     </SkeletonRegion>

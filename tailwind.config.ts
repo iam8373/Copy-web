@@ -108,6 +108,8 @@ const config: Config = {
       },
       minWidth: {
         touch: "44px",
+        // Desktop positions table; scrolls horizontally inside its card.
+        table: "720px",
       },
       borderRadius: {
         chip: "4px",

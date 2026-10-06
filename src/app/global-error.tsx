@@ -33,31 +33,31 @@ export default function GlobalError({
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen bg-bg-primary font-sans text-content-primary antialiased">
+      <body className="min-h-screen bg-surface-1 font-sans text-primary antialiased">
         <main
           role="alert"
           className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-3 px-4 text-center"
         >
           <h1 className="text-xl font-bold tracking-tight">{e.title}</h1>
-          <p className="text-[14px] leading-relaxed text-content-secondary">{e.body}</p>
+          <p className="text-14 leading-relaxed text-secondary">{e.body}</p>
           <div className="mt-2 flex flex-wrap justify-center gap-2">
             <button
               type="button"
               onClick={reset}
-              className="rounded-lg bg-accent-blue px-4 py-2 text-[14px] font-bold text-white"
+              className="rounded-btn bg-brand-fill px-4 py-2 text-14 font-bold text-white"
             >
               {e.retry}
             </button>
             {/* A plain anchor: the router may be the thing that broke. */}
             <a
               href="/"
-              className="rounded-lg border border-subtle bg-bg-secondary px-4 py-2 text-[14px] font-semibold"
+              className="rounded-btn border border-subtle bg-surface-2 px-4 py-2 text-14 font-semibold"
             >
               {e.home}
             </a>
           </div>
           {error.digest && (
-            <p className="mt-1 text-[11px] text-content-secondary">
+            <p className="mt-1 text-11 text-secondary">
               {e.reference.replace("{digest}", error.digest)}
             </p>
           )}

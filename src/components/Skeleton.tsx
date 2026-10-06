@@ -8,7 +8,7 @@ export function SkeletonBlock({ className }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={cn("rounded-lg bg-bg-tertiary motion-safe:animate-pulse", className)}
+      className={cn("rounded-btn bg-surface-3 motion-safe:animate-pulse", className)}
     />
   );
 }
@@ -31,7 +31,7 @@ export function SkeletonRegion({ children }: { children: React.ReactNode }) {
 /** Card-shaped placeholder matching MarketCard's footprint. */
 export function SkeletonCard() {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-subtle bg-bg-secondary p-4">
+    <div className="flex flex-col gap-3 rounded-card border border-subtle bg-surface-2 p-4">
       <SkeletonBlock className="h-3 w-1/3" />
       <SkeletonBlock className="h-4 w-5/6" />
       <SkeletonBlock className="h-4 w-2/3" />

@@ -47,80 +47,80 @@ export function ProfitView() {
     <div className="flex flex-col gap-5">
       <Link
         href="/dashboard"
-        className="flex w-fit items-center gap-1 text-[13px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
+        className="flex w-fit items-center gap-1 text-13 font-semibold text-secondary transition-colors hover:text-primary"
       >
         <ArrowLeft className="h-4 w-4" />
         {t("profit", "backToDashboard")}
       </Link>
 
       <header>
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">
           {t("profit", "title")}
         </h1>
-        <p className="mt-0.5 text-[13px] text-content-secondary">
+        <p className="mt-1 text-13 text-secondary">
           {t("profit", "subtitle")}
         </p>
       </header>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">{t("profit", "title")}</p>
+        <div className="rounded-card border border-subtle bg-surface-2 p-4">
+          <p className="text-12 font-medium text-secondary">{t("profit", "title")}</p>
           <p
             className={cn(
               "tnum mt-1 text-2xl font-bold",
-              netPnl >= 0 ? "text-accent-green" : "text-accent-red"
+              netPnl >= 0 ? "text-success" : "text-danger"
             )}
           >
             {netPnl >= 0 ? "+" : "-"}
             {formatRupees(Math.abs(netPnl), 0)}
           </p>
-          <p className="tnum mt-0.5 text-[12px] text-content-secondary">
+          <p className="tnum mt-1 text-12 text-secondary">
             {t("profit", "roi", { value: `${roi >= 0 ? "+" : ""}${roi.toFixed(1)}%` })}
           </p>
         </div>
-        <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">{t("dashboard", "resolved")}</p>
+        <div className="rounded-card border border-subtle bg-surface-2 p-4">
+          <p className="text-12 font-medium text-secondary">{t("dashboard", "resolved")}</p>
           <p
             className={cn(
               "tnum mt-1 text-2xl font-bold",
-              realized >= 0 ? "text-accent-green" : "text-accent-red"
+              realized >= 0 ? "text-success" : "text-danger"
             )}
           >
             {realized >= 0 ? "+" : "-"}
             {formatRupees(Math.abs(realized), 0)}
           </p>
-          <p className="tnum mt-0.5 text-[12px] text-content-secondary">
+          <p className="tnum mt-1 text-12 text-secondary">
             {t("profit", "settled", { count: settled.length })}
           </p>
         </div>
-        <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">{t("dashboard", "unrealised")}</p>
+        <div className="rounded-card border border-subtle bg-surface-2 p-4">
+          <p className="text-12 font-medium text-secondary">{t("dashboard", "unrealised")}</p>
           <p
             className={cn(
               "tnum mt-1 text-2xl font-bold",
-              unrealized >= 0 ? "text-accent-green" : "text-accent-red"
+              unrealized >= 0 ? "text-success" : "text-danger"
             )}
           >
             {unrealized >= 0 ? "+" : "-"}
             {formatRupees(Math.abs(unrealized), 0)}
           </p>
-          <p className="tnum mt-0.5 text-[12px] text-content-secondary">
+          <p className="tnum mt-1 text-12 text-secondary">
             {t("profit", "openCount", { count: open.length })}
           </p>
         </div>
-        <div className="rounded-xl border border-subtle bg-bg-secondary p-4">
-          <p className="text-[12px] font-medium text-content-secondary">{t("profit", "winRate")}</p>
-          <p className="tnum mt-1 text-2xl font-bold text-content-primary">
+        <div className="rounded-card border border-subtle bg-surface-2 p-4">
+          <p className="text-12 font-medium text-secondary">{t("profit", "winRate")}</p>
+          <p className="tnum mt-1 text-2xl font-bold text-primary">
             {winRate.toFixed(0)}%
           </p>
-          <p className="tnum mt-0.5 text-[12px] text-content-secondary">
+          <p className="tnum mt-1 text-12 text-secondary">
             {t("profit", "winLoss", { wins, losses })}
           </p>
         </div>
       </div>
 
-      <section className="rounded-xl border border-subtle bg-bg-secondary p-4">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+      <section className="rounded-card border border-subtle bg-surface-2 p-4">
+        <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
           {t("profit", "byMarket")}
         </h2>
         <div className="mt-3 h-64 w-full">
@@ -157,7 +157,7 @@ export function ProfitView() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-[15px] font-bold text-content-primary">
+        <h2 className="mb-3 text-16 font-bold text-primary">
           {t("profit", "perMarket")}
         </h2>
         <div className="flex flex-col gap-2">
@@ -167,34 +167,34 @@ export function ProfitView() {
             .map((row) => (
               <div
                 key={row.key}
-                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-subtle bg-bg-secondary p-3.5"
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-card border border-subtle bg-surface-2 p-4"
               >
                 <span
                   className={cn(
-                    "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase",
+                    "shrink-0 rounded-chip px-1.5 py-1 text-11 font-bold uppercase",
                     row.resolved
                       ? row.resolved === "won"
-                        ? "bg-accent-green/15 text-accent-green"
-                        : "bg-accent-red/15 text-accent-red"
-                      : "bg-bg-tertiary text-content-secondary"
+                        ? "bg-success/15 text-success"
+                        : "bg-danger/15 text-danger"
+                      : "bg-surface-3 text-secondary"
                   )}
                 >
                   {row.resolved ?? "open"}
                 </span>
                 <Link
                   href={`/market/${row.market.slug}`}
-                  className="min-w-0 flex-1 truncate text-[13px] font-semibold text-content-primary transition-colors hover:text-accent-blue"
+                  className="min-w-0 flex-1 truncate text-13 font-semibold text-primary transition-colors hover:text-brand"
                 >
                   {getMarketText(row.market, locale).title}
                 </Link>
-                <span className="tnum shrink-0 text-[12px] text-content-secondary">
+                <span className="tnum shrink-0 text-12 text-secondary">
                   {row.outcomeLabel} · {Math.round(row.shares).toLocaleString("en-IN")} sh ·{" "}
                   {formatRupees(row.cost, 0)} in
                 </span>
                 <span
                   className={cn(
-                    "tnum w-24 shrink-0 text-right text-[13px] font-bold",
-                    row.pnl >= 0 ? "text-accent-green" : "text-accent-red"
+                    "tnum w-24 shrink-0 text-right text-13 font-bold",
+                    row.pnl >= 0 ? "text-success" : "text-danger"
                   )}
                 >
                   {row.pnl >= 0 ? "+" : "-"}

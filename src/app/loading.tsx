@@ -5,7 +5,7 @@ export default function Loading() {
   return (
     <SkeletonRegion>
       <div className="flex flex-col gap-8">
-        <SkeletonBlock className="h-56 rounded-xl" />
+        <SkeletonBlock className="h-56 rounded-card" />
         <SkeletonGrid count={4} />
         <SkeletonGrid count={4} />
       </div>
