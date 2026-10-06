@@ -12,8 +12,8 @@ import { STORAGE_KEY } from "../../src/i18n";
 import { sourceHashFor } from "../../src/services/translation/hash";
 import { validateEntry, validateLocales } from "../../src/services/translation/validate";
 import { termsFor } from "../../src/services/translation/glossary";
-import { runTranslateMarkets } from "../../src/services/translation/run";
-import { OPENAI_URL } from "../../src/services/translation/translate";
+import { runTranslateMarkets, TRANSIENT_BACKOFF_MS } from "../../src/services/translation/run";
+import { OPENAI_URL, geminiUrl, resolveProvider } from "../../src/services/translation/translate";
 import {
   TARGET_LOCALES,
   type MarketSource,
@@ -77,6 +77,36 @@ function fakeOpenAI(plan: (m: MarketSource, attempt: number) => Reply = () => "g
   return { fetchImpl, calls };
 }
 
+type GeminiReply = Reply | "blocked";
+
+/** Fake Gemini generateContent endpoint. Records every call; no network. */
+function fakeGemini(plan: (m: MarketSource, attempt: number) => GeminiReply = () => "good") {
+  const calls: Array<{ url: string; key: string; auth?: string; body: Record<string, unknown> }> = [];
+  const attempts = new Map<string, number>();
+  const fetchImpl = (async (url: string, init: RequestInit) => {
+    const headers = init.headers as Record<string, string>;
+    const body = JSON.parse(String(init.body));
+    calls.push({ url, key: headers["x-goog-api-key"], auth: headers.authorization, body });
+    const src = JSON.parse(body.contents[0].parts[0].text) as { title: string; description: string };
+    const m = { id: "", subcategory: "", title: src.title, description: src.description };
+    const n = (attempts.get(src.title) ?? 0) + 1;
+    attempts.set(src.title, n);
+    const reply = plan(m, n);
+    if (reply === "http-500") return new Response("{}", { status: 500 });
+    if (reply === "blocked") {
+      return new Response(JSON.stringify({ candidates: [{ finishReason: "SAFETY" }] }), { status: 200 });
+    }
+    const text = reply === "bad-shape" ? JSON.stringify({ hi: { title: "x" } }) : JSON.stringify(goodLocales(m));
+    return new Response(
+      JSON.stringify({ candidates: [{ finishReason: "STOP", content: { parts: [{ text }] } }] }),
+      { status: 200 }
+    );
+  }) as unknown as typeof fetch;
+  return { fetchImpl, calls };
+}
+
+const GEMINI_ENV = { GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "gemini-test-model" };
+
 function tempFile(initial: TranslationFile = {}) {
   const dir = mkdtempSync(join(tmpdir(), "bp-tr-"));
   const path = join(dir, "market-translations.json");
@@ -94,7 +124,16 @@ const SAMPLE: MarketSource[] = [
 
 const quiet = () => {
   const lines: string[] = [];
-  return { log: (l: string) => lines.push(l), lines };
+  const sleeps: number[] = [];
+  return {
+    log: (l: string) => lines.push(l),
+    lines,
+    // Never actually wait in tests; record the backoff instead.
+    sleep: async (ms: number) => {
+      sleeps.push(ms);
+    },
+    sleeps,
+  };
 };
 
 // ------------------------------------------------------------------- hashing
@@ -278,6 +317,104 @@ test.describe("translate:markets runner", () => {
       expect(calls).toHaveLength(0);
       expect(out.lines.join("\n")).toMatch(/OPENAI_(API_KEY|MODEL) is not set/);
     }
+  });
+
+  test("Gemini: same prompt and schema, key in a header, entries saved", async () => {
+    const { fetchImpl, calls } = fakeGemini();
+    const path = tempFile();
+    const out = quiet();
+    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: GEMINI_ENV, fetchImpl, ...out });
+
+    expect(r.exitCode).toBe(0);
+    expect(r.provider).toBe("gemini");
+    expect(calls).toHaveLength(SAMPLE.length);
+    for (const c of calls) {
+      expect(c.url).toBe(geminiUrl("gemini-test-model"));
+      // Header only: the key must never be in the URL (it would end up in logs).
+      expect(c.key).toBe(FAKE_KEY);
+      expect(c.url).not.toContain(FAKE_KEY);
+      expect(c.auth).toBeUndefined();
+      const cfg = c.body.generationConfig as {
+        temperature: number;
+        responseMimeType: string;
+        responseJsonSchema: { required: string[]; additionalProperties: boolean };
+      };
+      expect(cfg.temperature).toBe(0);
+      expect(cfg.responseMimeType).toBe("application/json");
+      expect(cfg.responseJsonSchema.required).toEqual([...TARGET_LOCALES]);
+      expect(cfg.responseJsonSchema.additionalProperties).toBe(false);
+      const sys = c.body.systemInstruction as { parts: Array<{ text: string }> };
+      expect(sys.parts[0].text).toContain("Protected terms");
+    }
+    expect(out.lines.join("\n")).toContain("Using Google Gemini (gemini-test-model).");
+    expect(out.lines.join("\n")).not.toContain(FAKE_KEY);
+    const file = read(path);
+    expect(Object.keys(file).sort()).toEqual(["t1", "t2", "t3"]);
+    expect(file.t2.status).toBe("machine-drafted");
+  });
+
+  test("Gemini output goes through the same validator and retry", async () => {
+    // t1: blocked twice -> left in English. t2: bad shape then good -> saved.
+    const { fetchImpl, calls } = fakeGemini((m, n) =>
+      m.title.startsWith("Will India") ? "blocked" : m.title.startsWith("Gold") && n === 1 ? "bad-shape" : "good"
+    );
+    const path = tempFile();
+    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: GEMINI_ENV, fetchImpl, ...quiet() });
+    expect(r.exitCode).toBe(0);
+    expect(calls).toHaveLength(5);
+    expect(r.failed.map((f) => f.id)).toEqual(["t1"]);
+    expect(r.failed[0].problems.join(" ")).toMatch(/SAFETY/);
+    expect(Object.keys(read(path)).sort()).toEqual(["t2", "t3"]);
+  });
+
+  test("provider selection: explicit, single key, both keys, invalid", () => {
+    const both = { ...ENV, ...GEMINI_ENV };
+    expect(resolveProvider(ENV)).toMatchObject({ ok: true, provider: "openai", model: "test-model" });
+    expect(resolveProvider(GEMINI_ENV)).toMatchObject({ ok: true, provider: "gemini", model: "gemini-test-model" });
+    expect(resolveProvider(both)).toMatchObject({ ok: false, error: expect.stringMatching(/TRANSLATION_PROVIDER/) });
+    expect(resolveProvider({ ...both, TRANSLATION_PROVIDER: "gemini" })).toMatchObject({ ok: true, provider: "gemini" });
+    expect(resolveProvider({ ...both, TRANSLATION_PROVIDER: "OpenAI" })).toMatchObject({ ok: true, provider: "openai" });
+    expect(resolveProvider({ ...both, TRANSLATION_PROVIDER: "claude" })).toMatchObject({ ok: false });
+    expect(resolveProvider({ GEMINI_API_KEY: FAKE_KEY })).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/GEMINI_MODEL is not set/),
+    });
+    // The model id goes into the Gemini URL path.
+    expect(resolveProvider({ GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "../../x" })).toMatchObject({ ok: false });
+    expect(resolveProvider({ GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "gemini-2.5-flash" })).toMatchObject({ ok: true });
+    // No key printed in any error.
+    for (const env of [both, { GEMINI_API_KEY: FAKE_KEY }, { ...both, TRANSLATION_PROVIDER: "x" }]) {
+      const r = resolveProvider(env);
+      if (!r.ok) expect(r.error).not.toContain(FAKE_KEY);
+    }
+  });
+
+  test("rate limits and overload back off before the retry; other errors do not", async () => {
+    const out = quiet();
+    const g = fakeGemini((_m, n) => (n === 1 ? "http-500" : "good"));
+    const r = await runTranslateMarkets({ markets: SAMPLE.slice(0, 1), filePath: tempFile(), env: GEMINI_ENV, fetchImpl: g.fetchImpl, ...out });
+    expect(r.translated).toEqual(["t1"]);
+    expect(out.sleeps).toEqual([TRANSIENT_BACKOFF_MS]);
+
+    const out2 = quiet();
+    const g2 = fakeGemini((_m, n) => (n === 1 ? "bad-shape" : "good"));
+    await runTranslateMarkets({ markets: SAMPLE.slice(0, 1), filePath: tempFile(), env: GEMINI_ENV, fetchImpl: g2.fetchImpl, ...out2 });
+    expect(out2.sleeps).toEqual([]);
+  });
+
+  test("both keys without a choice makes no calls", async () => {
+    const o = fakeOpenAI();
+    const g = fakeGemini();
+    const calls = () => o.calls.length + g.calls.length;
+    const r = await runTranslateMarkets({
+      markets: SAMPLE,
+      filePath: tempFile(),
+      env: { ...ENV, ...GEMINI_ENV },
+      fetchImpl: o.fetchImpl,
+      ...quiet(),
+    });
+    expect(r.exitCode).toBe(1);
+    expect(calls()).toBe(0);
   });
 
   test("nothing to do needs no key at all", async () => {

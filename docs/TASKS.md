@@ -313,7 +313,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | 5 | Motion pass | Done |
 | 6 | Tests and docs | Done |
 | 7 | Jev AI decision layer | Optional — ask first |
-| — | Translation provider-agnostic (Gemini key stored) | After the UI work |
+| — | Translation provider-agnostic (OpenAI or Gemini) | Done (D-018) |
 
 ## Backlog
 
@@ -470,4 +470,17 @@ are market data and stay English until the backend serves translations.
   no `h1` (added, visually hidden).
 - README: design-system section, `check:tokens`, updated structure and features.
   DESIGN.md: Enforcement table.
+
+## Translation provider — progress
+
+- `translateMarket` dispatches to OpenAI or Gemini; `resolveProvider(env)` picks one
+  (D-018). Run output names the provider and model; keys are never logged.
+- Tests (fake endpoints, no network): Gemini request shape (header key, schema, system
+  instruction), validator + retry on Gemini output, SAFETY block, provider selection
+  matrix, both-keys refusal, model-id guard, transient backoff.
+- Live check: one market translated with `gemini-3.1-flash-lite` into a temp file.
+- `.env.local` (sandbox, not committed): `GEMINI_MODEL=gemini-3.1-flash-lite`,
+  `TRANSLATION_PROVIDER=gemini`. 83 markets are still untranslated; run
+  `npm run translate:markets` (25 per run) when ready — output is machine-drafted and
+  needs native-speaker review.
 

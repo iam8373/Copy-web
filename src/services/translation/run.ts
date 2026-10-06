@@ -1,5 +1,5 @@
 import { planWork, readTranslations, writeTranslations, type WorkItem } from "./store";
-import { translateMarket, TranslationRequestError } from "./translate";
+import { isTransient, PROVIDER_ENV, resolveProvider, translateMarket, TranslationRequestError } from "./translate";
 import { validateLocales, type FieldProblem } from "./validate";
 import type { MarketSource, TranslationEntry, TranslationFile } from "./types";
 
@@ -22,7 +22,12 @@ export interface RunOptions {
   fetchImpl?: typeof fetch;
   now?: () => Date;
   log?: (line: string) => void;
+  /** Pause before retrying after a 429/5xx. Injectable so tests don't wait. */
+  sleep?: (ms: number) => Promise<void>;
 }
+
+/** Backoff before the retry when the provider was rate-limited or overloaded. */
+export const TRANSIENT_BACKOFF_MS = 5_000;
 
 export interface RunResult {
   exitCode: 0 | 1;
@@ -31,6 +36,8 @@ export interface RunResult {
   translated: string[];
   failed: Array<{ id: string; problems: string[] }>;
   deferred: string[];
+  /** Which provider was used, when any request was made. */
+  provider?: "openai" | "gemini";
   error?: string;
 }
 
@@ -81,34 +88,40 @@ export async function runTranslateMarkets(opts: RunOptions): Promise<RunResult> 
     return result;
   }
 
-  // Only now, when there is real work, is the key required.
-  const apiKey = opts.env.OPENAI_API_KEY?.trim();
-  const model = opts.env.OPENAI_MODEL?.trim();
-  if (!apiKey) {
-    return fail(
-      "OPENAI_API_KEY is not set. Add it to .env.local (never commit it). The app itself does not need it and keeps working in English."
-    );
-  }
-  if (!model) {
-    return fail("OPENAI_MODEL is not set. Add the model name to .env.local; no default is assumed.");
-  }
+  // Only now, when there is real work, is a provider (key + model) required.
+  const resolved = resolveProvider(opts.env);
+  if (!resolved.ok) return fail(resolved.error);
+  const { provider, apiKey, model } = resolved;
+  result.provider = provider;
+  log(`Using ${PROVIDER_ENV[provider].label} (${model}).`);
 
   const now = opts.now ?? (() => new Date());
+  const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   let changed = false;
 
   for (const w of batch) {
     let problems: string[] = [];
     let accepted: TranslationEntry["locales"] | null = null;
 
+    let transient = false;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS && !accepted; attempt++) {
+      if (attempt > 1 && transient) await sleep(TRANSIENT_BACKOFF_MS);
+      transient = false;
       result.apiCalls++;
       try {
-        const out = await translateMarket(w.market, { apiKey, model, fetchImpl: opts.fetchImpl });
+        const out = await translateMarket(w.market, { provider, apiKey, model, fetchImpl: opts.fetchImpl });
         const found = validateLocales(w.market, out);
         if (found.length === 0) accepted = out as TranslationEntry["locales"];
         else problems = found.map(describe);
       } catch (err) {
-        problems = [err instanceof TranslationRequestError ? err.message : "unexpected error during request"];
+        transient = isTransient(err);
+        problems = [
+          err instanceof TranslationRequestError
+            ? err.message
+            : err instanceof Error && err.name === "TimeoutError"
+              ? "request timed out"
+              : "unexpected error during request",
+        ];
       }
       if (!accepted && attempt < MAX_ATTEMPTS) log(`  ${w.market.id}: attempt ${attempt} rejected, retrying once`);
     }

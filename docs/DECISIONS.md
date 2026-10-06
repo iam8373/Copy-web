@@ -2,6 +2,30 @@
 
 Architecture and product decisions, newest first.
 
+## D-018 — Market translation is provider-agnostic (OpenAI or Gemini)
+
+**Date:** Work order 4 (after the UI phases)
+**Status:** Accepted
+
+`src/services/translation/translate.ts` has one request builder per provider behind
+`translateMarket(source, { provider, apiKey, model })`. Both send the same system prompt,
+user payload and strict JSON schema (OpenAI `response_format.json_schema`, Gemini
+`generationConfig.responseJsonSchema`), and both outputs go through the same
+`validate.ts` checks and single retry, so switching provider cannot loosen validation.
+
+- Selection: `TRANSLATION_PROVIDER` if set; otherwise the only provider with a key; with
+  both keys and no choice the run stops (they are billed separately). No default model.
+- Gemini: key in the `x-goog-api-key` header (never in the URL); model id restricted to
+  `[A-Za-z0-9._-]` because it is part of the URL path; `SAFETY`/blocked responses are
+  failures.
+- 429/5xx back off 5 s before the retry; timeout per request is 120 s.
+- Verified live on one market (written to a temp file, not the repo): `gemini-2.5-flash`
+  is no longer available to new keys (HTTP 404); `gemini-3.x-flash` returned 503
+  (overloaded) at the time; `gemini-3.1-flash-lite` and `gemini-flash-lite-latest`
+  translated and passed validation first time.
+- `scripts/verify-build.sh` also fails if a Gemini endpoint or `GEMINI_API_KEY` reaches
+  the app bundle.
+
 ## D-017 — LMSR liquidity default needs an owner decision
 
 **Date:** Backend Phase 1

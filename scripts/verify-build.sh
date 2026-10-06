@@ -19,9 +19,9 @@ if [ -n "$hits" ]; then echo "✗ test-only /e2e-ui gallery is present in the bu
 else echo "✓ test-only UI gallery compiled out"; fi
 
 # 2. No AI service reachable from shipped code (Phase 6, D-014).
-hits=$(search 'api\.openai\.com|OPENAI_API_KEY')
-if [ -n "$hits" ]; then echo "✗ OpenAI references in the build:"; echo "$hits" | sed 's/^/    /'; fail=1
-else echo "✓ no OpenAI references"; fi
+hits=$(search 'api\.openai\.com|OPENAI_API_KEY|generativelanguage\.googleapis\.com|GEMINI_API_KEY')
+if [ -n "$hits" ]; then echo "✗ AI provider (OpenAI/Gemini) references in the build:"; echo "$hits" | sed 's/^/    /'; fail=1
+else echo "✓ no OpenAI or Gemini references"; fi
 
 # 3. No Google Fonts in app output (Phase 2, D-010). Next's framework chunks
 #    carry an inert GOOGLE_FONT_PROVIDER constant, so only app output is checked.

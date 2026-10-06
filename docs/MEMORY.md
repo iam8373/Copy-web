@@ -173,7 +173,9 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   `npx playwright install-deps chromium`.
 - Page check script (scratch): `.scratch/shots.spec.ts` via
   `npx playwright test -c .scratch/shots.config.ts` (both themes, 360/1280, overflow).
-- Gemini key is in `.env.local` as `GEMINI_API_KEY`; `GEMINI_MODEL` still blank.
+- Gemini key is in `.env.local` as `GEMINI_API_KEY`, with `GEMINI_MODEL=gemini-3.1-flash-lite`
+  and `TRANSLATION_PROVIDER=gemini` (both keys are present, so the provider must be named).
+  `gemini-2.5-flash` returns 404 for this key (retired for new users).
 - Phase 1 done. Legacy colour aliases are gone: use `bg-surface-1/2/3`,
   `text-primary/secondary/muted`, `border-subtle/strong`, `brand`, `success/danger/warning`.
   The cleanup codemod (`.scratch/codemod.py`) also rewrites words in comments ("rounded" →

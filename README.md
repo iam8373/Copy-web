@@ -76,7 +76,14 @@ suite. It uses no secrets and read-only permissions.
 
 Market titles and descriptions are translated **once**, offline, and committed to
 `src/data/market-translations.json`; the app never calls an AI service. To (re)translate
-new or edited markets, put `OPENAI_API_KEY` and `OPENAI_MODEL` in `.env.local`, then:
+new or edited markets, configure **one** provider in `.env.local`:
+
+| Provider | Variables |
+| --- | --- |
+| OpenAI | `OPENAI_API_KEY`, `OPENAI_MODEL` |
+| Google Gemini | `GEMINI_API_KEY`, `GEMINI_MODEL` (e.g. `gemini-3.1-flash-lite`) |
+
+If both keys are present, `TRANSLATION_PROVIDER=openai|gemini` chooses. Then:
 
 ```bash
 npm run translate:markets                      # up to 25 markets per run
