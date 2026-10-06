@@ -9,11 +9,11 @@ export function MarketGrid({ markets }: { markets: Market[] }) {
 
   if (markets.length === 0) {
     return (
-      <div className="rounded-xl border border-subtle bg-bg-secondary p-10 text-center">
-        <p className="text-[14px] font-semibold text-content-primary">
+      <div className="rounded-card border border-subtle bg-surface-2 p-12 text-center">
+        <p className="text-14 font-semibold text-primary">
           {t("empty", "noMarketsTitle")}
         </p>
-        <p className="mt-1 text-[13px] text-content-secondary">
+        <p className="mt-1 text-13 text-secondary">
           {t("empty", "noMarketsBody")}
         </p>
       </div>
@@ -33,7 +33,7 @@ export function MarketRow({ markets }: { markets: Market[] }) {
   return (
     <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
       {markets.map((m) => (
-        <div key={m.id} className="w-[290px] shrink-0 snap-start sm:w-[320px]">
+        <div key={m.id} className="w-72 shrink-0 snap-start sm:w-80">
           <MarketCard market={m} />
         </div>
       ))}

@@ -25,10 +25,10 @@ export function FeaturedCarousel() {
   const text = getMarketText(market, locale);
 
   return (
-    <section className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
+    <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
       <div className="flex items-center gap-2">
-        <TrendingUp className="h-4 w-4 text-accent-blue" />
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
+        <TrendingUp className="h-4 w-4 text-brand" />
+        <h2 className="text-13 font-bold uppercase tracking-wide text-secondary">
           Featured Markets
         </h2>
         <div className="ml-auto flex items-center gap-1">
@@ -36,7 +36,7 @@ export function FeaturedCarousel() {
             type="button"
             aria-label="Previous featured market"
             onClick={() => setIndex((i) => (i - 1 + featured.length) % featured.length)}
-            className="grid h-7 w-7 place-items-center rounded-lg border border-subtle bg-bg-tertiary text-content-secondary transition-colors hover:text-content-primary"
+            className="grid h-7 w-7 place-items-center rounded-btn border border-subtle bg-surface-3 text-secondary transition-colors hover:text-primary"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -44,7 +44,7 @@ export function FeaturedCarousel() {
             type="button"
             aria-label="Next featured market"
             onClick={() => setIndex((i) => (i + 1) % featured.length)}
-            className="grid h-7 w-7 place-items-center rounded-lg border border-subtle bg-bg-tertiary text-content-secondary transition-colors hover:text-content-primary"
+            className="grid h-7 w-7 place-items-center rounded-btn border border-subtle bg-surface-3 text-secondary transition-colors hover:text-primary"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -52,13 +52,13 @@ export function FeaturedCarousel() {
       </div>
 
       <Link href={`/market/${market.slug}`} className="mt-4 block">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-accent-blue">
+        <p className="text-11 font-semibold uppercase tracking-wide text-brand">
           {market.category} • {market.subcategory}
         </p>
-        <h3 className="mt-1 text-xl font-bold leading-tight text-content-primary sm:text-2xl">
+        <h3 className="mt-1 text-xl font-bold leading-tight text-primary sm:text-2xl">
           {text.title}
         </h3>
-        <p className="mt-2 line-clamp-2 max-w-3xl text-[13px] leading-relaxed text-content-secondary">
+        <p className="mt-2 line-clamp-2 max-w-3xl text-13 leading-relaxed text-secondary">
           {text.description}
         </p>
 
@@ -67,19 +67,19 @@ export function FeaturedCarousel() {
             <span
               key={o.id}
               className={cn(
-                "flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[13px] font-bold",
-                market.isBinary && i === 0 && "border-accent-green/30 bg-accent-green/10 text-accent-green",
-                market.isBinary && i === 1 && "border-accent-red/30 bg-accent-red/10 text-accent-red",
-                !market.isBinary && "border-subtle bg-bg-tertiary text-content-primary"
+                "flex items-center gap-2 rounded-btn border px-3 py-1.5 text-13 font-bold",
+                market.isBinary && i === 0 && "border-success/30 bg-success/10 text-success",
+                market.isBinary && i === 1 && "border-danger/30 bg-danger/10 text-danger",
+                !market.isBinary && "border-subtle bg-surface-3 text-primary"
               )}
             >
-              <span className="max-w-[160px] truncate">{o.label}</span>
+              <span className="max-w-40 truncate">{o.label}</span>
               <FlashValue value={o.price}>{formatPercent(o.price, 1)}</FlashValue>
             </span>
           ))}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-[12px] text-content-secondary">
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-12 text-secondary">
           <span className="tnum">Vol {formatVolume(market.totalVolume)}</span>
           <span>Ends {formatEndDate(market.endDate)}</span>
           <span className="truncate">Resolves via {market.resolutionSource}</span>
@@ -95,7 +95,7 @@ export function FeaturedCarousel() {
             onClick={() => setIndex(i)}
             className={cn(
               "h-1 flex-1 rounded-full transition-colors",
-              i === index ? "bg-accent-blue" : "bg-subtle"
+              i === index ? "bg-brand-fill" : "bg-surface-3"
             )}
           />
         ))}

@@ -83,9 +83,9 @@ export function SearchModal() {
         className="absolute inset-0 bg-black/70 animate-fade-in"
         onClick={() => setOpen(false)}
       />
-      <div className="relative w-full max-w-xl overflow-hidden rounded-xl border border-subtle bg-bg-secondary shadow-2xl animate-slide-up">
+      <div className="relative w-full max-w-xl overflow-hidden rounded-card border border-subtle bg-surface-2 shadow-dialog animate-slide-up">
         <div className="flex items-center gap-2 border-b border-subtle px-4">
-          <Search className="h-4 w-4 shrink-0 text-content-secondary" />
+          <Search className="h-4 w-4 shrink-0 text-secondary" />
           <input
             ref={inputRef}
             value={query}
@@ -105,16 +105,16 @@ export function SearchModal() {
               }
             }}
             placeholder={t("header", "searchPlaceholder")}
-            className="h-12 w-full bg-transparent text-[15px] text-content-primary outline-none placeholder:text-content-secondary"
+            className="h-12 w-full bg-transparent text-16 text-primary outline-none placeholder:text-secondary"
           />
-          <kbd className="shrink-0 rounded border font-sans border-subtle bg-bg-tertiary px-1.5 py-0.5 text-[11px] text-content-secondary">
+          <kbd className="shrink-0 rounded-chip border font-sans border-subtle bg-surface-3 px-1.5 py-1 text-11 text-secondary">
             {t("search", "esc")}
           </kbd>
         </div>
 
         <div className="thin-scrollbar max-h-[52vh] overflow-y-auto p-2">
           {results.length === 0 && (
-            <p className="px-3 py-6 text-center text-[13px] text-content-secondary">
+            <p className="px-3 py-6 text-center text-13 text-secondary">
               {t("empty", "noSearchResults", { query })}
             </p>
           )}
@@ -125,26 +125,26 @@ export function SearchModal() {
               onMouseEnter={() => setActive(i)}
               onClick={() => go(m.slug)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
-                i === active ? "bg-bg-tertiary" : "hover:bg-bg-tertiary/60"
+                "flex w-full items-center gap-3 rounded-btn px-3 py-3 text-left transition-colors",
+                i === active ? "bg-surface-3" : "hover:bg-surface-3/60"
               )}
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-semibold text-content-primary">
+                <p className="truncate text-13 font-semibold text-primary">
                   {getMarketText(m, locale).title}
                 </p>
-                <p className="truncate text-[11px] uppercase tracking-wide text-content-secondary">
+                <p className="truncate text-11 uppercase tracking-wide text-secondary">
                   {m.category} • {m.subcategory} • Vol {formatVolume(m.totalVolume)}
                 </p>
               </div>
-              <span className="tnum shrink-0 text-[13px] font-bold text-content-primary">
+              <span className="tnum shrink-0 text-13 font-bold text-primary">
                 {formatPercent(m.outcomes[0].price, 1)}
               </span>
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-3 border-t border-subtle px-4 py-2 text-[11px] text-content-secondary">
+        <div className="flex items-center gap-3 border-t border-subtle px-4 py-2 text-11 text-secondary">
           <span>{t("search", "navigate")}</span>
           <span>{t("search", "open")}</span>
           <span className="ml-auto">{t("search", "results", { count: results.length })}</span>

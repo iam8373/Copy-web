@@ -51,10 +51,10 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
   return (
     <div className="flex flex-col gap-5">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">
           {t("nav", NAV_KEY_BY_SLUG[meta.slug])}
         </h1>
-        <p className="text-[13px] text-content-secondary">
+        <p className="text-13 text-secondary">
           {meta.blurb}{" "}
           <span className="tnum whitespace-nowrap">
             {t("category", "marketsAndVolume", {
@@ -78,14 +78,14 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
               data-active={active ? "true" : "false"}
               onClick={() => setSubFilter(f.label)}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors",
-                active && "border-accent-blue bg-accent-blue/15 text-accent-blue",
+                "flex shrink-0 items-center gap-1.5 rounded-btn border px-3 py-1.5 text-12 font-semibold transition-colors",
+                active && "border-brand bg-brand/15 text-brand",
                 !active &&
                   f.isHighlighted &&
-                  "border-accent-yellow/40 bg-accent-yellow/10 text-accent-yellow hover:border-accent-yellow",
+                  "border-warning/40 bg-warning/10 text-warning hover:border-warning",
                 !active &&
                   !f.isHighlighted &&
-                  "border-subtle bg-bg-secondary text-content-secondary hover:text-content-primary"
+                  "border-subtle bg-surface-2 text-secondary hover:text-primary"
               )}
             >
               {f.isHighlighted && <Star className="h-3 w-3 shrink-0" />}
@@ -104,10 +104,10 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
             onClick={() => setSort(s)}
             data-testid="sort-option"
             className={cn(
-              "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-colors",
+              "rounded-btn px-3 py-1 text-13 font-semibold transition-colors",
               s === sort
-                ? "bg-bg-tertiary text-content-primary"
-                : "text-content-secondary hover:text-content-primary"
+                ? "bg-surface-3 text-primary"
+                : "text-secondary hover:text-primary"
             )}
           >
             {s === "Starting Soon"
@@ -118,7 +118,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
           </button>
         ))}
         <span
-          className="tnum ml-auto whitespace-nowrap pl-2 text-[12px] text-content-secondary"
+          className="tnum ml-auto whitespace-nowrap pl-2 text-12 text-secondary"
           data-testid="shown-count"
         >
           {t("category", "shown", { count: filtered.length })}
@@ -127,18 +127,18 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
 
       {liveMarkets.length > 0 && (
         <section
-          className="rounded-xl border border-accent-red/25 bg-accent-red/[0.04] p-3 sm:p-4"
+          className="rounded-card border border-danger/25 bg-danger/[0.04] p-3 sm:p-4"
           data-testid="live-section"
         >
           <div className="mb-3 flex items-center gap-2">
             <span
-              className="h-2 w-2 rounded-full bg-accent-red animate-pulse-dot"
+              className="h-2 w-2 rounded-full bg-danger animate-pulse-dot"
               data-testid="live-pulse"
             />
-            <h2 className="text-[15px] font-bold text-content-primary">
+            <h2 className="text-16 font-bold text-primary">
               {t("category", "liveHeading")}
             </h2>
-            <span className="tnum ml-auto text-[12px] text-content-secondary">
+            <span className="tnum ml-auto text-12 text-secondary">
               {t("category", "liveCount", { count: liveMarkets.length })}
             </span>
           </div>
@@ -149,7 +149,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
       {meta.slug !== "live" && (
         <section>
           {liveMarkets.length > 0 && (
-            <h2 className="mb-3 text-[15px] font-bold text-content-primary">
+            <h2 className="mb-3 text-16 font-bold text-primary">
               {t("category", "allMarkets", {
                 category: t("nav", NAV_KEY_BY_SLUG[meta.slug]).toLowerCase(),
               })}

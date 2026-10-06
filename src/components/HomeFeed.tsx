@@ -18,11 +18,11 @@ function SectionHeader({
 }) {
   return (
     <div className="mb-3 flex items-center gap-2">
-      {live && <span className="h-2 w-2 rounded-full bg-accent-red animate-pulse-dot" />}
-      <h2 className="text-[17px] font-bold tracking-tight text-content-primary">{title}</h2>
+      {live && <span className="h-2 w-2 rounded-full bg-danger animate-pulse-dot" />}
+      <h2 className="text-18 font-bold tracking-tight text-primary">{title}</h2>
       <Link
         href={href}
-        className="ml-auto flex items-center gap-1 text-[13px] font-semibold text-accent-blue transition-opacity hover:opacity-80"
+        className="ml-auto flex items-center gap-1 text-13 font-semibold text-brand transition-opacity hover:opacity-80"
       >
         View all
         <ArrowRight className="h-3.5 w-3.5" />
@@ -61,7 +61,7 @@ export function HomeFeed() {
       </section>
 
       {live.length > 0 && (
-        <section className="rounded-xl border border-accent-red/25 bg-accent-red/[0.04] p-3 sm:p-4">
+        <section className="rounded-card border border-danger/25 bg-danger/[0.04] p-3 sm:p-4">
           <SectionHeader title="Live now" href="/markets/live" live />
           <MarketRow markets={live} />
         </section>
@@ -80,18 +80,18 @@ export function HomeFeed() {
 
       <Link
         href="/learn"
-        className="flex items-center gap-4 rounded-xl border border-subtle bg-bg-secondary p-4 transition-colors hover:border-accent-blue/60 sm:p-6"
+        className="flex items-center gap-4 rounded-card border border-subtle bg-surface-2 p-4 transition-colors hover:border-brand/60 sm:p-6"
       >
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent-blue/15 text-accent-blue">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-brand/15 text-brand">
           <GraduationCap className="h-5 w-5" />
         </span>
         <div className="min-w-0">
-          <p className="text-[15px] font-bold text-content-primary">Predictions 101</p>
-          <p className="mt-0.5 text-[13px] text-content-secondary">
+          <p className="text-16 font-bold text-primary">Predictions 101</p>
+          <p className="mt-1 text-13 text-secondary">
             How shares, odds and resolution work — in plain language, with ₹ examples.
           </p>
         </div>
-        <ArrowRight className="ml-auto hidden h-4 w-4 shrink-0 text-content-secondary sm:block" />
+        <ArrowRight className="ml-auto hidden h-4 w-4 shrink-0 text-secondary sm:block" />
       </Link>
     </div>
   );
