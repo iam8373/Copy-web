@@ -34,9 +34,9 @@ Alloy preview proxies :8080 → :3000 (`.alloy/environment.json`).
 - **Subfilter convention:** the first chip in every category is the category name and
   shows everything. Some chips are `isHighlighted` (star + amber) — IPL, World Cup,
   Lok Sabha, State Elections, Bigg Boss, Bollywood, RBI, Budget, Football, Hockey.
-- **Palette:** violet `#7C5CFF` primary (`accent-blue` token, historical name),
-  `accent-green #16C784`, `accent-red #F6465D`, `accent-yellow #F7A83B`. Reuse tokens;
-  do not introduce new colours.
+- **Palette:** see the colour table in `docs/DESIGN.md` (semantic tokens `brand`,
+  `success`, `danger`, `warning`; `accent-*` are aliases). Reuse tokens; do not introduce
+  new colours. `tests/e2e/contrast.spec.ts` fails if a change breaks AA.
 - **Live market dates are relative** (`inHours` / `inDays` in `markets.ts`). Do not
   replace them with literals — that bug has already bitten once.
 

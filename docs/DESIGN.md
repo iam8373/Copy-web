@@ -83,11 +83,16 @@ Brand tokens are kept (`accent-*`). Semantic tokens are what new code should use
 | `text-primary` | #FFFFFF | #0A0B0D | |
 | `text-secondary` | #A1A5AB | #5D636E | ≥ 6.5 / 5.2 : 1 |
 | `text-muted` | #8A8F97 | #646A75 | ≥ 4.5 : 1 on every surface |
-| `brand` | #8D71FF | #6B47FF | text/icons on surfaces (≥ 4.5 : 1) |
+| `brand` | #9B83FF | #5228FF | text/icons on surfaces and on its own ≤ 20 % tint (≥ 4.5 : 1) |
 | `brand-fill` | #6A46F5 | #6A46F5 | button fills; white text 5.5 : 1 |
-| `success` (Yes) | #16C784 | #0E7B52 | ≥ 4.5 : 1 as text |
-| `danger` (No) | #F6465D | #D30A24 | ≥ 4.5 : 1 as text |
-| `warning` | #F7A83B | #995B06 | |
+| `success` (Yes) | #16C784 | #0C6B47 | ≥ 4.5 : 1 as text, also on its ≤ 20 % tint |
+| `danger` (No) | #F76174 | #B3081F | ≥ 4.5 : 1 as text, also on its ≤ 20 % tint |
+| `warning` | #F7A83B | #885105 | ≥ 4.5 : 1 as text, also on its ≤ 20 % tint |
+
+Tinted fills (`bg-success/15` behind `text-success`, etc.) never go above **20 %**: the
+Phase 6 contrast test found the previous shades at 4.0–4.4 : 1 on their own tints, so the
+light-theme success/danger/warning/brand and dark-theme brand/danger were adjusted.
+`tests/e2e/contrast.spec.ts` checks every pairing in both themes.
 
 Finding: white text on the old primary fill `#7C5CFF` is 4.35 : 1 (fails AA at 14 px), so
 buttons now fill with `brand-fill`.
@@ -188,6 +193,12 @@ class wins and the element stays visible. Toggle `hidden`/`flex` classes instead
 
 ## Enforcement
 
-- `npm run check:tokens` — fails on hex colours or `px` values outside the token files.
-- Locale key parity — every new string goes into all six locale files.
-- e2e — 360 px overflow, reduced motion, both themes.
+| Guard | What it checks |
+| --- | --- |
+| `npm run check:tokens` (CI) | No hex colours or `px` values outside the three token files |
+| Locale parity (`tsc` + `i18n.spec.ts`) | Every string exists in all six locales |
+| `contrast.spec.ts` | WCAG AA for every token pairing, both themes, incl. ≤ 20 % tints |
+| `sweep.spec.ts` | Every route × both themes at 360 px: no overflow, no runtime errors, one `h1`, named controls, image alt; visible focus on the first 25 tab stops |
+| `ui-primitives.spec.ts` | Hit areas ≥ 44 px, ARIA and keyboard behaviour of the primitives |
+| `motion.spec.ts` | Motion rules above, and nothing running under reduced motion |
+| `home-nav.spec.ts`, `market-page.spec.ts` | Page-level behaviour of Phases 3–4 |

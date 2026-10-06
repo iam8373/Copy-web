@@ -48,8 +48,23 @@ npm run test:e2e           # Playwright, desktop + Pixel 5, against a production
 npm run test:e2e:sandbox   # same, on :3100 in .next-e2e (when a dev server owns :3000)
 npm run validate:translations  # locale key parity + stored market translations (offline)
 npm run check:secrets          # fail if an API-key-like string is in a tracked file
+npm run check:tokens           # fail on hard-coded hex colours / px outside the token files
 npm run translate:markets -- --dry-run   # list markets needing translation (0 API calls)
 ```
+
+### Design system
+
+Read [`docs/DESIGN.md`](docs/DESIGN.md) before UI work. In short:
+
+- Tokens live only in `src/app/globals.css`, `tailwind.config.ts` and `src/lib/tokens.ts`
+  (`npm run check:tokens` enforces it).
+- Build controls from `@/components/ui` (Button, IconButton, Chip, Segmented, Tabs, Badge,
+  Card, EmptyState, Tooltip, Dialog, AnimatedNumber). A gallery of all of them is at
+  `/e2e-ui` on the dev server.
+- Every user-facing string goes into all six locale files.
+- Both themes, 360px without horizontal scroll, ≥ 44px touch targets, visible keyboard
+  focus, WCAG AA contrast, and nothing moving under `prefers-reduced-motion`. The e2e
+  suite checks each of these (see `docs/DESIGN.md` → Enforcement).
 
 ### Continuous integration
 
@@ -101,13 +116,16 @@ src/
 ├─ app/
 │  ├─ page.tsx                  # home feed: featured, popular, live, per-category rows
 │  ├─ markets/[category]/       # one route for all 12 category pages (incl. live)
-│  ├─ market/[slug]/            # market detail: chart, order book, trade panel, activity
+│  ├─ market/[slug]/            # market page: chart, AMM order book, rules, sticky trade panel
 │  ├─ dashboard/                # positions, portfolio value, resolved history
 │  ├─ profit/                   # realised/unrealised P&L breakdown + chart
 │  ├─ learn/                    # Predictions 101 / help
 │  ├─ terms/ privacy/ responsible-play/ grievance/   # draft legal pages
 ├─ components/                  # Header, CategoryNav, BottomNav, MarketCard, modals, views
+│  ├─ ui/                       # shared primitives (see docs/DESIGN.md → Components)
+│  └─ market/                   # PriceChart, OrderBook
 ├─ data/markets.ts              # 91 mock markets, all India-tagged
+├─ services/markets/            # getPriceHistory / getOrderBook / getMarketActivity
 ├─ i18n/                        # en (shape) + hi, mr, bn, ta, te; LanguageProvider, useT()
 ├─ lib/
 │  ├─ types.ts                  # Category union, CATEGORIES nav config, subfilter chips
@@ -131,7 +149,10 @@ under Entertainment, RBI and Budget under Economy, Football and Hockey under Spo
 - **Live markets** with a pulsing indicator and a running countdown
 - **Binary and multi-outcome cards** — large probability numbers, Yes/No or per-candidate rows
 - **Simulated price movement** — odds drift every few seconds and flash green/red on change
-- **Quick trade** from any card, plus a full trade panel on the market detail page
+- **Quick trade** from any card, plus a sticky trade panel on the market page (a Yes/No
+  bar and bottom sheet on phones)
+- **Honest order book** — the market maker's quotes for 10/50/100/500 shares with price
+  impact, instead of invented bids and asks; the price chart is labelled "Demo data"
 - **Auth** via mobile number + OTP or Google, with a required self-declared 18+
   confirmation and a session-aware header avatar
 - **Per-account persistence** of positions in `localStorage`, validated on load

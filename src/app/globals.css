@@ -27,11 +27,11 @@
   --text-muted: 138 143 151;     /* #8A8F97 */
 
   /* Brand + semantic. */
-  --brand: 141 113 255;          /* #8D71FF text/icons */
+  --brand: 155 131 255;          /* #9B83FF text/icons; AA on its own 20% tint */
   --brand-fill: 106 70 245;      /* #6A46F5 button fill (white text 5.5:1) */
   --brand-fill-hover: 90 55 230; /* #5A37E6 */
   --success: 22 199 132;         /* #16C784 Yes */
-  --danger: 246 70 93;           /* #F6465D No */
+  --danger: 247 97 116;          /* #F76174 No; AA on its own 20% tint */
   --warning: 247 168 59;         /* #F7A83B */
 
   /* Okabe-Ito chart palette, tuned >= 3:1 on surface-2. */
@@ -60,12 +60,12 @@ html.light {
   --text-secondary: 93 99 110;  /* #5D636E */
   --text-muted: 100 106 117;    /* #646A75 */
 
-  --brand: 107 71 255;          /* #6B47FF */
+  --brand: 82 40 255;           /* #5228FF; AA on its own 20% tint */
   --brand-fill: 106 70 245;
   --brand-fill-hover: 90 55 230;
-  --success: 14 123 82;         /* #0E7B52 */
-  --danger: 211 10 36;          /* #D30A24 */
-  --warning: 153 91 6;          /* #995B06 */
+  --success: 12 107 71;          /* #0C6B47 */
+  --danger: 179 8 31;            /* #B3081F */
+  --warning: 136 81 5;           /* #885105 */
 
   --chart-2: 189 130 0;   /* #BD8200 */
   --chart-4: 201 114 162; /* #C972A2 */

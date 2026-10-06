@@ -66,6 +66,10 @@ export function HomeFeed() {
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Every page has one h1; the home page's is for screen readers and search. */}
+      <h1 className="sr-only">
+        {t("brand", "name")} — {t("brand", "tagline")}
+      </h1>
       <FeaturedCarousel />
 
       <section>

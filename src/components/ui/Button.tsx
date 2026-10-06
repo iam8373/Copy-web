@@ -15,8 +15,8 @@ const VARIANTS: Record<ButtonVariant, string> = {
   ghost: "text-secondary hover:bg-surface-3 hover:text-primary",
   outline: "border border-strong text-primary hover:bg-surface-3",
   // Tinted, not solid: white on the dark-theme success/danger fills fails AA.
-  yes: "border border-success/30 bg-success/15 text-success hover:bg-success/25",
-  no: "border border-danger/30 bg-danger/15 text-danger hover:bg-danger/25",
+  yes: "border border-success/30 bg-success/15 text-success hover:bg-success/20",
+  no: "border border-danger/30 bg-danger/15 text-danger hover:bg-danger/20",
 };
 
 /** Visual heights 32 / 40 / 48 px; the hit area is always at least 44 px. */

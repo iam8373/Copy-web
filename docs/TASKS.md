@@ -311,7 +311,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | 3 | Home and navigation polish | Done |
 | 4 | Market detail page | Done |
 | 5 | Motion pass | Done |
-| 6 | Tests and docs | Not started |
+| 6 | Tests and docs | Done |
 | 7 | Jev AI decision layer | Optional — ask first |
 | — | Translation provider-agnostic (Gemini key stored) | After the UI work |
 
@@ -457,4 +457,17 @@ are market data and stay English until the backend serves translations.
 - `tests/e2e/motion.spec.ts`: page fade is opacity-only, stagger steps and cap, no replay
   on re-sort, only status indicators loop after 1.5s, nothing runs under reduced motion,
   accordion visibility/transition, odometer settles on the exact value, dialog exit.
+
+## Phase 6 — progress
+
+- `tests/e2e/contrast.spec.ts`: WCAG AA computed from `globals.css` for text, semantic
+  colours, button fills, tinted chips/badges/buttons, borders, focus ring and chart lines,
+  in both themes. **Found:** Yes/No/brand/warning text on their own 15–25 % tints was
+  4.0–4.4 : 1. Fixed by adjusting six shades (light success/danger/warning/brand, dark
+  brand/danger) and capping hover tints at 20 %.
+- `tests/e2e/sweep.spec.ts`: 18 routes × 2 themes × 2 projects at 360 px, signed-in
+  dashboard/profit, and a keyboard focus sweep on four pages. **Found:** the home page had
+  no `h1` (added, visually hidden).
+- README: design-system section, `check:tokens`, updated structure and features.
+  DESIGN.md: Enforcement table.
 
