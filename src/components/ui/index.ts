@@ -20,4 +20,6 @@ export { Dialog } from "./Dialog";
 export { Segmented } from "./Segmented";
 export type { SegmentedOption, SegmentedProps } from "./Segmented";
 export type { DialogProps } from "./Dialog";
+export { AnimatedNumber } from "./AnimatedNumber";
+export type { AnimatedNumberProps } from "./AnimatedNumber";
 export { FOCUS_RING, HIT_AREA } from "./focus";

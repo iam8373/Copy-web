@@ -5,7 +5,7 @@ import type { Market } from "@/lib/types";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { AmountField } from "@/components/AmountField";
-import { Button, FOCUS_RING } from "@/components/ui";
+import { AnimatedNumber, Button, FOCUS_RING } from "@/components/ui";
 import { validateAmount } from "@/lib/trade-limits";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 
@@ -93,16 +93,22 @@ export function TradeForm({
         </div>
         <div className="flex justify-between gap-2">
           <dt className="text-secondary">{t("trade", "youWillReceive")}</dt>
-          <dd className="tnum font-semibold text-primary">
-            {t("trade", "shares", { count: shares.toFixed(1) })}
+          <dd className="font-semibold text-primary">
+            <AnimatedNumber
+              value={shares}
+              format={(n) => t("trade", "shares", { count: n.toFixed(1) })}
+            />
           </dd>
         </div>
         <div className="flex items-baseline justify-between gap-2 border-t border-subtle pt-2">
           <dt className="text-secondary">{t("trade", "ifCorrect")}</dt>
           <dd className="flex items-baseline gap-1.5">
-            <span className="tnum text-16 font-bold text-success" data-testid="trade-payout">
-              {formatRupees(payout)}
-            </span>
+            <AnimatedNumber
+              value={payout}
+              format={(n) => formatRupees(n)}
+              className="text-16 font-bold text-success"
+              data-testid="trade-payout"
+            />
             {check.ok && (
               <span className="tnum text-12 font-semibold text-success">
                 (+{formatPercent(returnPct, 0)})

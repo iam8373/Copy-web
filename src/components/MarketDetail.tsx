@@ -293,22 +293,28 @@ function Rules({ market, description }: { market: Market; description: string })
           />
         </button>
       </h2>
+      {/* Height animates via grid rows 0fr→1fr (220ms standard). Closed, the
+          panel is visibility:hidden, so it leaves the tab order and the
+          accessibility tree just as `hidden` would. */}
       <div
         id={panelId}
-        // A display class would override the `hidden` attribute, so toggle classes.
         className={cn(
-          "flex-col gap-3 border-t border-subtle px-4 py-4 text-14 text-secondary sm:px-5",
-          open ? "flex" : "hidden"
+          "grid transition-[grid-template-rows,visibility] duration-sm ease-standard",
+          open ? "visible grid-rows-[1fr]" : "invisible grid-rows-[0fr]"
         )}
       >
-        <p>{description}</p>
-        <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-13 sm:grid-cols-[auto_1fr]">
-          <dt className="font-semibold text-primary">{t("market", "resolutionSource")}</dt>
-          <dd>{market.resolutionSource}</dd>
-          <dt className="font-semibold text-primary">{t("terms", "marketCloses")}</dt>
-          <dd className="tnum">{formatEndDate(market.endDate)}</dd>
-        </dl>
-        <p>{t("market", "settlement")}</p>
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-col gap-3 border-t border-subtle px-4 py-4 text-14 text-secondary sm:px-5">
+            <p>{description}</p>
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-13 sm:grid-cols-[auto_1fr]">
+              <dt className="font-semibold text-primary">{t("market", "resolutionSource")}</dt>
+              <dd>{market.resolutionSource}</dd>
+              <dt className="font-semibold text-primary">{t("terms", "marketCloses")}</dt>
+              <dd className="tnum">{formatEndDate(market.endDate)}</dd>
+            </dl>
+            <p>{t("market", "settlement")}</p>
+          </div>
+        </div>
       </div>
     </Card>
   );

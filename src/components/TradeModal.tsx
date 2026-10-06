@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { Dialog } from "@/components/ui";
@@ -21,6 +21,12 @@ export function TradeModal() {
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
   const { t, locale } = useT();
 
+  // Keep the last trade so the sheet can play its exit animation after the
+  // store clears `trade`.
+  const last = useRef(trade);
+  if (trade) last.current = trade;
+  const shown = trade ?? last.current;
+
   useEffect(() => {
     if (trade) {
       setOutcomeId(trade.outcomeId);
@@ -29,18 +35,18 @@ export function TradeModal() {
   }, [trade]);
 
   const market = useMemo(
-    () => (trade ? markets.find((m) => m.id === trade.market.id) ?? trade.market : null),
-    [markets, trade]
+    () => (shown ? markets.find((m) => m.id === shown.market.id) ?? shown.market : null),
+    [markets, shown]
   );
 
-  if (!trade || !market) return null;
+  if (!shown || !market) return null;
 
-  const selectedId = outcomeId ?? trade.outcomeId;
-  const openedAt = trade.market.outcomes.find((o) => o.id === selectedId)?.price;
+  const selectedId = outcomeId ?? shown.outcomeId;
+  const openedAt = shown.market.outcomes.find((o) => o.id === selectedId)?.price;
 
   return (
     <Dialog
-      open
+      open={trade !== null}
       onClose={closeTrade}
       data-testid="trade-modal"
       title={getMarketText(market, locale).title}

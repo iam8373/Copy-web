@@ -14,11 +14,12 @@ import {
 } from "recharts";
 import type { Market } from "@/lib/types";
 import { useT } from "@/i18n/LanguageProvider";
-import { Badge, Card, Segmented, Tooltip } from "@/components/ui";
+import { AnimatedNumber, Badge, Card, Segmented, Tooltip } from "@/components/ui";
 import { FlashValue } from "@/components/FlashValue";
 import { chartColor, color, motion, size, tooltipStyle } from "@/lib/tokens";
 import { cn, formatChange, formatPercent } from "@/lib/utils";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { useFirstPaint } from "@/lib/useFirstPaint";
 import {
   CHART_RANGES,
   getPriceHistory,
@@ -75,16 +76,12 @@ export function PriceChart({ market }: { market: Market }) {
   // The demo series depends on "now", so it is built after mount: server and
   // client then never disagree (the page is statically generated).
   const [now, setNow] = useState<number | null>(null);
-  const [firstPaint, setFirstPaint] = useState(true);
+  const firstPaint = useFirstPaint();
   // Anchor the generated history to the prices at mount, so live ticks move
   // only the last point instead of shifting the whole line.
   const anchor = useRef(market);
 
-  useEffect(() => {
-    setNow(Date.now());
-    const id = setTimeout(() => setFirstPaint(false), motion.lg);
-    return () => clearTimeout(id);
-  }, []);
+  useEffect(() => setNow(Date.now()), []);
 
   const lines = chartedOutcomes(market);
   const history = useMemo(
@@ -131,7 +128,12 @@ export function PriceChart({ market }: { market: Market }) {
               </h2>
               <div className="flex items-baseline gap-2">
                 <FlashValue value={lead.price} className="text-32 font-bold text-primary">
-                  {formatPercent(lead.price, 1)}
+                  <AnimatedNumber
+                    value={lead.price}
+                    duration={motion.md}
+                    format={(n) => formatPercent(n, 1)}
+                    data-testid="chart-headline"
+                  />
                 </FlashValue>
                 <span className={cn("tnum whitespace-nowrap text-13 font-semibold", up ? "text-success" : "text-danger")}>
                   {formatChange(lead.change24h)} {t("card", "pts24h")}

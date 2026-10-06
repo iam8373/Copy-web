@@ -310,7 +310,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | 2 | Shared components (`src/components/ui/`) | Done |
 | 3 | Home and navigation polish | Done |
 | 4 | Market detail page | Done |
-| 5 | Motion pass | Not started |
+| 5 | Motion pass | Done |
 | 6 | Tests and docs | Not started |
 | 7 | Jev AI decision layer | Optional — ask first |
 | — | Translation provider-agnostic (Gemini key stored) | After the UI work |
@@ -446,4 +446,15 @@ are market data and stay English until the backend serves translations.
   sheet on mobile.
 
 **Results:** typecheck, lint, check:tokens clean; Playwright 406/406.
+
+## Phase 5 — progress
+
+- Page fade (`app/template.tsx`), grid/row stagger (30ms, max 8, first paint only,
+  `useFirstPaint`), rules accordion height animation (a11y-safe via `visibility`),
+  `AnimatedNumber` odometer (trade payout and shares, chart headline), `Dialog` exit
+  animation (TradeModal keeps its last trade so the sheet can animate out), shared
+  `useReducedMotion` hook. New keyframes `fade-out`, `slide-down`.
+- `tests/e2e/motion.spec.ts`: page fade is opacity-only, stagger steps and cap, no replay
+  on re-sort, only status indicators loop after 1.5s, nothing runs under reduced motion,
+  accordion visibility/transition, odometer settles on the exact value, dialog exit.
 

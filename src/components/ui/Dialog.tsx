@@ -6,6 +6,8 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import { IconButton } from "./Button";
+import { motion } from "@/lib/tokens";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 export interface DialogProps {
   open: boolean;
@@ -63,6 +65,19 @@ export function Dialog({
 
   useEffect(() => setMounted(true), []);
 
+  // Stay rendered for the 150ms exit animation after `open` turns false.
+  const reduced = useReducedMotion();
+  const [rendered, setRendered] = useState(open);
+  const closing = rendered && !open;
+  useEffect(() => {
+    if (open) {
+      setRendered(true);
+      return;
+    }
+    const id = setTimeout(() => setRendered(false), reduced ? 0 : motion.xs);
+    return () => clearTimeout(id);
+  }, [open, reduced]);
+
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -108,20 +123,22 @@ export function Dialog({
     };
   }, [open]);
 
-  if (!mounted || !open) return null;
+  if (!mounted || (!open && !rendered)) return null;
 
   const sheet = layout === "responsive";
 
   return createPortal(
     <div
+      data-state={closing ? "closing" : "open"}
       className={cn(
         "fixed inset-0 z-50 flex justify-center",
+        closing && "pointer-events-none",
         sheet ? "items-end sm:items-center sm:p-4" : "items-center p-4"
       )}
     >
       <div
         aria-hidden
-        className="absolute inset-0 bg-black/70 animate-fade-in"
+        className={cn("absolute inset-0 bg-black/70", closing ? "animate-fade-out" : "animate-fade-in")}
         onClick={() => onCloseRef.current()}
       />
       <div
@@ -133,7 +150,8 @@ export function Dialog({
         tabIndex={-1}
         data-testid={testId ?? "dialog"}
         className={cn(
-          "relative flex max-h-[90dvh] w-full flex-col border border-subtle bg-surface-2 shadow-dialog outline-none animate-slide-up",
+          "relative flex max-h-[90dvh] w-full flex-col border border-subtle bg-surface-2 shadow-dialog outline-none",
+          closing ? "animate-slide-down" : "animate-slide-up",
           sheet ? "rounded-t-dialog sm:rounded-dialog" : "rounded-dialog",
           WIDTHS[size],
           !sheet && "max-w-[calc(100vw-2rem)]",

@@ -140,6 +140,21 @@ sheet 220 ms standard; chart line draw-in 400 ms on first paint only; odds flash
 (existing `FlashValue`); odometer 220–400 ms emphasized. Nothing that a user is reading
 keeps animating past 500 ms. All of it is disabled under `prefers-reduced-motion`.
 
+Where each rule lives:
+
+| Rule | Implementation |
+| --- | --- |
+| Page enter fade | `src/app/template.tsx` (opacity only; a transform would trap `position: fixed` children) |
+| List stagger | `MarketGrid` / `MarketRow` via `useFirstPaint()` — 30 ms × index, first 8 cards, first paint only |
+| Accordion | Rules panel: `grid-template-rows` 0fr → 1fr, 220 ms standard; `visibility: hidden` when closed |
+| Sheet / dialog | `Dialog`: slide-up / fade-in on enter (220 ms), slide-down / fade-out on exit (150 ms) |
+| Chart draw-in | `PriceChart`: Recharts animation only during first paint, never under reduced motion |
+| Odds flash | `FlashValue` (900 ms colour flash) |
+| Odometer | `AnimatedNumber` (220 ms default, 400 ms for the chart headline), emphasized curve |
+| Reduced motion | Global CSS rule (1 ms) + `useReducedMotion()` for JS-driven motion (carousel, odometer, chart, dialog exit) |
+
+Only status indicators loop (live pulse dot, skeleton pulse, button spinner).
+
 ## Components
 
 Shared primitives live in `src/components/ui/` and are the only place new buttons,

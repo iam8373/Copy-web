@@ -146,6 +146,14 @@ const config: Config = {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
+        "fade-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
+        "slide-down": {
+          from: { transform: "translateY(0)", opacity: "1" },
+          to: { transform: "translateY(16px)", opacity: "0" },
+        },
         "fade-in-up": {
           from: { transform: "translateY(8px)", opacity: "0" },
           to: { transform: "translateY(0)", opacity: "1" },
@@ -174,6 +182,9 @@ const config: Config = {
         "flash-down": "flash-down 900ms cubic-bezier(0, 0, 0.2, 1)",
         "slide-up": "slide-up 220ms cubic-bezier(0, 0, 0.2, 1)",
         "fade-in": "fade-in 220ms cubic-bezier(0, 0, 0.2, 1)",
+        // Exits are shorter than entries (150ms) and keep their end state.
+        "fade-out": "fade-out 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "slide-down": "slide-down 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "fade-in-up": "fade-in-up 200ms cubic-bezier(0, 0, 0.2, 1) both",
         "pulse-dot": "pulse-dot 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite",
         "check-draw": "check-draw 400ms cubic-bezier(0, 0, 0.2, 1) 150ms forwards",
