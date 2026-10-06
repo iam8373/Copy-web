@@ -4,6 +4,7 @@ import { Languages } from "lucide-react";
 import { LOCALES, LOCALE_META } from "@/i18n";
 import { useT } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
+import { Chip, FOCUS_RING } from "@/components/ui";
 
 /**
  * Shared language selector. `variant="chips"` is used in the mobile More
@@ -32,7 +33,10 @@ export function LanguagePicker({
             setLocale(e.target.value as (typeof LOCALES)[number]);
             onPick?.();
           }}
-          className="rounded-btn border border-subtle bg-surface-2 px-2 py-1 text-13 font-semibold text-primary outline-none focus:border-brand"
+          className={cn(
+            "h-10 rounded-btn border border-subtle bg-surface-2 px-2 text-13 font-semibold text-primary transition-colors duration-xs hover:border-strong",
+            FOCUS_RING
+          )}
         >
           {LOCALES.map((l) => (
             <option key={l} value={l}>
@@ -45,26 +49,20 @@ export function LanguagePicker({
   }
 
   return (
-    <div className="mt-2 flex flex-wrap gap-2 px-1">
+    <div className="mt-3 flex flex-wrap gap-2">
       {LOCALES.map((l) => (
-        <button
+        <Chip
           key={l}
-          type="button"
           data-testid="language-chip"
-          aria-pressed={l === locale}
+          selected={l === locale}
           onClick={() => {
             setLocale(l);
             onPick?.();
           }}
-          className={cn(
-            "rounded-btn border px-3 py-1.5 text-12 font-semibold transition-colors",
-            l === locale
-              ? "border-brand bg-brand/15 text-brand"
-              : "border-subtle bg-surface-3 text-secondary"
-          )}
+          className="text-13"
         >
           {LOCALE_META[l].label}
-        </button>
+        </Chip>
       ))}
     </div>
   );

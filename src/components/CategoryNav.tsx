@@ -6,6 +6,7 @@ import { CATEGORIES } from "@/lib/types";
 import { NAV_KEY_BY_SLUG } from "@/i18n";
 import { useT } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
+import { FOCUS_RING, HIT_AREA } from "@/components/ui";
 
 const TABS = [
   { slug: "all" as const, href: "/" },
@@ -17,7 +18,10 @@ export function CategoryNav() {
   const { t } = useT();
 
   return (
-    <nav className="sticky top-14 z-30 border-b border-subtle bg-surface-1/85 backdrop-blur-xl sm:top-16">
+    <nav
+      aria-label={t("nav", "categories")}
+      className="sticky top-14 z-30 border-b border-subtle bg-surface-1/85 backdrop-blur-xl sm:top-16"
+    >
       <div className="mx-auto max-w-content px-gutter">
         <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-3">
           {TABS.map((tab) => {
@@ -28,8 +32,11 @@ export function CategoryNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "shrink-0 rounded-btn px-3 py-1.5 text-13 font-semibold transition-colors",
+                  "relative shrink-0 rounded-btn px-3 py-1.5 text-13 font-semibold transition-colors duration-xs",
+                  HIT_AREA,
+                  FOCUS_RING,
                   active
                     ? "bg-brand-fill text-white"
                     : "text-secondary hover:bg-surface-3 hover:text-primary"
@@ -37,7 +44,7 @@ export function CategoryNav() {
               >
                 {tab.slug === "live" ? (
                   <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-danger animate-pulse-dot" />
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-danger animate-pulse-dot" />
                     {label}
                   </span>
                 ) : (

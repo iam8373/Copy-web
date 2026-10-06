@@ -227,5 +227,10 @@ export const CATEGORIES: CategoryMeta[] = [
   },
 ];
 
-export const SORT_OPTIONS = ["Starting Soon", "All", "Popular"] as const;
+/**
+ * Category sort chips. Trending = biggest 24h volume change, Popular = total
+ * volume, Starting Soon = soonest end date first (already-ended markets last).
+ * "New" waits for the backend's created_at (docs/TASKS.md backlog).
+ */
+export const SORT_OPTIONS = ["Trending", "Popular", "Starting Soon"] as const;
 export type SortOption = (typeof SORT_OPTIONS)[number];

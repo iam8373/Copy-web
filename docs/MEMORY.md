@@ -182,3 +182,6 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   `/e2e-ui` (dev + e2e builds only). Any new custom Tailwind token that shares a prefix
   with a default group (`text-*`, `shadow-*`) must also be added to the
   `extendTailwindMerge` config in `src/lib/utils.ts`, or `cn()` will drop classes.
+- Phase 3 done. Search options are `role="option"` inside `[data-testid="search-dialog"]`
+  (the language `<select>` is also a combobox, so scope queries). Arbitrary `max-[Npx]`
+  variants fail check:tokens; add a screen token instead (`xs` = 400px exists).

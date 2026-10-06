@@ -9,6 +9,8 @@ export const en = {
   brand: { name: "BharatPredict", tagline: "India's prediction market — priced in ₹." },
 
   nav: {
+    /** Accessible name of the category bar. */
+    categories: "Categories",
     all: "All",
     live: "Live",
     cricket: "Cricket",
@@ -36,14 +38,31 @@ export const en = {
     language: "Language",
   },
 
-  sort: { startingSoon: "Starting Soon", all: "All", popular: "Popular" },
+  sort: { startingSoon: "Starting Soon", trending: "Trending", popular: "Popular" },
 
   category: {
+    sortBy: "Sort by",
     shown: "{count} shown",
     marketsAndVolume: "{count} markets · {volume} volume",
     liveHeading: "Live",
     liveCount: "{count} markets",
     allMarkets: "All {category} markets",
+  },
+
+  home: {
+    popular: "Popular",
+    liveNow: "Live now",
+    viewAll: "View all",
+    /** Accessible name of a section's "View all" link. */
+    viewAllIn: "View all: {section}",
+    featured: "Featured markets",
+    prevFeatured: "Previous featured market",
+    nextFeatured: "Next featured market",
+    showFeatured: "Featured market {n} of {total}",
+    pauseRotation: "Pause rotation",
+    resumeRotation: "Resume rotation",
+    resolvesVia: "Resolves via {source}",
+    learnBody: "How shares, odds and resolution work — in plain language, with ₹ examples.",
   },
 
   card: {
@@ -157,6 +176,8 @@ export const en = {
   },
 
   bottomNav: {
+    /** Accessible name of the bottom navigation bar. */
+    label: "Main",
     home: "Home",
     dashboard: "Dashboard",
     profit: "Profit",
@@ -188,6 +209,7 @@ export const en = {
   },
 
   search: {
+    label: "Search markets",
     navigate: "↑↓ navigate",
     open: "↵ open",
     results: "{count} results",

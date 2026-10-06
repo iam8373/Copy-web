@@ -114,7 +114,8 @@ Exposed as `--chart-1` … `--chart-8` and `chart-1…8` colours.
 
 ## Breakpoints and layout
 
-Tailwind defaults: `sm` 640, `md` 768, `lg` 1024, `xl` 1280.
+Tailwind defaults: `sm` 640, `md` 768, `lg` 1024, `xl` 1280, plus `xs` 400 (header
+wordmark only).
 
 - `< md`: one column, BottomNav visible.
 - `md`: two-column grids.

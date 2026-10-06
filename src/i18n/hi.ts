@@ -5,6 +5,8 @@ export const hi: Dictionary = {
   brand: { name: "भारतप्रेडिक्ट", tagline: "भारत का प्रेडिक्शन मार्केट — ₹ में।" },
 
   nav: {
+    /** Accessible name of the category bar. */
+    categories: "श्रेणियाँ",
     all: "सभी",
     live: "लाइव",
     cricket: "क्रिकेट",
@@ -32,14 +34,31 @@ export const hi: Dictionary = {
     language: "भाषा",
   },
 
-  sort: { startingSoon: "जल्द शुरू", all: "सभी", popular: "लोकप्रिय" },
+  sort: { startingSoon: "जल्द शुरू", trending: "ट्रेंडिंग", popular: "लोकप्रिय" },
 
   category: {
+    sortBy: "क्रम",
     shown: "{count} दिखाए गए",
     marketsAndVolume: "{count} मार्केट · {volume} वॉल्यूम",
     liveHeading: "लाइव",
     liveCount: "{count} मार्केट",
     allMarkets: "सभी {category} मार्केट",
+  },
+
+  home: {
+    popular: "लोकप्रिय",
+    liveNow: "अभी लाइव",
+    viewAll: "सभी देखें",
+    /** Accessible name of a section's "View all" link. */
+    viewAllIn: "सभी देखें: {section}",
+    featured: "चुनिंदा मार्केट",
+    prevFeatured: "पिछला चुनिंदा मार्केट",
+    nextFeatured: "अगला चुनिंदा मार्केट",
+    showFeatured: "चुनिंदा मार्केट {n} / {total}",
+    pauseRotation: "बदलना रोकें",
+    resumeRotation: "बदलना फिर शुरू करें",
+    resolvesVia: "निर्णय का स्रोत: {source}",
+    learnBody: "शेयर, ऑड्स और नतीजे कैसे काम करते हैं — आसान भाषा में, ₹ के उदाहरणों के साथ।",
   },
 
   card: {
@@ -154,6 +173,8 @@ export const hi: Dictionary = {
   },
 
   bottomNav: {
+    /** Accessible name of the bottom navigation bar. */
+    label: "मुख्य",
     home: "होम",
     dashboard: "डैशबोर्ड",
     profit: "लाभ",
@@ -185,6 +206,7 @@ export const hi: Dictionary = {
   },
 
   search: {
+    label: "मार्केट खोजें",
     navigate: "↑↓ चुनें",
     open: "↵ खोलें",
     results: "{count} परिणाम",

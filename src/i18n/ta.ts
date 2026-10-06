@@ -9,6 +9,8 @@ export const ta: Dictionary = {
   },
 
   nav: {
+    /** Accessible name of the category bar. */
+    categories: "வகைகள்",
     all: "அனைத்தும்",
     live: "நேரலை",
     cricket: "கிரிக்கெட்",
@@ -38,16 +40,33 @@ export const ta: Dictionary = {
 
   sort: {
     startingSoon: "விரைவில் தொடக்கம்",
-    all: "அனைத்தும்",
+    trending: "டிரெண்டிங்",
     popular: "பிரபலம்",
   },
 
   category: {
+    sortBy: "வரிசைப்படுத்து",
     shown: "{count} காட்டப்படுகின்றன",
     marketsAndVolume: "{count} சந்தைகள் · {volume} அளவு",
     liveHeading: "நேரலை",
     liveCount: "{count} சந்தைகள்",
     allMarkets: "அனைத்து {category} சந்தைகள்",
+  },
+
+  home: {
+    popular: "பிரபலம்",
+    liveNow: "இப்போது நேரலை",
+    viewAll: "அனைத்தையும் காண்க",
+    /** Accessible name of a section's "View all" link. */
+    viewAllIn: "அனைத்தையும் காண்க: {section}",
+    featured: "சிறப்புச் சந்தைகள்",
+    prevFeatured: "முந்தைய சிறப்புச் சந்தை",
+    nextFeatured: "அடுத்த சிறப்புச் சந்தை",
+    showFeatured: "சிறப்புச் சந்தை {n} / {total}",
+    pauseRotation: "சுழற்சியை நிறுத்து",
+    resumeRotation: "சுழற்சியைத் தொடர்",
+    resolvesVia: "முடிவு மூலம்: {source}",
+    learnBody: "பங்குகள், வாய்ப்புகள், முடிவுகள் எப்படிச் செயல்படுகின்றன — எளிய மொழியில், ₹ எடுத்துக்காட்டுகளுடன்.",
   },
 
   card: {
@@ -159,6 +178,8 @@ export const ta: Dictionary = {
   },
 
   bottomNav: {
+    /** Accessible name of the bottom navigation bar. */
+    label: "முதன்மை",
     home: "முகப்பு",
     dashboard: "டாஷ்போர்டு",
     profit: "லாபம்",
@@ -190,6 +211,7 @@ export const ta: Dictionary = {
   },
 
   search: {
+    label: "சந்தைகளைத் தேடு",
     navigate: "↑↓ தேர்வு",
     open: "↵ திற",
     results: "{count} முடிவுகள்",

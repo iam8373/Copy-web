@@ -14,9 +14,9 @@ import {
   MoreHorizontal,
   ShieldCheck,
   TrendingUp,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Dialog, FOCUS_RING } from "@/components/ui";
 import { useT } from "@/i18n/LanguageProvider";
 import { LanguagePicker } from "@/components/LanguagePicker";
 
@@ -26,6 +26,18 @@ const ITEMS = [
   { key: "profit" as const, href: "/profit", icon: TrendingUp },
 ];
 
+const MORE_LINKS = [
+  { key: "helpCentre" as const, href: "/learn", icon: LifeBuoy },
+  { key: "terms" as const, href: "/terms", icon: FileText },
+  { key: "privacy" as const, href: "/privacy", icon: ShieldCheck },
+  { key: "responsiblePlay" as const, href: "/responsible-play", icon: HeartHandshake },
+  { key: "grievance" as const, href: "/grievance", icon: MessageSquareWarning },
+];
+
+const ITEM =
+  "flex min-h-touch flex-col items-center justify-center gap-1 py-2 text-11 font-semibold transition-colors duration-xs " +
+  FOCUS_RING;
+
 export function BottomNav() {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -34,6 +46,7 @@ export function BottomNav() {
   return (
     <>
       <nav
+        aria-label={t("bottomNav", "label")}
         className="fixed inset-x-0 bottom-0 z-40 border-t border-subtle bg-surface-2/95 backdrop-blur-xl sm:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
@@ -45,13 +58,10 @@ export function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                aria-label={t("bottomNav", item.key)}
-                className={cn(
-                  "flex flex-col items-center gap-1 py-3 text-11 font-semibold transition-colors",
-                  active ? "text-brand" : "text-secondary"
-                )}
+                aria-current={active ? "page" : undefined}
+                className={cn(ITEM, active ? "text-brand" : "text-secondary")}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden />
                 {t("bottomNav", item.key)}
               </Link>
             );
@@ -59,92 +69,49 @@ export function BottomNav() {
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className={cn(
-              "flex flex-col items-center gap-1 py-3 text-11 font-semibold transition-colors",
-              sheetOpen ? "text-brand" : "text-secondary"
-            )}
+            aria-haspopup="dialog"
+            aria-expanded={sheetOpen}
+            className={cn(ITEM, sheetOpen ? "text-brand" : "text-secondary")}
           >
-            <MoreHorizontal className="h-5 w-5" />
+            <MoreHorizontal className="h-5 w-5" aria-hidden />
             {t("bottomNav", "more")}
           </button>
         </div>
       </nav>
 
-      {sheetOpen && (
-        <div className="fixed inset-0 z-[55] flex items-end sm:hidden">
-          <div
-            className="absolute inset-0 bg-black/70 animate-fade-in"
-            onClick={() => setSheetOpen(false)}
-          />
-          <div
-            className="relative w-full rounded-t-dialog border border-subtle bg-surface-2 p-4 shadow-dialog animate-slide-up"
-            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
-          >
-            <div className="flex items-center">
-              <h2 className="text-16 font-bold text-primary">{t("bottomNav", "more")}</h2>
-              <button
-                type="button"
-                onClick={() => setSheetOpen(false)}
-                aria-label={t("bottomNav", "close")}
-                className="ml-auto grid h-8 w-8 place-items-center rounded-btn text-secondary transition-colors hover:bg-surface-3"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="mt-3 flex flex-col gap-1">
-              <Link
-                href="/learn"
-                onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
-              >
-                <LifeBuoy className="h-4 w-4 text-secondary" />
-                {t("bottomNav", "helpCentre")}
-              </Link>
-              <Link
-                href="/terms"
-                onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
-              >
-                <FileText className="h-4 w-4 text-secondary" />
-                {t("bottomNav", "terms")}
-              </Link>
-              <Link
-                href="/privacy"
-                onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
-              >
-                <ShieldCheck className="h-4 w-4 text-secondary" />
-                {t("bottomNav", "privacy")}
-              </Link>
-              <Link
-                href="/responsible-play"
-                onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
-              >
-                <HeartHandshake className="h-4 w-4 text-secondary" />
-                {t("bottomNav", "responsiblePlay")}
-              </Link>
-              <Link
-                href="/grievance"
-                onClick={() => setSheetOpen(false)}
-                className="flex items-center gap-3 rounded-btn px-3 py-3 text-13 font-semibold text-primary transition-colors hover:bg-surface-3"
-              >
-                <MessageSquareWarning className="h-4 w-4 text-secondary" />
-                {t("bottomNav", "grievance")}
-              </Link>
-            </div>
-
-            <div className="mt-3 border-t border-subtle pt-3">
-              <p className="flex items-center gap-2 px-3 text-12 font-semibold text-secondary">
-                <Languages className="h-4 w-4" />
-                {t("bottomNav", "language")}
-              </p>
-              <LanguagePicker variant="chips" />
-            </div>
-          </div>
+      <Dialog
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title={t("bottomNav", "more")}
+        size="sm"
+        data-testid="more-sheet"
+      >
+        <div className="-mx-2 -mt-2 flex flex-col gap-1">
+          {MORE_LINKS.map(({ key, href, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setSheetOpen(false)}
+              aria-current={pathname === href ? "page" : undefined}
+              className={cn(
+                "flex min-h-touch items-center gap-3 rounded-btn px-3 text-14 font-semibold text-primary transition-colors duration-xs hover:bg-surface-3",
+                FOCUS_RING
+              )}
+            >
+              <Icon className="h-4 w-4 text-secondary" aria-hidden />
+              {t("bottomNav", key)}
+            </Link>
+          ))}
         </div>
-      )}
+
+        <div className="mt-3 border-t border-subtle pt-3">
+          <p className="flex items-center gap-2 text-12 font-semibold text-secondary">
+            <Languages className="h-4 w-4" aria-hidden />
+            {t("bottomNav", "language")}
+          </p>
+          <LanguagePicker variant="chips" />
+        </div>
+      </Dialog>
     </>
   );
 }

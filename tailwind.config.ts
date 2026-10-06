@@ -15,6 +15,8 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      // Extra-small phones: the header shows the wordmark only from here.
+      screens: { xs: "400px" },
       colors: {
         // Semantic surfaces (bg-surface-1 …).
         surface: {

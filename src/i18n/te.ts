@@ -9,6 +9,8 @@ export const te: Dictionary = {
   },
 
   nav: {
+    /** Accessible name of the category bar. */
+    categories: "వర్గాలు",
     all: "అన్నీ",
     live: "లైవ్",
     cricket: "క్రికెట్",
@@ -38,16 +40,33 @@ export const te: Dictionary = {
 
   sort: {
     startingSoon: "త్వరలో ప్రారంభం",
-    all: "అన్నీ",
+    trending: "ట్రెండింగ్",
     popular: "జనాదరణ",
   },
 
   category: {
+    sortBy: "క్రమం",
     shown: "{count} చూపబడ్డాయి",
     marketsAndVolume: "{count} మార్కెట్లు · {volume} వాల్యూమ్",
     liveHeading: "లైవ్",
     liveCount: "{count} మార్కెట్లు",
     allMarkets: "అన్ని {category} మార్కెట్లు",
+  },
+
+  home: {
+    popular: "జనాదరణ",
+    liveNow: "ఇప్పుడు లైవ్",
+    viewAll: "అన్నీ చూడండి",
+    /** Accessible name of a section's "View all" link. */
+    viewAllIn: "అన్నీ చూడండి: {section}",
+    featured: "ఎంపిక చేసిన మార్కెట్లు",
+    prevFeatured: "మునుపటి ఎంపిక మార్కెట్",
+    nextFeatured: "తదుపరి ఎంపిక మార్కెట్",
+    showFeatured: "ఎంపిక మార్కెట్ {n} / {total}",
+    pauseRotation: "మార్పు ఆపండి",
+    resumeRotation: "మార్పు మళ్లీ ప్రారంభించండి",
+    resolvesVia: "ఫలిత మూలం: {source}",
+    learnBody: "షేర్లు, ఆడ్స్, ఫలితాలు ఎలా పనిచేస్తాయి — సరళమైన భాషలో, ₹ ఉదాహరణలతో.",
   },
 
   card: {
@@ -159,6 +178,8 @@ export const te: Dictionary = {
   },
 
   bottomNav: {
+    /** Accessible name of the bottom navigation bar. */
+    label: "ప్రధాన",
     home: "హోమ్",
     dashboard: "డాష్‌బోర్డ్",
     profit: "లాభం",
@@ -190,6 +211,7 @@ export const te: Dictionary = {
   },
 
   search: {
+    label: "మార్కెట్లను వెతకండి",
     navigate: "↑↓ ఎంచుకోండి",
     open: "↵ తెరవండి",
     results: "{count} ఫలితాలు",

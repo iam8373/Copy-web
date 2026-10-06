@@ -9,6 +9,8 @@ export const mr: Dictionary = {
   },
 
   nav: {
+    /** Accessible name of the category bar. */
+    categories: "श्रेणी",
     all: "सर्व",
     live: "लाइव्ह",
     cricket: "क्रिकेट",
@@ -38,16 +40,33 @@ export const mr: Dictionary = {
 
   sort: {
     startingSoon: "लवकरच सुरू",
-    all: "सर्व",
+    trending: "ट्रेंडिंग",
     popular: "लोकप्रिय",
   },
 
   category: {
+    sortBy: "क्रमवारी",
     shown: "{count} दाखवले",
     marketsAndVolume: "{count} मार्केट · {volume} व्हॉल्यूम",
     liveHeading: "लाइव्ह",
     liveCount: "{count} मार्केट",
     allMarkets: "सर्व {category} मार्केट",
+  },
+
+  home: {
+    popular: "लोकप्रिय",
+    liveNow: "आता लाइव्ह",
+    viewAll: "सर्व पहा",
+    /** Accessible name of a section's "View all" link. */
+    viewAllIn: "सर्व पहा: {section}",
+    featured: "निवडक मार्केट",
+    prevFeatured: "मागील निवडक मार्केट",
+    nextFeatured: "पुढील निवडक मार्केट",
+    showFeatured: "निवडक मार्केट {n} / {total}",
+    pauseRotation: "बदलणे थांबवा",
+    resumeRotation: "बदलणे पुन्हा सुरू करा",
+    resolvesVia: "निकालाचा स्रोत: {source}",
+    learnBody: "शेअर्स, ऑड्स आणि निकाल कसे ठरतात — सोप्या भाषेत, ₹ उदाहरणांसह.",
   },
 
   card: {
@@ -159,6 +178,8 @@ export const mr: Dictionary = {
   },
 
   bottomNav: {
+    /** Accessible name of the bottom navigation bar. */
+    label: "मुख्य",
     home: "होम",
     dashboard: "डॅशबोर्ड",
     profit: "नफा",
@@ -190,6 +211,7 @@ export const mr: Dictionary = {
   },
 
   search: {
+    label: "मार्केट शोधा",
     navigate: "↑↓ निवडा",
     open: "↵ उघडा",
     results: "{count} निकाल",

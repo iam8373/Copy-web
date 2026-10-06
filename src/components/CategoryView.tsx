@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Star } from "lucide-react";
+import { Chip, FOCUS_RING, HIT_AREA } from "@/components/ui";
 import { useMarketStore } from "@/store/useMarketStore";
 import { MarketGrid } from "@/components/MarketGrid";
 import { SORT_OPTIONS, type CategoryMeta, type SortOption } from "@/lib/types";
@@ -9,10 +10,16 @@ import { cn, formatVolume } from "@/lib/utils";
 import { NAV_KEY_BY_SLUG, type Dictionary } from "@/i18n";
 import { useT } from "@/i18n/LanguageProvider";
 
+const SORT_KEY: Record<SortOption, keyof Dictionary["sort"]> = {
+  Trending: "trending",
+  Popular: "popular",
+  "Starting Soon": "startingSoon",
+};
+
 export function CategoryView({ meta }: { meta: CategoryMeta }) {
   const markets = useMarketStore((s) => s.markets);
   const [subFilter, setSubFilter] = useState(meta.subFilters[0].label);
-  const [sort, setSort] = useState<SortOption>("Popular");
+  const [sort, setSort] = useState<SortOption>("Trending");
   const { t } = useT();
 
   const scoped = useMemo(
@@ -38,9 +45,17 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
       );
 
     const sorted = [...out];
-    if (sort === "Popular") sorted.sort((a, b) => b.totalVolume - a.totalVolume);
-    else if (sort === "Starting Soon")
-      sorted.sort((a, b) => +new Date(a.endDate) - +new Date(b.endDate));
+    if (sort === "Trending") sorted.sort((a, b) => b.volumeChange24h - a.volumeChange24h);
+    else if (sort === "Popular") sorted.sort((a, b) => b.totalVolume - a.totalVolume);
+    else {
+      const now = Date.now();
+      const end = (m: (typeof out)[number]) => {
+        const t = +new Date(m.endDate);
+        // Ended markets sort after every open one.
+        return t < now ? Number.MAX_SAFE_INTEGER - (now - t) : t;
+      };
+      sorted.sort((a, b) => end(a) - end(b));
+    }
     return sorted;
   }, [meta.subFilters, scoped, sort, subFilter]);
 
@@ -51,7 +66,7 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
   return (
     <div className="flex flex-col gap-5">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-primary">
+        <h1 className="text-24 font-bold tracking-tight text-primary">
           {t("nav", NAV_KEY_BY_SLUG[meta.slug])}
         </h1>
         <p className="text-13 text-secondary">
@@ -65,60 +80,60 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
         </p>
       </header>
 
-      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-        {meta.subFilters.map((f) => {
-          const active = f.label === subFilter;
-          return (
-            <button
-              key={f.label}
-              type="button"
-              data-testid="subfilter-chip"
-              data-filter={f.label}
-              data-highlighted={f.isHighlighted ? "true" : "false"}
-              data-active={active ? "true" : "false"}
-              onClick={() => setSubFilter(f.label)}
-              className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-btn border px-3 py-1.5 text-12 font-semibold transition-colors",
-                active && "border-brand bg-brand/15 text-brand",
-                !active &&
-                  f.isHighlighted &&
-                  "border-warning/40 bg-warning/10 text-warning hover:border-warning",
-                !active &&
-                  !f.isHighlighted &&
-                  "border-subtle bg-surface-2 text-secondary hover:text-primary"
-              )}
-            >
-              {f.isHighlighted && <Star className="h-3 w-3 shrink-0" />}
-              {/* Display text is translated; f.label stays the filter key. */}
-              {t("chips", f.label as keyof Dictionary["chips"])}
-            </button>
-          );
-        })}
+      {/* py-1.5 leaves room for the chips' touch-size hit areas and focus rings,
+          which an overflow-x container would otherwise clip. */}
+      <div className="no-scrollbar -mx-4 -my-1.5 flex gap-2 overflow-x-auto px-4 py-1.5 sm:mx-0 sm:flex-wrap sm:px-0">
+        {meta.subFilters.map((f) => (
+          <Chip
+            key={f.label}
+            data-testid="subfilter-chip"
+            data-filter={f.label}
+            data-highlighted={f.isHighlighted ? "true" : "false"}
+            selected={f.label === subFilter}
+            tone={f.isHighlighted ? "highlight" : "neutral"}
+            icon={f.isHighlighted ? <Star /> : undefined}
+            onClick={() => setSubFilter(f.label)}
+          >
+            {/* Display text is translated; f.label stays the filter key. */}
+            {t("chips", f.label as keyof Dictionary["chips"])}
+          </Chip>
+        ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-1 gap-y-1.5 border-b border-subtle pb-2">
-        {SORT_OPTIONS.map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => setSort(s)}
-            data-testid="sort-option"
-            className={cn(
-              "rounded-btn px-3 py-1 text-13 font-semibold transition-colors",
-              s === sort
-                ? "bg-surface-3 text-primary"
-                : "text-secondary hover:text-primary"
-            )}
-          >
-            {s === "Starting Soon"
-              ? t("sort", "startingSoon")
-              : s === "All"
-                ? t("sort", "all")
-                : t("sort", "popular")}
-          </button>
-        ))}
+      <div className="flex items-center gap-3 border-b border-subtle pb-3">
+        {/* Segmented control, so sorting reads differently from the filter chips. */}
+        <div
+          role="group"
+          aria-label={t("category", "sortBy")}
+          className="flex min-w-0 gap-1 rounded-btn bg-surface-3 p-1"
+        >
+          {SORT_OPTIONS.map((s) => {
+            const selected = s === sort;
+            return (
+              <button
+                key={s}
+                type="button"
+                data-testid="sort-option"
+                data-sort={s}
+                data-active={selected ? "true" : "false"}
+                aria-pressed={selected}
+                onClick={() => setSort(s)}
+                className={cn(
+                  "relative h-8 shrink-0 whitespace-nowrap rounded-chip px-2.5 text-12 font-semibold transition-colors duration-xs sm:px-3 sm:text-13",
+                  HIT_AREA,
+                  FOCUS_RING,
+                  selected
+                    ? "bg-surface-1 text-primary shadow-card"
+                    : "text-secondary hover:text-primary"
+                )}
+              >
+                {t("sort", SORT_KEY[s])}
+              </button>
+            );
+          })}
+        </div>
         <span
-          className="tnum ml-auto whitespace-nowrap pl-2 text-12 text-secondary"
+          className="tnum ml-auto shrink-0 whitespace-nowrap text-12 text-secondary"
           data-testid="shown-count"
         >
           {t("category", "shown", { count: filtered.length })}

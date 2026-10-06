@@ -402,12 +402,13 @@ test.describe("in the browser", () => {
     await page.evaluate((k) => window.localStorage.setItem(k, "hi"), STORAGE_KEY);
     await page.goto("/");
     await page.keyboard.press("Control+k");
-    const box = page.getByRole("textbox").first();
+    // Search is an ARIA combobox with a listbox of options (work order 4, Phase 3).
+    const box = page.getByTestId("search-dialog").getByRole("combobox");
     await box.fill("विजेता");
     const saved = (translations as TranslationFile).mkt_002.locales.hi.title;
-    await expect(page.getByRole("button", { name: new RegExp(saved) })).toBeVisible();
+    await expect(page.getByRole("option", { name: new RegExp(saved) })).toBeVisible();
 
     await box.fill("IPL 2026");
-    await expect(page.getByRole("button", { name: new RegExp(saved) })).toBeVisible();
+    await expect(page.getByRole("option", { name: new RegExp(saved) })).toBeVisible();
   });
 });

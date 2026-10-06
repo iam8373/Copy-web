@@ -3,21 +3,13 @@
 import { MarketCard } from "@/components/MarketCard";
 import type { Market } from "@/lib/types";
 import { useT } from "@/i18n/LanguageProvider";
+import { EmptyState } from "@/components/ui";
 
 export function MarketGrid({ markets }: { markets: Market[] }) {
   const { t } = useT();
 
   if (markets.length === 0) {
-    return (
-      <div className="rounded-card border border-subtle bg-surface-2 p-12 text-center">
-        <p className="text-14 font-semibold text-primary">
-          {t("empty", "noMarketsTitle")}
-        </p>
-        <p className="mt-1 text-13 text-secondary">
-          {t("empty", "noMarketsBody")}
-        </p>
-      </div>
-    );
+    return <EmptyState title={t("empty", "noMarketsTitle")} body={t("empty", "noMarketsBody")} />;
   }
 
   return (
@@ -31,7 +23,9 @@ export function MarketGrid({ markets }: { markets: Market[] }) {
 
 export function MarketRow({ markets }: { markets: Market[] }) {
   return (
-    <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+    // Vertical and (from sm) horizontal padding keep card focus rings inside
+    // the scroll container, which would otherwise clip them.
+    <div className="no-scrollbar -mx-4 -my-1 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 py-1 sm:-mx-1 sm:scroll-px-1 sm:px-1">
       {markets.map((m) => (
         <div key={m.id} className="w-72 shrink-0 snap-start sm:w-80">
           <MarketCard market={m} />

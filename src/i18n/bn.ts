@@ -9,6 +9,8 @@ export const bn: Dictionary = {
   },
 
   nav: {
+    /** Accessible name of the category bar. */
+    categories: "বিভাগ",
     all: "সব",
     live: "লাইভ",
     cricket: "ক্রিকেট",
@@ -38,16 +40,33 @@ export const bn: Dictionary = {
 
   sort: {
     startingSoon: "শীঘ্রই শুরু",
-    all: "সব",
+    trending: "ট্রেন্ডিং",
     popular: "জনপ্রিয়",
   },
 
   category: {
+    sortBy: "সাজান",
     shown: "{count}টি দেখানো হচ্ছে",
     marketsAndVolume: "{count}টি মার্কেট · {volume} ভলিউম",
     liveHeading: "লাইভ",
     liveCount: "{count}টি মার্কেট",
     allMarkets: "সব {category} মার্কেট",
+  },
+
+  home: {
+    popular: "জনপ্রিয়",
+    liveNow: "এখন লাইভ",
+    viewAll: "সব দেখুন",
+    /** Accessible name of a section's "View all" link. */
+    viewAllIn: "সব দেখুন: {section}",
+    featured: "বাছাই করা মার্কেট",
+    prevFeatured: "আগের বাছাই করা মার্কেট",
+    nextFeatured: "পরের বাছাই করা মার্কেট",
+    showFeatured: "বাছাই করা মার্কেট {n} / {total}",
+    pauseRotation: "ঘোরানো থামান",
+    resumeRotation: "আবার ঘোরানো শুরু করুন",
+    resolvesVia: "ফলাফলের উৎস: {source}",
+    learnBody: "শেয়ার, অডস ও ফলাফল কীভাবে কাজ করে — সহজ ভাষায়, ₹ উদাহরণ সহ।",
   },
 
   card: {
@@ -159,6 +178,8 @@ export const bn: Dictionary = {
   },
 
   bottomNav: {
+    /** Accessible name of the bottom navigation bar. */
+    label: "প্রধান",
     home: "হোম",
     dashboard: "ড্যাশবোর্ড",
     profit: "লাভ",
@@ -190,6 +211,7 @@ export const bn: Dictionary = {
   },
 
   search: {
+    label: "মার্কেট খুঁজুন",
     navigate: "↑↓ বাছুন",
     open: "↵ খুলুন",
     results: "{count}টি ফলাফল",

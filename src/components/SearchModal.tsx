@@ -7,6 +7,7 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatVolume } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import { getMarketText } from "@/lib/market-text";
+import { NAV_KEY_BY_SLUG } from "@/i18n";
 
 export function SearchModal() {
   const open = useMarketStore((s) => s.searchOpen);
@@ -38,13 +39,26 @@ export function SearchModal() {
   }, [setOpen]);
 
   useEffect(() => {
-    if (open) {
-      setQuery("");
-      setActive(0);
-      const t = setTimeout(() => inputRef.current?.focus(), 30);
-      return () => clearTimeout(t);
-    }
+    if (!open) return;
+    setQuery("");
+    setActive(0);
+    // Lock page scroll and give focus back to the trigger on close.
+    const previous = document.activeElement as HTMLElement | null;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    const timer = setTimeout(() => inputRef.current?.focus(), 30);
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = overflow;
+      previous?.focus?.();
+    };
   }, [open]);
+
+  // Keep the highlighted option in view while arrowing through a long list.
+  useEffect(() => {
+    if (!open) return;
+    document.getElementById(`search-option-${active}`)?.scrollIntoView({ block: "nearest" });
+  }, [active, open]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -83,11 +97,25 @@ export function SearchModal() {
         className="absolute inset-0 bg-black/70 animate-fade-in"
         onClick={() => setOpen(false)}
       />
-      <div className="relative w-full max-w-xl overflow-hidden rounded-card border border-subtle bg-surface-2 shadow-dialog animate-slide-up">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("search", "label")}
+        data-testid="search-dialog"
+        className="relative w-full max-w-xl overflow-hidden rounded-card border border-subtle bg-surface-2 shadow-dialog animate-slide-up"
+      >
         <div className="flex items-center gap-2 border-b border-subtle px-4">
-          <Search className="h-4 w-4 shrink-0 text-secondary" />
+          <Search className="h-4 w-4 shrink-0 text-secondary" aria-hidden />
           <input
             ref={inputRef}
+            role="combobox"
+            aria-label={t("search", "label")}
+            aria-expanded={results.length > 0}
+            aria-controls="search-results"
+            aria-autocomplete="list"
+            aria-activedescendant={results[active] ? `search-option-${active}` : undefined}
+            autoComplete="off"
+            spellCheck={false}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -102,30 +130,40 @@ export function SearchModal() {
                 setActive((a) => Math.max(a - 1, 0));
               } else if (e.key === "Enter" && results[active]) {
                 go(results[active].slug);
+              } else if (e.key === "Tab") {
+                // The input is the only tab stop; keep focus in the dialog.
+                e.preventDefault();
               }
             }}
             placeholder={t("header", "searchPlaceholder")}
             className="h-12 w-full bg-transparent text-16 text-primary outline-none placeholder:text-secondary"
           />
-          <kbd className="shrink-0 rounded-chip border font-sans border-subtle bg-surface-3 px-1.5 py-1 text-11 text-secondary">
+          <kbd aria-hidden className="shrink-0 rounded-chip border font-sans border-subtle bg-surface-3 px-1.5 py-1 text-11 text-secondary">
             {t("search", "esc")}
           </kbd>
         </div>
 
-        <div className="thin-scrollbar max-h-[52vh] overflow-y-auto p-2">
+        <div
+          id="search-results"
+          role="listbox"
+          aria-label={t("search", "results", { count: results.length })}
+          className="thin-scrollbar max-h-[52vh] overflow-y-auto p-2"
+        >
           {results.length === 0 && (
-            <p className="px-3 py-6 text-center text-13 text-secondary">
+            <p role="status" className="px-3 py-6 text-center text-13 text-secondary">
               {t("empty", "noSearchResults", { query })}
             </p>
           )}
           {results.map((m, i) => (
-            <button
+            <div
               key={m.id}
-              type="button"
+              id={`search-option-${i}`}
+              role="option"
+              aria-selected={i === active}
               onMouseEnter={() => setActive(i)}
               onClick={() => go(m.slug)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-btn px-3 py-3 text-left transition-colors",
+                "flex min-h-touch w-full cursor-pointer items-center gap-3 rounded-btn px-3 py-3 text-left transition-colors duration-xs",
                 i === active ? "bg-surface-3" : "hover:bg-surface-3/60"
               )}
             >
@@ -134,17 +172,20 @@ export function SearchModal() {
                   {getMarketText(m, locale).title}
                 </p>
                 <p className="truncate text-11 uppercase tracking-wide text-secondary">
-                  {m.category} • {m.subcategory} • Vol {formatVolume(m.totalVolume)}
+                  {t("nav", NAV_KEY_BY_SLUG[m.category])} • {m.subcategory} •{" "}
+                  <span className="tnum">
+                    {t("card", "volume")} {formatVolume(m.totalVolume)}
+                  </span>
                 </p>
               </div>
               <span className="tnum shrink-0 text-13 font-bold text-primary">
                 {formatPercent(m.outcomes[0].price, 1)}
               </span>
-            </button>
+            </div>
           ))}
         </div>
 
-        <div className="flex items-center gap-3 border-t border-subtle px-4 py-2 text-11 text-secondary">
+        <div aria-hidden className="flex items-center gap-3 border-t border-subtle px-4 py-2 text-11 text-secondary">
           <span>{t("search", "navigate")}</span>
           <span>{t("search", "open")}</span>
           <span className="ml-auto">{t("search", "results", { count: results.length })}</span>

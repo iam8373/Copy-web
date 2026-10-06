@@ -308,7 +308,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | --- | --- | --- |
 | 1 | Foundations: DESIGN.md, tokens, fonts, hard-coded value cleanup | Done |
 | 2 | Shared components (`src/components/ui/`) | Done |
-| 3 | Home and navigation polish | Not started |
+| 3 | Home and navigation polish | Done |
 | 4 | Market detail page | Not started |
 | 5 | Motion pass | Not started |
 | 6 | Tests and docs | Not started |
@@ -365,4 +365,39 @@ overflow on any checked page at 360 px.
 
 **Results:** typecheck, lint, check:tokens clean; verify-build passes on a normal build;
 Playwright 356/356.
+
+## Phase 3 — progress
+
+- **Category sort:** Trending (24h volume change) / Popular (total volume) / Starting
+  Soon (soonest end first, ended markets last); Trending is the default. Rendered as a
+  segmented control so it reads differently from the filter chips. "All" removed.
+- **Sub-filter and language chips** use `Chip` (data-testids kept).
+- **Home:** every heading and label translated (they were hard-coded English): section
+  titles reuse `nav.*`, new `home.*` keys. Popular's "View all" went to `/markets/cricket`;
+  removed, since there is no Popular page. "View all" links have a section-specific
+  accessible name and a 44px target.
+- **Featured carousel:** pause/resume button; pauses on hover or focus; never rotates
+  under reduced motion or in a hidden tab; slide changes announced only when user-driven;
+  prev/next/dots have 44px targets and translated labels.
+- **MarketCard (restyle only, same structure):** category label translated, `Badge` for
+  Live, `Button` for Trade, focus rings, `shadow-card`, outcome rows 44px on touch
+  pointers.
+- **Header:** `Button`/`IconButton`, focus rings, account menu has `aria-expanded` and
+  closes on Escape with focus returned; wordmark hidden below `xs` (400px) because Tamil
+  pushed the theme button off-screen at 360px.
+- **CategoryNav / BottomNav:** named `<nav>` landmarks, `aria-current="page"`, 44px
+  targets. The More sheet is now `Dialog` (focus trap, Escape, scroll lock, focus return).
+- **Search:** ARIA combobox + listbox (`aria-activedescendant`), focus kept inside, page
+  scroll locked, focus returned on close, translated category/volume labels.
+- `MarketGrid` empty state uses `EmptyState`.
+- New strings in all six locales: `home.*`, `sort.trending`, `category.sortBy`,
+  `nav.categories`, `bottomNav.label`, `search.label`; `sort.all` removed.
+- Tests: `tests/e2e/home-nav.spec.ts` (sort orders, carousel pause and reduced motion,
+  aria-current, search combobox, account menu Escape, More sheet, Hindi home, Tamil and
+  Telugu at 360px). `translation.spec.ts` search test now uses the combobox/option roles.
+
+**Not changed (out of scope):** category blurbs, sub-category names and outcome labels
+are market data and stay English until the backend serves translations.
+
+**Results:** typecheck, lint, check:tokens clean; Playwright 380/380.
 
