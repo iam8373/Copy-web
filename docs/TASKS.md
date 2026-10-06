@@ -312,7 +312,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | 4 | Market detail page | Done |
 | 5 | Motion pass | Done |
 | 6 | Tests and docs | Done |
-| 7 | Jev AI decision layer | Optional — ask first |
+| 7 | Jev AI decision layer | Not started — needs a TypeSafe API key and a chosen use case |
 | — | Translation provider-agnostic (OpenAI or Gemini) | Done (D-018) |
 
 ## Backlog
