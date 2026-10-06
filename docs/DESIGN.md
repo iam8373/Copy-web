@@ -140,8 +140,28 @@ keeps animating past 500 ms. All of it is disabled under `prefers-reduced-motion
 
 ## Components
 
-Shared primitives live in `src/components/ui/` (Phase 2) and are the only place new
-buttons, chips, tabs, sheets and similar are built.
+Shared primitives live in `src/components/ui/` and are the only place new buttons,
+chips, tabs, sheets and similar are built. Import from `@/components/ui`. A test-only
+gallery of all of them is at `/e2e-ui` (dev server and e2e builds only).
+
+| Component | Notes |
+| --- | --- |
+| `Button` | `primary` (brand-fill), `secondary`, `outline`, `ghost`, `yes`, `no`. Sizes `sm` 32 / `md` 40 / `lg` 48 px visual; a `::before` hit area keeps every one ≥ 44 px. `loading` sets `aria-busy`, shows a spinner and keeps the width. `buttonClasses()` styles links the same way. |
+| `IconButton` | Square 32/40/48. `label` is required (aria-label + title). |
+| `Chip` | Filter/sort toggle, 32 px visual, `aria-pressed`. `tone="highlight"` = the starred warm chip. `rounded-chip`. |
+| `Badge` | Non-interactive status: `neutral`, `brand`, `success`, `danger`, `warning`; optional `dot` / `dot="pulse"`. |
+| `Card` | `surface-2` + `border-subtle` + `shadow-card`; `radius="panel"` for the trade panel and chart block; `interactive` for hover border. |
+| `EmptyState` | Icon, title, body, optional action; `size="compact"` inside tabs. Used instead of invented rows. |
+| `Tabs` / `TabPanel` | WAI-ARIA tabs, automatic activation, Left/Right/Home/End, roving tabindex, scrolls at 360 px. `underline` (44 px tall) or `pill`. |
+| `Tooltip` | (i) trigger. Opens on hover (hover-capable pointers), keyboard focus or tap; Escape / outside click close; kept inside the viewport. |
+| `Dialog` | Portalled. Bottom sheet below `sm`, centred from `sm` (or `layout="center"`). Focus moves to `[data-autofocus]`, Tab is trapped, Escape/backdrop/close button close it, page scroll locked, focus returns to the trigger. Optional sticky `footer` with safe-area padding. |
+
+Keyboard focus uses one ring (`FOCUS_RING`: 2 px `brand` ring, offset from `surface-1`),
+only on `:focus-visible`.
+
+`cn()` uses a `tailwind-merge` configured with our `text-11…32` sizes and
+`shadow-card/popover/dialog`. Without it, `cn("text-13", "text-success")` dropped one of
+the two classes (it read `text-13` as a colour).
 
 ## Enforcement
 

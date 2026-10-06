@@ -13,6 +13,11 @@ hits=$(search 'bp-e2e-throw|E2E_SECRET_INTERNAL_DETAIL')
 if [ -n "$hits" ]; then echo "✗ test-only /e2e-error code is present in the build:"; echo "$hits" | sed 's/^/    /'; fail=1
 else echo "✓ test-only error trigger compiled out"; fi
 
+# 1b. Test-only UI gallery must be compiled out too (work order 4, Phase 2).
+hits=$(search 'ui-gallery|About the order book')
+if [ -n "$hits" ]; then echo "✗ test-only /e2e-ui gallery is present in the build:"; echo "$hits" | sed 's/^/    /'; fail=1
+else echo "✓ test-only UI gallery compiled out"; fi
+
 # 2. No AI service reachable from shipped code (Phase 6, D-014).
 hits=$(search 'api\.openai\.com|OPENAI_API_KEY')
 if [ -n "$hits" ]; then echo "✗ OpenAI references in the build:"; echo "$hits" | sed 's/^/    /'; fail=1

@@ -1,5 +1,19 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * tailwind-merge only knows Tailwind's default scale, so without this it reads
+ * our `text-13` (font size) as a text *colour* and `cn("text-13", "text-success")`
+ * silently drops one of them. Teach it the custom tokens from tailwind.config.ts.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: ["11", "12", "13", "14", "16", "18", "20", "24", "32"] }],
+      shadow: [{ shadow: ["card", "popover", "dialog"] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

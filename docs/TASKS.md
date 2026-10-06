@@ -307,7 +307,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Foundations: DESIGN.md, tokens, fonts, hard-coded value cleanup | Done |
-| 2 | Shared components (`src/components/ui/`) | Not started |
+| 2 | Shared components (`src/components/ui/`) | Done |
 | 3 | Home and navigation polish | Not started |
 | 4 | Market detail page | Not started |
 | 5 | Motion pass | Not started |
@@ -342,3 +342,27 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 
 **Results:** typecheck, lint, check:tokens clean; Playwright 334/334; no horizontal
 overflow on any checked page at 360 px.
+
+## Phase 2 — progress
+
+- `src/components/ui/`: Button, IconButton, Chip, Badge, Card, EmptyState, Tabs/TabPanel,
+  Tooltip, Dialog (bottom sheet below `sm`), shared `FOCUS_RING` and `HIT_AREA`. Spec in
+  `docs/DESIGN.md` → Components. No new dependencies, no new strings (reuses
+  `loading.label` and `bottomNav.close`).
+- Test-only gallery `/e2e-ui`, compiled out of normal builds (`NEXT_PUBLIC_E2E_UI_GALLERY`,
+  same pattern as `/e2e-error`); `scripts/verify-build.sh` checks it is absent.
+- `tests/e2e/ui-primitives.spec.ts` (11 tests × 2 projects): 32/40/48 px visuals with
+  ≥ 44 px hit areas, aria-pressed chips, tab keyboard model, tooltip by keyboard/tap and
+  viewport clamping, dialog focus trap / Escape / focus return / scroll lock, bottom sheet
+  at 360 px, no overflow in both themes.
+- **Bug found and fixed:** `cn()` (tailwind-merge) didn't know the custom `text-11…32`
+  sizes, so it treated them as colours. Since the Phase 1 cleanup turned `text-[13px]` into
+  `text-13`, any `cn("text-13 …", "text-success")` dropped one class (e.g. trade modal and
+  category chips lost their font size; Yes/No buttons lost their colour). `cn()` now uses
+  `extendTailwindMerge` with the font-size and shadow tokens.
+- Existing screens are not migrated yet; that happens in Phases 3 (home, navigation) and 4
+  (market page, trade panel).
+
+**Results:** typecheck, lint, check:tokens clean; verify-build passes on a normal build;
+Playwright 356/356.
+

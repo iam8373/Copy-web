@@ -12,6 +12,9 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_E2E_ERROR_TRIGGER:
       process.env.NEXT_PUBLIC_E2E_ERROR_TRIGGER === "1" ? "1" : "0",
+    // Same idea for the UI primitives gallery (src/app/e2e-ui).
+    NEXT_PUBLIC_E2E_UI_GALLERY:
+      process.env.NEXT_PUBLIC_E2E_UI_GALLERY === "1" ? "1" : "0",
   },
 };
 

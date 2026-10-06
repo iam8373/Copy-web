@@ -178,3 +178,7 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   `text-primary/secondary/muted`, `border-subtle/strong`, `brand`, `success/danger/warning`.
   The cleanup codemod (`.scratch/codemod.py`) also rewrites words in comments ("rounded" →
   "rounded-chip"), so check the diff for non-class lines after running it.
+- Phase 2 done. Build UI from `@/components/ui` (see DESIGN.md → Components). Gallery at
+  `/e2e-ui` (dev + e2e builds only). Any new custom Tailwind token that shares a prefix
+  with a default group (`text-*`, `shadow-*`) must also be added to the
+  `extendTailwindMerge` config in `src/lib/utils.ts`, or `cn()` will drop classes.
