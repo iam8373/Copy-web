@@ -36,7 +36,7 @@ export function Header() {
         >
           <Search className="h-4 w-4 shrink-0" />
           <span className="truncate">{t("header", "searchPlaceholder")}</span>
-          <kbd className="ml-auto hidden shrink-0 rounded border border-subtle bg-bg-tertiary px-1.5 py-0.5 text-[11px] font-medium text-content-secondary sm:block">
+          <kbd className="ml-auto hidden shrink-0 rounded font-sans border border-subtle bg-bg-tertiary px-1.5 py-0.5 text-[11px] font-medium text-content-secondary sm:block">
             {t("header", "searchShortcut")}
           </kbd>
         </button>

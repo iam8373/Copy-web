@@ -17,13 +17,23 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (stored === "light" || stored === "dark") setTheme(stored);
   }, []);
 
+  // Apply only. Persisting here used to write the initial "dark" before the
+  // stored value was read, which (with StrictMode's double effects) lost a
+  // saved light theme. The choice is saved in toggle() instead.
   useEffect(() => {
     document.documentElement.classList.toggle("light", theme === "light");
-    window.localStorage.setItem("predict-theme", theme);
   }, [theme]);
 
   const toggle = useCallback(() => {
-    setTheme((t) => (t === "dark" ? "light" : "dark"));
+    setTheme((t) => {
+      const next: Theme = t === "dark" ? "light" : "dark";
+      try {
+        window.localStorage.setItem("predict-theme", next);
+      } catch {
+        /* storage unavailable — theme still applies for this session */
+      }
+      return next;
+    });
   }, []);
 
   return (

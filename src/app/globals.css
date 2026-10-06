@@ -2,51 +2,126 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * DESIGN TOKENS — see docs/DESIGN.md. This file and tailwind.config.ts are the
+ * only places hex colours and px values may appear (npm run check:tokens).
+ * Colours are RGB channels so Tailwind opacity modifiers (bg-surface-1/85) work.
+ */
 :root {
-  /* --font-inter is defined by next/font/local on <html> (src/fonts/fonts.ts). */
-  --bg-primary: #0a0b0d;
-  --bg-secondary: #141619;
-  --bg-tertiary: #1e2126;
-  --border-subtle: #2a2d33;
-  --text-primary: #ffffff;
-  --text-secondary: #a1a5ab;
+  /* --font-inter, --font-geist-mono and the Noto variables are defined by
+     next/font/local on <html> (src/fonts/fonts.ts). */
+  --font-indic: system-ui; /* replaced by the active Noto family below */
+  --gutter: 16px;
+
+  /* Surfaces, borders, text (dark theme is the default). */
+  --surface-1: 10 11 13;      /* #0A0B0D */
+  --surface-2: 20 22 25;      /* #141619 */
+  --surface-3: 30 33 38;      /* #1E2126 */
+  --border-subtle: 42 45 51;  /* #2A2D33 */
+  --border-strong: 102 109 120; /* #666D78 */
+  --text-primary: 255 255 255;
+  --text-secondary: 161 165 171; /* #A1A5AB */
+  --text-muted: 138 143 151;     /* #8A8F97 */
+
+  /* Brand + semantic. */
+  --brand: 141 113 255;          /* #8D71FF text/icons */
+  --brand-fill: 106 70 245;      /* #6A46F5 button fill (white text 5.5:1) */
+  --brand-fill-hover: 90 55 230; /* #5A37E6 */
+  --success: 22 199 132;         /* #16C784 Yes */
+  --danger: 246 70 93;           /* #F6465D No */
+  --warning: 247 168 59;         /* #F7A83B */
+
+  /* Okabe-Ito chart palette, tuned >= 3:1 on surface-2. */
+  --chart-1: 0 114 178;   /* #0072B2 */
+  --chart-2: 230 159 0;   /* #E69F00 */
+  --chart-3: 0 158 115;   /* #009E73 */
+  --chart-4: 204 121 167; /* #CC79A7 */
+  --chart-5: 86 180 233;  /* #56B4E9 */
+  --chart-6: 213 94 0;    /* #D55E00 */
+  --chart-7: 240 228 66;  /* #F0E442 */
+  --chart-8: 153 153 153; /* #999999 */
+
+  /* Elevation: dark theme is border-led. */
+  --shadow-card: none;
+  --shadow-popover: 0 0 0 1px rgb(255 255 255 / 0.04), 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-dialog: 0 0 0 1px rgb(255 255 255 / 0.05), 0 24px 64px rgb(0 0 0 / 0.6);
 }
 
 html.light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f6f7f9;
-  --bg-tertiary: #eceef2;
-  --border-subtle: #dfe2e8;
-  --text-primary: #0a0b0d;
-  --text-secondary: #5d636e;
+  --surface-1: 255 255 255;
+  --surface-2: 246 247 249;   /* #F6F7F9 */
+  --surface-3: 236 238 242;   /* #ECEEF2 */
+  --border-subtle: 223 226 232; /* #DFE2E8 */
+  --border-strong: 126 133 143; /* #7E858F */
+  --text-primary: 10 11 13;
+  --text-secondary: 93 99 110;  /* #5D636E */
+  --text-muted: 100 106 117;    /* #646A75 */
+
+  --brand: 107 71 255;          /* #6B47FF */
+  --brand-fill: 106 70 245;
+  --brand-fill-hover: 90 55 230;
+  --success: 14 123 82;         /* #0E7B52 */
+  --danger: 211 10 36;          /* #D30A24 */
+  --warning: 153 91 6;          /* #995B06 */
+
+  --chart-2: 189 130 0;   /* #BD8200 */
+  --chart-4: 201 114 162; /* #C972A2 */
+  --chart-5: 28 147 215;  /* #1C93D7 */
+  --chart-7: 147 138 12;  /* #938A0C */
+  --chart-8: 139 139 139; /* #8B8B8B */
+
+  /* Light theme: 1px ring (~6%) + two soft layers. */
+  --shadow-card: 0 0 0 1px rgb(10 11 13 / 0.06), 0 1px 2px rgb(10 11 13 / 0.04), 0 2px 8px rgb(10 11 13 / 0.04);
+  --shadow-popover: 0 0 0 1px rgb(10 11 13 / 0.06), 0 4px 12px rgb(10 11 13 / 0.08), 0 12px 32px rgb(10 11 13 / 0.08);
+  --shadow-dialog: 0 0 0 1px rgb(10 11 13 / 0.06), 0 12px 32px rgb(10 11 13 / 0.12), 0 32px 80px rgb(10 11 13 / 0.12);
 }
 
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+/* The active language's script picks its Noto family; Inter stays first so
+   Latin glyphs and digits always render in Inter. English never references a
+   Noto family, so it never downloads one. */
+html[data-script="devanagari"] { --font-indic: var(--font-devanagari); }
+html[data-script="bengali"]    { --font-indic: var(--font-bengali); }
+html[data-script="tamil"]      { --font-indic: var(--font-tamil); }
+html[data-script="telugu"]     { --font-indic: var(--font-telugu); }
+
 * {
-  border-color: var(--border-subtle);
+  border-color: rgb(var(--border-subtle));
 }
 
 html,
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: rgb(var(--surface-1));
+  color: rgb(var(--text-primary));
 }
 
 body {
-  transition: background-color 200ms ease, color 200ms ease;
+  font-size: 14px;
+  line-height: 20px;
+  transition: background-color 220ms cubic-bezier(0.4, 0, 0.2, 1), color 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Script-specific font stacks, applied only when that locale is active. */
-html[data-script="devanagari"] body {
-  font-family: var(--font-devanagari), var(--font-inter);
+/* 16px on inputs prevents iOS Safari from zooming the page on focus. */
+input,
+select,
+textarea {
+  font-size: 16px;
 }
-html[data-script="bengali"] body {
-  font-family: var(--font-bengali), var(--font-inter);
-}
-html[data-script="tamil"] body {
-  font-family: var(--font-tamil), var(--font-inter);
-}
-html[data-script="telugu"] body {
-  font-family: var(--font-telugu), var(--font-inter);
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Numbers stay in Latin digits with en-IN grouping regardless of locale. */
@@ -69,6 +144,6 @@ html[data-script="telugu"] body {
   height: 6px;
 }
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
+  background: rgb(var(--border-subtle));
   border-radius: 999px;
 }

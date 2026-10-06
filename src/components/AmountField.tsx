@@ -90,7 +90,7 @@ export function AmountField({
         step={TRADE_STEP}
         value={sliderValue}
         onChange={(e) => onChange(e.target.value)}
-        className="h-1.5 w-full accent-[#7C5CFF]"
+        className="h-1.5 w-full accent-brand"
         aria-label={t("trade", "slider")}
       />
 

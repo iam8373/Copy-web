@@ -107,7 +107,7 @@ export function SearchModal() {
             placeholder={t("header", "searchPlaceholder")}
             className="h-12 w-full bg-transparent text-[15px] text-content-primary outline-none placeholder:text-content-secondary"
           />
-          <kbd className="shrink-0 rounded border border-subtle bg-bg-tertiary px-1.5 py-0.5 text-[11px] text-content-secondary">
+          <kbd className="shrink-0 rounded border font-sans border-subtle bg-bg-tertiary px-1.5 py-0.5 text-[11px] text-content-secondary">
             {t("search", "esc")}
           </kbd>
         </div>

@@ -62,8 +62,22 @@ export const notoTelugu = localFont({
   preload: false,
 });
 
+/** Aligned numerals only (order book, tables). Not needed on first paint. */
+export const geistMono = localFont({
+  src: [
+    { path: "./geist-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./geist-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./geist-mono-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-geist-mono",
+  display: "swap",
+  preload: false,
+  fallback: ["ui-monospace", "SFMono-Regular", "monospace"],
+});
+
 export const fontVariables = [
   inter.variable,
+  geistMono.variable,
   notoDevanagari.variable,
   notoBengali.variable,
   notoTamil.variable,

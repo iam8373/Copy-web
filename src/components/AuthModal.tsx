@@ -113,7 +113,7 @@ export function AuthModal() {
               setAgeOk(e.target.checked);
               setError(null);
             }}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-[#7C5CFF]"
+            className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
           />
           <span className="text-[12px] leading-relaxed text-content-secondary">
             {t("auth", "ageConfirm")}{" "}

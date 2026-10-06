@@ -17,6 +17,7 @@ import { usePortfolio } from "@/lib/usePortfolio";
 import { cn, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import { getMarketText } from "@/lib/market-text";
+import { color, size, tooltipStyle } from "@/lib/tokens";
 
 export function ProfitView() {
   const { t, locale } = useT();
@@ -125,35 +126,29 @@ export function ProfitView() {
         <div className="mt-3 h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 4, right: 12, bottom: 48, left: 4 }}>
-              <CartesianGrid stroke="var(--border-subtle)" vertical={false} />
+              <CartesianGrid stroke={color.borderSubtle} vertical={false} />
               <XAxis
                 dataKey="name"
-                tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
-                stroke="var(--border-subtle)"
+                tick={{ fill: color.textSecondary, fontSize: size.axisFont }}
+                stroke={color.borderSubtle}
                 interval={0}
                 angle={-30}
                 textAnchor="end"
                 height={48}
               />
               <YAxis
-                tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
-                stroke="var(--border-subtle)"
+                tick={{ fill: color.textSecondary, fontSize: size.axisFont }}
+                stroke={color.borderSubtle}
                 width={64}
                 tickFormatter={(v) => `₹${Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}`}
               />
               <Tooltip
-                contentStyle={{
-                  background: "var(--bg-tertiary)",
-                  border: "1px solid var(--border-subtle)",
-                  borderRadius: 8,
-                  fontSize: 12,
-                  color: "var(--text-primary)",
-                }}
+                contentStyle={tooltipStyle}
                 formatter={(v) => [formatRupees(Number(v), 0), "P&L"]}
               />
               <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
                 {chartData.map((d) => (
-                  <Cell key={d.name} fill={d.pnl >= 0 ? "#16C784" : "#F6465D"} />
+                  <Cell key={d.name} fill={d.pnl >= 0 ? color.success : color.danger} />
                 ))}
               </Bar>
             </BarChart>

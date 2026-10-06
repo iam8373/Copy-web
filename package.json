@@ -16,7 +16,8 @@
     "validate:translations": "tsx scripts/validate-translations.ts",
     "db:seed": "tsx scripts/db-seed.ts",
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
-    "db:test": "supabase test db"
+    "db:test": "supabase test db",
+    "check:tokens": "bash scripts/check-tokens.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

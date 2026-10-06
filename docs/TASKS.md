@@ -295,3 +295,40 @@ mobile); seed run twice → `+91/+227/+40` then `+0/+0/+0`; max |Σprice − 1| 
 **Bugs found:** (1) `sharesForAmount` overflowed (`e^{amount/b}`) for large orders — now
 evaluated in log space. (2) Recreating the schema dropped the service role's grants, so the
 seed got "permission denied"; the migration now grants it explicitly.
+
+---
+
+# Work order 4 — design system and market page
+
+Order agreed with the owner: UI first, then the provider-agnostic translation change, then
+back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
+`getMarketActivity` so the backend swap is one file per function.
+
+| Phase | Scope | Status |
+| --- | --- | --- |
+| 1 | Foundations: DESIGN.md, tokens, fonts, hard-coded value cleanup | In progress |
+| 2 | Shared components (`src/components/ui/`) | Not started |
+| 3 | Home and navigation polish | Not started |
+| 4 | Market detail page | Not started |
+| 5 | Motion pass | Not started |
+| 6 | Tests and docs | Not started |
+| 7 | Jev AI decision layer | Optional — ask first |
+| — | Translation provider-agnostic (Gemini key stored) | After the UI work |
+
+## Backlog
+
+- **Sell-back** in the trading engine (LMSR sell), then a Sell tab in the trade panel.
+  The panel is buy-only until then.
+- "New" sort chip once the backend exposes `created_at`.
+
+## Phase 1 — progress
+
+- `docs/DESIGN.md` written first.
+- Tokens: CSS variables (RGB channels, per theme) in `globals.css`; Tailwind names in
+  `tailwind.config.ts` (extends defaults only); `src/lib/tokens.ts` for Recharts/SVG.
+- Fonts: Inter → active Noto → system-ui via `--font-indic`; Geist Mono (400/500/600,
+  OFL file included) for aligned numerals, `preload: false`.
+- `npm run check:tokens` added; it fails until the cleanup batches finish.
+- Fixed: ThemeProvider wrote "dark" before reading the saved theme (lost under StrictMode);
+  `<kbd>` hints inherited the mono font and pulled Geist Mono into every English page.
+- Found: white text on the old brand fill `#7C5CFF` was 4.35:1 (fails AA) → `brand-fill`.

@@ -21,6 +21,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { AmountField } from "@/components/AmountField";
 import { validateAmount } from "@/lib/trade-limits";
 import { useMarketText } from "@/lib/market-text";
+import { color, size, tooltipStyle } from "@/lib/tokens";
 import { Languages } from "lucide-react";
 import { Countdown } from "@/components/Countdown";
 import { FlashValue } from "@/components/FlashValue";
@@ -167,15 +168,15 @@ export function MarketDetail({
                 <AreaChart data={chartData} margin={{ top: 4, right: 12, bottom: 0, left: 4 }}>
                   <defs>
                     <linearGradient id="prob" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#7C5CFF" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#7C5CFF" stopOpacity={0} />
+                      <stop offset="0%" stopColor={color.brand} stopOpacity={0.35} />
+                      <stop offset="100%" stopColor={color.brand} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="var(--border-subtle)" vertical={false} />
+                  <CartesianGrid stroke={color.borderSubtle} vertical={false} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
-                    stroke="var(--border-subtle)"
+                    tick={{ fill: color.textSecondary, fontSize: size.axisFont }}
+                    stroke={color.borderSubtle}
                     interval="preserveStartEnd"
                     minTickGap={72}
                     tickMargin={8}
@@ -184,25 +185,19 @@ export function MarketDetail({
                   <YAxis
                     domain={[0, 100]}
                     tickFormatter={(v) => `${v}%`}
-                    tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
-                    stroke="var(--border-subtle)"
-                    width={46}
+                    tick={{ fill: color.textSecondary, fontSize: size.axisFont }}
+                    stroke={color.borderSubtle}
+                    width={size.axisWidth}
                   />
                   <Tooltip
-                    contentStyle={{
-                      background: "var(--bg-tertiary)",
-                      border: "1px solid var(--border-subtle)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      color: "var(--text-primary)",
-                    }}
+                    contentStyle={tooltipStyle}
                     formatter={(v) => [`${v}%`, "Probability"]}
                   />
                   <Area
                     type="monotone"
                     dataKey="p"
-                    stroke="#7C5CFF"
-                    strokeWidth={2}
+                    stroke={color.brand}
+                    strokeWidth={size.lineWidth}
                     fill="url(#prob)"
                     dot={false}
                   />
@@ -282,7 +277,7 @@ export function MarketDetail({
             <h2 className="text-[13px] font-bold uppercase tracking-wide text-content-secondary">
               Activity
             </h2>
-            <ul className="mt-3 flex flex-col divide-y divide-[color:var(--border-subtle)]">
+            <ul className="mt-3 flex flex-col divide-y divide-subtle">
               {activity.map((a) => (
                 <li key={a.id} className="flex items-center gap-2 py-2 text-[13px]">
                   <span className="truncate font-semibold text-content-primary">{a.user}</span>

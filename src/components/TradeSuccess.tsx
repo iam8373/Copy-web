@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { formatPercent } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
+import { color } from "@/lib/tokens";
 
 const VISIBLE_MS = 1160;
 
@@ -75,7 +76,7 @@ export function TradeSuccess() {
             viewBox="0 0 24 24"
             className="h-7 w-7"
             fill="none"
-            stroke="#16C784"
+            stroke={color.success}
             strokeWidth={2.6}
             strokeLinecap="round"
             strokeLinejoin="round"

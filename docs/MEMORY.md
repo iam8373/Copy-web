@@ -162,3 +162,15 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   not running yet (Phase 2/3). On a normal machine just use `supabase start`.
 - **Supabase CLI** is a downloaded binary in `.scratch/` here, not a project dependency
   (awaiting approval to add `supabase` as a devDependency).
+
+## Design system (work order 4)
+
+- Read `docs/DESIGN.md` before UI work. Only `globals.css`, `tailwind.config.ts` and
+  `src/lib/tokens.ts` may contain hex/px; `npm run check:tokens` enforces it.
+- Colour vars are RGB channels: use `rgb(var(--x))` in raw CSS, Tailwind classes otherwise.
+- **Changing `tailwind.config.ts` needs a dev-server restart** (Tailwind JIT kept serving
+  the old config). Restarting the container wipes Playwright's apt libs → rerun
+  `npx playwright install-deps chromium`.
+- Page check script (scratch): `.scratch/shots.spec.ts` via
+  `npx playwright test -c .scratch/shots.config.ts` (both themes, 360/1280, overflow).
+- Gemini key is in `.env.local` as `GEMINI_API_KEY`; `GEMINI_MODEL` still blank.
