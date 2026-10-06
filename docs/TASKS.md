@@ -313,7 +313,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 | 5 | Motion pass | Done |
 | 6 | Tests and docs | Done |
 | 7 | Jev AI decision layer | Not started — needs a TypeSafe API key and a chosen use case |
-| — | Translation provider-agnostic (OpenAI or Gemini) | Done (D-018) |
+| — | Translation via Gemini (OpenAI removed) | Done (D-018) |
 
 ## Backlog
 
@@ -473,14 +473,32 @@ are market data and stay English until the backend serves translations.
 
 ## Translation provider — progress
 
-- `translateMarket` dispatches to OpenAI or Gemini; `resolveProvider(env)` picks one
-  (D-018). Run output names the provider and model; keys are never logged.
+- `translateMarket` calls Gemini only (owner decision; OpenAI path removed, D-018).
+  `resolveConfig(env)` requires `GEMINI_API_KEY` + `GEMINI_MODEL`; keys are never logged.
 - Tests (fake endpoints, no network): Gemini request shape (header key, schema, system
-  instruction), validator + retry on Gemini output, SAFETY block, provider selection
-  matrix, both-keys refusal, model-id guard, transient backoff.
+  instruction), validator + retry, SAFETY block, config errors, model-id guard,
+  transient backoff.
 - Live check: one market translated with `gemini-3.1-flash-lite` into a temp file.
-- `.env.local` (sandbox, not committed): `GEMINI_MODEL=gemini-3.1-flash-lite`,
-  `TRANSLATION_PROVIDER=gemini`. 83 markets are still untranslated; run
+- `.env.local` (sandbox, not committed): `GEMINI_MODEL=gemini-3.1-flash-lite`. 83 markets are still untranslated; run
   `npm run translate:markets` (25 per run) when ready — output is machine-drafted and
   needs native-speaker review.
+
+---
+
+# Owner decisions before the admin/resolution work order
+
+- **Translation: Gemini only** (D-018 updated). OpenAI request path, `OPENAI_*` and
+  `TRANSLATION_PROVIDER` removed; tests use a fake Gemini endpoint; the browser tests
+  assert no AI host is ever contacted.
+- **Auth: email OTP + Google only, no phone, no KYC** (D-019). AuthModal rebuilt on
+  `Dialog`/`Segmented`/`Button` with Email (6-digit code) and Google; phone tab, phone
+  strings (all six locales), SMS/OTP env vars, phone tests and phone wording on the privacy
+  page removed. 18+ checkbox and `ageConfirmedAt` unchanged; stored phone sessions are
+  discarded. Supabase email-OTP template, SMTP, CAPTCHA and rate limits documented in D-019
+  for backend Phase 2.
+- **Admin + resolution work order (R1–R7): blocked.** Its precondition (real auth, markets
+  from the DB, `place_order`, portfolio from the DB) is not met: backend Phases 2–5 above
+  are not started. See the questions in the session report.
+
+**Results:** typecheck, lint, check:tokens, validate:translations clean; Playwright 556/556.
 

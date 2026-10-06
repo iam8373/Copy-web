@@ -114,7 +114,7 @@ test.describe("language switching", () => {
       .click();
 
     await expect(page.getByRole("heading", { name: hi.auth.title })).toBeVisible();
-    await expect(page.getByRole("button", { name: hi.auth.sendOtp })).toBeVisible();
+    await expect(page.getByRole("button", { name: hi.auth.sendCode })).toBeVisible();
     await expect(page.locator("body")).toContainText(hi.auth.ageConfirm);
   });
 });

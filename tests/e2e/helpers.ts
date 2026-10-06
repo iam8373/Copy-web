@@ -12,13 +12,13 @@ export async function resetState(page: Page) {
   });
 }
 
-/** Signs in through the real AuthModal UI (phone + OTP). */
-export async function signInWithPhone(page: Page, digits = "9876543210") {
+/** Signs in through the real AuthModal UI (email + 6-digit code). */
+export async function signInWithEmail(page: Page, email = "asha.rao@example.com") {
   await openAuthModal(page);
   await acceptAgeIfPresent(page);
-  await page.getByRole("textbox", { name: /mobile number/i }).fill(digits);
-  await page.getByRole("button", { name: /send otp/i }).click();
-  await page.getByRole("textbox", { name: /otp/i }).fill("123456");
+  await page.getByRole("textbox", { name: /email address/i }).fill(email);
+  await page.getByRole("button", { name: /send code/i }).click();
+  await page.getByRole("textbox", { name: /6-digit code/i }).fill("123456");
   await page.getByRole("button", { name: /verify/i }).click();
   await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
 }

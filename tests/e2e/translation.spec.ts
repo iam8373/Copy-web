@@ -13,7 +13,7 @@ import { sourceHashFor } from "../../src/services/translation/hash";
 import { validateEntry, validateLocales } from "../../src/services/translation/validate";
 import { termsFor } from "../../src/services/translation/glossary";
 import { runTranslateMarkets, TRANSIENT_BACKOFF_MS } from "../../src/services/translation/run";
-import { OPENAI_URL, geminiUrl, resolveProvider } from "../../src/services/translation/translate";
+import { geminiUrl, resolveConfig } from "../../src/services/translation/translate";
 import {
   TARGET_LOCALES,
   type MarketSource,
@@ -24,7 +24,7 @@ import { resetState } from "./helpers";
 // A fake credential that is deliberately NOT key-shaped (no "sk-" prefix), so
 // the repository secret scan never trips on this test file.
 const FAKE_KEY = "test-credential-not-a-real-key";
-const ENV = { OPENAI_API_KEY: FAKE_KEY, OPENAI_MODEL: "test-model" };
+const ENV = { GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "gemini-test-model" };
 
 // ------------------------------------------------------------------ helpers
 const TICKER = /\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*\b/g;
@@ -54,29 +54,6 @@ function goodLocales(m: MarketSource) {
 
 type Reply = "good" | "bad-shape" | "http-500";
 
-/** Fake OpenAI endpoint. Records every call; never touches the network. */
-function fakeOpenAI(plan: (m: MarketSource, attempt: number) => Reply = () => "good") {
-  const calls: Array<{ url: string; auth: string; body: Record<string, unknown> }> = [];
-  const attempts = new Map<string, number>();
-  const fetchImpl = (async (url: string, init: RequestInit) => {
-    const body = JSON.parse(String(init.body));
-    calls.push({
-      url,
-      auth: String((init.headers as Record<string, string>).authorization),
-      body,
-    });
-    const src = JSON.parse(body.messages[1].content) as { title: string; description: string };
-    const m = { id: "", subcategory: "", title: src.title, description: src.description };
-    const n = (attempts.get(src.title) ?? 0) + 1;
-    attempts.set(src.title, n);
-    const reply = plan(m, n);
-    if (reply === "http-500") return new Response("{}", { status: 500 });
-    const content = reply === "bad-shape" ? JSON.stringify({ hi: { title: "x" } }) : JSON.stringify(goodLocales(m));
-    return new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
-  }) as unknown as typeof fetch;
-  return { fetchImpl, calls };
-}
-
 type GeminiReply = Reply | "blocked";
 
 /** Fake Gemini generateContent endpoint. Records every call; no network. */
@@ -104,8 +81,6 @@ function fakeGemini(plan: (m: MarketSource, attempt: number) => GeminiReply = ()
   }) as unknown as typeof fetch;
   return { fetchImpl, calls };
 }
-
-const GEMINI_ENV = { GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "gemini-test-model" };
 
 function tempFile(initial: TranslationFile = {}) {
   const dir = mkdtempSync(join(tmpdir(), "bp-tr-"));
@@ -209,34 +184,12 @@ test.describe("validate.ts", () => {
 
 // -------------------------------------------------------------- the script
 test.describe("translate:markets runner", () => {
-  test("one request per market, all five locales, strict JSON schema", async () => {
-    const { fetchImpl, calls } = fakeOpenAI();
-    const path = tempFile();
-    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl, ...quiet() });
-
-    expect(r.exitCode).toBe(0);
-    expect(calls).toHaveLength(SAMPLE.length);
-    for (const c of calls) {
-      expect(c.url).toBe(OPENAI_URL);
-      expect(c.auth).toBe(`Bearer ${FAKE_KEY}`);
-      expect(c.body.model).toBe("test-model");
-      const rf = c.body.response_format as { type: string; json_schema: { strict: boolean; schema: { required: string[] } } };
-      expect(rf.type).toBe("json_schema");
-      expect(rf.json_schema.strict).toBe(true);
-      expect(rf.json_schema.schema.required).toEqual([...TARGET_LOCALES]);
-    }
-    const file = read(path);
-    expect(Object.keys(file).sort()).toEqual(["t1", "t2", "t3"]);
-    expect(file.t1.status).toBe("machine-drafted");
-    expect(file.t1.sourceHash).toBe(sourceHashFor(SAMPLE[0]));
-  });
-
   test("running twice makes 0 API calls the second time", async () => {
     const path = tempFile();
-    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeOpenAI().fetchImpl, ...quiet() });
+    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeGemini().fetchImpl, ...quiet() });
     const before = readFileSync(path, "utf8");
 
-    const second = fakeOpenAI();
+    const second = fakeGemini();
     const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: second.fetchImpl, ...quiet() });
     expect(r.apiCalls).toBe(0);
     expect(second.calls).toHaveLength(0);
@@ -245,11 +198,11 @@ test.describe("translate:markets runner", () => {
 
   test("changing one title re-translates only that market", async () => {
     const path = tempFile();
-    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeOpenAI().fetchImpl, ...quiet() });
+    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeGemini().fetchImpl, ...quiet() });
     const before = read(path);
 
     const edited = SAMPLE.map((m) => (m.id === "t2" ? { ...m, title: "Gold above ₹1,60,000 in 2027?" } : m));
-    const { fetchImpl, calls } = fakeOpenAI();
+    const { fetchImpl, calls } = fakeGemini();
     const r = await runTranslateMarkets({ markets: edited, filePath: path, env: ENV, fetchImpl, ...quiet() });
 
     expect(calls).toHaveLength(1);
@@ -262,20 +215,20 @@ test.describe("translate:markets runner", () => {
 
   test("a reviewed entry is never overwritten unless its source changed", async () => {
     const path = tempFile();
-    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeOpenAI().fetchImpl, ...quiet() });
+    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeGemini().fetchImpl, ...quiet() });
     const file = read(path);
     file.t1.status = "reviewed";
     file.t1.locales.hi.title = "समीक्षित शीर्षक T20 2027";
     writeFileSync(path, JSON.stringify(file));
 
-    const untouched = fakeOpenAI();
+    const untouched = fakeGemini();
     await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: untouched.fetchImpl, ...quiet() });
     expect(untouched.calls).toHaveLength(0);
     expect(read(path).t1.status).toBe("reviewed");
     expect(read(path).t1.locales.hi.title).toBe("समीक्षित शीर्षक T20 2027");
 
     const changed = SAMPLE.map((m) => (m.id === "t1" ? { ...m, description: m.description + " Tie resolves No." } : m));
-    const redo = fakeOpenAI();
+    const redo = fakeGemini();
     await runTranslateMarkets({ markets: changed, filePath: path, env: ENV, fetchImpl: redo.fetchImpl, ...quiet() });
     expect(redo.calls).toHaveLength(1);
     expect(read(path).t1.status).toBe("machine-drafted");
@@ -284,7 +237,7 @@ test.describe("translate:markets runner", () => {
   test("a failed market is retried once, then left in English and reported", async () => {
     const path = tempFile();
     // t1: bad then good (recovers on retry). t2: bad twice (fails). t3: HTTP 500 twice.
-    const { fetchImpl, calls } = fakeOpenAI((m, attempt) => {
+    const { fetchImpl, calls } = fakeGemini((m, attempt) => {
       if (m.title.startsWith("Will India")) return attempt === 1 ? "bad-shape" : "good";
       if (m.title.startsWith("Gold")) return "bad-shape";
       return "http-500";
@@ -301,32 +254,31 @@ test.describe("translate:markets runner", () => {
 
   test("a stale entry that fails to re-translate is removed, not kept", async () => {
     const path = tempFile();
-    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeOpenAI().fetchImpl, ...quiet() });
+    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeGemini().fetchImpl, ...quiet() });
     const edited = SAMPLE.map((m) => (m.id === "t3" ? { ...m, title: "IPL 2028 Winner" } : m));
-    const { fetchImpl } = fakeOpenAI(() => "bad-shape");
+    const { fetchImpl } = fakeGemini(() => "bad-shape");
     await runTranslateMarkets({ markets: edited, filePath: path, env: ENV, fetchImpl, ...quiet() });
     expect(read(path).t3).toBeUndefined();
   });
 
   test("missing key or model gives a clear error and makes no calls", async () => {
-    for (const env of [{ OPENAI_MODEL: "m" }, { OPENAI_API_KEY: FAKE_KEY }, {}]) {
-      const { fetchImpl, calls } = fakeOpenAI();
+    for (const env of [{ GEMINI_MODEL: "m" }, { GEMINI_API_KEY: FAKE_KEY }, {}]) {
+      const { fetchImpl, calls } = fakeGemini();
       const out = quiet();
       const r = await runTranslateMarkets({ markets: SAMPLE, filePath: tempFile(), env, fetchImpl, ...out });
       expect(r.exitCode).toBe(1);
       expect(calls).toHaveLength(0);
-      expect(out.lines.join("\n")).toMatch(/OPENAI_(API_KEY|MODEL) is not set/);
+      expect(out.lines.join("\n")).toMatch(/GEMINI_(API_KEY|MODEL) is not set/);
     }
   });
 
-  test("Gemini: same prompt and schema, key in a header, entries saved", async () => {
+  test("one request per market: all five locales, strict JSON schema, key in a header", async () => {
     const { fetchImpl, calls } = fakeGemini();
     const path = tempFile();
     const out = quiet();
-    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: GEMINI_ENV, fetchImpl, ...out });
+    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl, ...out });
 
     expect(r.exitCode).toBe(0);
-    expect(r.provider).toBe("gemini");
     expect(calls).toHaveLength(SAMPLE.length);
     for (const c of calls) {
       expect(c.url).toBe(geminiUrl("gemini-test-model"));
@@ -359,7 +311,7 @@ test.describe("translate:markets runner", () => {
       m.title.startsWith("Will India") ? "blocked" : m.title.startsWith("Gold") && n === 1 ? "bad-shape" : "good"
     );
     const path = tempFile();
-    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: GEMINI_ENV, fetchImpl, ...quiet() });
+    const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl, ...quiet() });
     expect(r.exitCode).toBe(0);
     expect(calls).toHaveLength(5);
     expect(r.failed.map((f) => f.id)).toEqual(["t1"]);
@@ -367,24 +319,23 @@ test.describe("translate:markets runner", () => {
     expect(Object.keys(read(path)).sort()).toEqual(["t2", "t3"]);
   });
 
-  test("provider selection: explicit, single key, both keys, invalid", () => {
-    const both = { ...ENV, ...GEMINI_ENV };
-    expect(resolveProvider(ENV)).toMatchObject({ ok: true, provider: "openai", model: "test-model" });
-    expect(resolveProvider(GEMINI_ENV)).toMatchObject({ ok: true, provider: "gemini", model: "gemini-test-model" });
-    expect(resolveProvider(both)).toMatchObject({ ok: false, error: expect.stringMatching(/TRANSLATION_PROVIDER/) });
-    expect(resolveProvider({ ...both, TRANSLATION_PROVIDER: "gemini" })).toMatchObject({ ok: true, provider: "gemini" });
-    expect(resolveProvider({ ...both, TRANSLATION_PROVIDER: "OpenAI" })).toMatchObject({ ok: true, provider: "openai" });
-    expect(resolveProvider({ ...both, TRANSLATION_PROVIDER: "claude" })).toMatchObject({ ok: false });
-    expect(resolveProvider({ GEMINI_API_KEY: FAKE_KEY })).toMatchObject({
+  test("config: key and model required, model id must be path-safe", () => {
+    expect(resolveConfig(ENV)).toMatchObject({ ok: true, model: "gemini-test-model" });
+    expect(resolveConfig({ GEMINI_API_KEY: FAKE_KEY })).toMatchObject({
       ok: false,
       error: expect.stringMatching(/GEMINI_MODEL is not set/),
     });
-    // The model id goes into the Gemini URL path.
-    expect(resolveProvider({ GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "../../x" })).toMatchObject({ ok: false });
-    expect(resolveProvider({ GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "gemini-2.5-flash" })).toMatchObject({ ok: true });
-    // No key printed in any error.
-    for (const env of [both, { GEMINI_API_KEY: FAKE_KEY }, { ...both, TRANSLATION_PROVIDER: "x" }]) {
-      const r = resolveProvider(env);
+    expect(resolveConfig({ GEMINI_MODEL: "m" })).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/GEMINI_API_KEY is not set/),
+    });
+    // The model id goes into the URL path.
+    expect(resolveConfig({ GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "../../x" })).toMatchObject({ ok: false });
+    expect(resolveConfig({ GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "gemini-3.1-flash-lite" })).toMatchObject({ ok: true });
+    // OpenAI is no longer a provider: its variables alone configure nothing.
+    expect(resolveConfig({ OPENAI_API_KEY: FAKE_KEY, OPENAI_MODEL: "x" })).toMatchObject({ ok: false });
+    for (const env of [{ GEMINI_API_KEY: FAKE_KEY }, { GEMINI_API_KEY: FAKE_KEY, GEMINI_MODEL: "a/b" }]) {
+      const r = resolveConfig(env);
       if (!r.ok) expect(r.error).not.toContain(FAKE_KEY);
     }
   });
@@ -392,41 +343,26 @@ test.describe("translate:markets runner", () => {
   test("rate limits and overload back off before the retry; other errors do not", async () => {
     const out = quiet();
     const g = fakeGemini((_m, n) => (n === 1 ? "http-500" : "good"));
-    const r = await runTranslateMarkets({ markets: SAMPLE.slice(0, 1), filePath: tempFile(), env: GEMINI_ENV, fetchImpl: g.fetchImpl, ...out });
+    const r = await runTranslateMarkets({ markets: SAMPLE.slice(0, 1), filePath: tempFile(), env: ENV, fetchImpl: g.fetchImpl, ...out });
     expect(r.translated).toEqual(["t1"]);
     expect(out.sleeps).toEqual([TRANSIENT_BACKOFF_MS]);
 
     const out2 = quiet();
     const g2 = fakeGemini((_m, n) => (n === 1 ? "bad-shape" : "good"));
-    await runTranslateMarkets({ markets: SAMPLE.slice(0, 1), filePath: tempFile(), env: GEMINI_ENV, fetchImpl: g2.fetchImpl, ...out2 });
+    await runTranslateMarkets({ markets: SAMPLE.slice(0, 1), filePath: tempFile(), env: ENV, fetchImpl: g2.fetchImpl, ...out2 });
     expect(out2.sleeps).toEqual([]);
-  });
-
-  test("both keys without a choice makes no calls", async () => {
-    const o = fakeOpenAI();
-    const g = fakeGemini();
-    const calls = () => o.calls.length + g.calls.length;
-    const r = await runTranslateMarkets({
-      markets: SAMPLE,
-      filePath: tempFile(),
-      env: { ...ENV, ...GEMINI_ENV },
-      fetchImpl: o.fetchImpl,
-      ...quiet(),
-    });
-    expect(r.exitCode).toBe(1);
-    expect(calls()).toBe(0);
   });
 
   test("nothing to do needs no key at all", async () => {
     const path = tempFile();
-    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeOpenAI().fetchImpl, ...quiet() });
+    await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: ENV, fetchImpl: fakeGemini().fetchImpl, ...quiet() });
     const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: {}, ...quiet() });
     expect(r.exitCode).toBe(0);
     expect(r.apiCalls).toBe(0);
   });
 
   test("--dry-run lists work and makes no calls", async () => {
-    const { fetchImpl, calls } = fakeOpenAI();
+    const { fetchImpl, calls } = fakeGemini();
     const path = tempFile();
     const out = quiet();
     const r = await runTranslateMarkets({ markets: SAMPLE, filePath: path, env: {}, dryRun: true, fetchImpl, ...out });
@@ -438,7 +374,7 @@ test.describe("translate:markets runner", () => {
   });
 
   test("--market limits the run to one id; unknown ids fail", async () => {
-    const { fetchImpl, calls } = fakeOpenAI();
+    const { fetchImpl, calls } = fakeGemini();
     const r = await runTranslateMarkets({ markets: SAMPLE, filePath: tempFile(), env: ENV, marketId: "t2", fetchImpl, ...quiet() });
     expect(calls).toHaveLength(1);
     expect(r.translated).toEqual(["t2"]);
@@ -448,7 +384,7 @@ test.describe("translate:markets runner", () => {
   });
 
   test("--max-markets caps a run (cost guard) and defers the rest", async () => {
-    const { fetchImpl, calls } = fakeOpenAI();
+    const { fetchImpl, calls } = fakeGemini();
     const r = await runTranslateMarkets({ markets: SAMPLE, filePath: tempFile(), env: ENV, maxMarkets: 2, fetchImpl, ...quiet() });
     expect(calls).toHaveLength(2);
     expect(r.deferred).toEqual(["t3"]);
@@ -464,7 +400,7 @@ test.describe("translate:markets runner", () => {
       markets: SAMPLE,
       filePath: tempFile(),
       env: ENV,
-      fetchImpl: fakeOpenAI(() => "http-500").fetchImpl,
+      fetchImpl: fakeGemini(() => "http-500").fetchImpl,
       ...out,
     });
     expect(out.lines.join("\n")).not.toContain(FAKE_KEY);
@@ -491,12 +427,13 @@ test.describe("runtime reader", () => {
 });
 
 test.describe("in the browser", () => {
-  const openaiRequests: string[] = [];
+  const aiRequests: string[] = [];
 
   test.beforeEach(async ({ page }) => {
-    openaiRequests.length = 0;
+    aiRequests.length = 0;
     page.on("request", (r) => {
-      if (/openai\.com/.test(r.url())) openaiRequests.push(r.url());
+      // No AI provider is ever called from the browser.
+      if (/openai\.com|generativelanguage\.googleapis\.com/.test(r.url())) aiRequests.push(r.url());
     });
     await resetState(page);
   });
@@ -514,7 +451,7 @@ test.describe("in the browser", () => {
       page.getByRole("heading", { name: "Mumbai Indians vs. Chennai Super Kings" }).first()
     ).toBeVisible();
     expect(errors).toEqual([]);
-    expect(openaiRequests).toEqual([]);
+    expect(aiRequests).toEqual([]);
   });
 
   test("detail page shows the note only for translated, non-English views", async ({ page }) => {
@@ -532,7 +469,7 @@ test.describe("in the browser", () => {
     await page.goto("/market/mumbai-indians-vs-chennai-super-kings");
     await expect(page.locator("h1")).toHaveText("Mumbai Indians vs. Chennai Super Kings");
     await expect(page.locator('[data-testid="translated-note"]')).toHaveCount(0);
-    expect(openaiRequests).toEqual([]);
+    expect(aiRequests).toEqual([]);
   });
 
   test("search matches the active locale's saved title as well as English", async ({ page }) => {

@@ -1,5 +1,5 @@
 import { planWork, readTranslations, writeTranslations, type WorkItem } from "./store";
-import { isTransient, PROVIDER_ENV, resolveProvider, translateMarket, TranslationRequestError } from "./translate";
+import { isTransient, resolveConfig, translateMarket, TranslationRequestError } from "./translate";
 import { validateLocales, type FieldProblem } from "./validate";
 import type { MarketSource, TranslationEntry, TranslationFile } from "./types";
 
@@ -36,8 +36,6 @@ export interface RunResult {
   translated: string[];
   failed: Array<{ id: string; problems: string[] }>;
   deferred: string[];
-  /** Which provider was used, when any request was made. */
-  provider?: "openai" | "gemini";
   error?: string;
 }
 
@@ -88,12 +86,11 @@ export async function runTranslateMarkets(opts: RunOptions): Promise<RunResult> 
     return result;
   }
 
-  // Only now, when there is real work, is a provider (key + model) required.
-  const resolved = resolveProvider(opts.env);
+  // Only now, when there is real work, are the key and model required.
+  const resolved = resolveConfig(opts.env);
   if (!resolved.ok) return fail(resolved.error);
-  const { provider, apiKey, model } = resolved;
-  result.provider = provider;
-  log(`Using ${PROVIDER_ENV[provider].label} (${model}).`);
+  const { apiKey, model } = resolved;
+  log(`Using Google Gemini (${model}).`);
 
   const now = opts.now ?? (() => new Date());
   const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
@@ -109,7 +106,7 @@ export async function runTranslateMarkets(opts: RunOptions): Promise<RunResult> 
       transient = false;
       result.apiCalls++;
       try {
-        const out = await translateMarket(w.market, { provider, apiKey, model, fetchImpl: opts.fetchImpl });
+        const out = await translateMarket(w.market, { apiKey, model, fetchImpl: opts.fetchImpl });
         const found = validateLocales(w.market, out);
         if (found.length === 0) accepted = out as TranslationEntry["locales"];
         else problems = found.map(describe);

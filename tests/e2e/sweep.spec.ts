@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { CATEGORIES } from "../../src/lib/types";
 import { MARKETS } from "../../src/data/markets";
-import { resetState, signInWithPhone } from "./helpers";
+import { resetState, signInWithEmail } from "./helpers";
 
 /**
  * Work order 4, Phase 6: every route, both themes, checked for the basics the
@@ -105,7 +105,7 @@ test.describe("signed-in pages", () => {
   test("dashboard and profit pass the same audit", async ({ page }) => {
     await resetState(page);
     const errors = watchErrors(page);
-    await signInWithPhone(page);
+    await signInWithEmail(page);
     for (const route of ["/dashboard", "/profit"]) {
       await page.goto(route);
       await page.waitForLoadState("networkidle");

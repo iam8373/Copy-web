@@ -5,10 +5,8 @@
  * src/data/market-translations.json. Only markets that are missing or whose
  * source text changed are sent; if nothing changed, it makes 0 API calls.
  *
- * Provider: OpenAI (OPENAI_API_KEY + OPENAI_MODEL) or Google Gemini
- * (GEMINI_API_KEY + GEMINI_MODEL), read from .env.local or the environment.
- * With both keys set, TRANSLATION_PROVIDER=openai|gemini chooses. Keys are
- * never printed.
+ * Provider: Google Gemini only. Reads GEMINI_API_KEY and GEMINI_MODEL from
+ * .env.local or the environment. The key is never printed.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";

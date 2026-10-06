@@ -4,7 +4,7 @@ import { STORAGE_KEY } from "../../src/i18n";
 import { en } from "../../src/i18n/en";
 import { hi } from "../../src/i18n/hi";
 import { getMarketActivity, getOrderBook, getPriceHistory, LADDER_SIZES } from "../../src/services/markets/market-data";
-import { resetState, signInWithPhone } from "./helpers";
+import { resetState, signInWithEmail } from "./helpers";
 
 /** Work order 4, Phase 4: market page. */
 
@@ -186,7 +186,7 @@ test.describe("trade panel (lg+)", () => {
 
   test("signed-in order from the panel fills", async ({ page }) => {
     await page.goto(BINARY);
-    await signInWithPhone(page);
+    await signInWithEmail(page);
     await page.getByTestId("trade-panel").getByRole("button", { name: /place order/i }).click();
     await expect(page.getByText(/order placed successfully/i)).toBeVisible();
   });

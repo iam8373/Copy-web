@@ -13,7 +13,7 @@ test("cannot sign in without ticking the 18+ box", async ({ page }) => {
   await expect(box).not.toBeChecked();
 
   // Both routes are disabled until the box is ticked.
-  await expect(page.getByRole("button", { name: /send otp/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /send code/i })).toBeDisabled();
   await page.getByRole("button", { name: /^Google$/ }).click();
   await expect(page.locator('[data-testid="google-account"]').first()).toBeDisabled();
 
@@ -25,7 +25,7 @@ test("ticking the box enables both sign-in routes", async ({ page }) => {
   await openAuthModal(page);
   await page.locator('[data-testid="age-confirm"]').check();
 
-  await expect(page.getByRole("button", { name: /send otp/i })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /send code/i })).toBeEnabled();
   await page.getByRole("button", { name: /^Google$/ }).click();
   await expect(page.locator('[data-testid="google-account"]').first()).toBeEnabled();
 });

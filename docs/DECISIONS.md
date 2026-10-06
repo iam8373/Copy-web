@@ -2,29 +2,57 @@
 
 Architecture and product decisions, newest first.
 
-## D-018 — Market translation is provider-agnostic (OpenAI or Gemini)
+## D-019 — Sign-in is email OTP + Google only; no phone, no KYC
 
-**Date:** Work order 4 (after the UI phases)
+**Date:** Owner decision, before the admin/resolution work order
+**Status:** Accepted (UI done in the demo; Supabase wiring is backend Phase 2)
+
+- **Methods:** a 6-digit code sent by email, or Google. Phone/SMS OTP is removed
+  completely (AuthModal tab, its strings in all six locales, its tests, the SMS/DLT
+  provider variables). No KYC: no identity documents, phone number or date of birth.
+- **18+:** the self-declared checkbox stays and gates both routes; `ageConfirmedAt` is
+  recorded on the session exactly as before (sessions without it must re-confirm before
+  trading). A stored session from the removed phone flow is discarded on load.
+- **Supabase Auth (verified against the current docs):**
+  - Email OTP shares the Magic Link implementation. The **Magic Link** email template must
+    include `{{ .Token }}` so the email shows the code, e.g.
+    `<h2>Your BharatPredict code</h2><p>Enter this code: {{ .Token }}</p>`.
+  - Client calls: `supabase.auth.signInWithOtp({ email, options: { captchaToken } })`, then
+    `supabase.auth.verifyOtp({ email, token, type: "email" })`.
+  - Defaults: one request per 60 s per user, codes expire after 1 hour (configurable under
+    Auth > Providers > Email; keep it well under a day).
+  - **Production email:** a custom SMTP provider (Supabase's built-in sender is for
+    development). Provider to be chosen by the owner.
+  - **CAPTCHA:** Supabase supports hCaptcha or Cloudflare Turnstile, enabled under Auth >
+    Bot and Abuse Protection, with a token from a frontend widget. Both need a new
+    dependency (`@hcaptcha/react-hcaptcha` or `@marsidev/react-turnstile`) — owner choice
+    and approval required.
+  - **Rate limits:** Supabase Auth rate limits (emails sent, OTP verifications) set in the
+    project's Auth rate-limit settings, in addition to the 60 s per-user resend window.
+  - Google: Supabase Google provider with an OAuth client from Google Cloud.
+- The demo modal accepts any 6 digits and sends nothing; it is replaced by the calls above
+  in backend Phase 2.
+
+## D-018 — Market translation uses Google Gemini only
+
+**Date:** Work order 4 (after the UI phases); narrowed to Gemini-only by the owner
 **Status:** Accepted
 
-`src/services/translation/translate.ts` has one request builder per provider behind
-`translateMarket(source, { provider, apiKey, model })`. Both send the same system prompt,
-user payload and strict JSON schema (OpenAI `response_format.json_schema`, Gemini
-`generationConfig.responseJsonSchema`), and both outputs go through the same
-`validate.ts` checks and single retry, so switching provider cannot loosen validation.
+`src/services/translation/translate.ts` sends one Gemini `generateContent` request per
+market with the system prompt, the user payload and the strict JSON schema
+(`generationConfig.responseJsonSchema`). The output goes through `validate.ts` and a single
+retry exactly as before. The OpenAI request path, `OPENAI_*` variables and
+`TRANSLATION_PROVIDER` were removed.
 
-- Selection: `TRANSLATION_PROVIDER` if set; otherwise the only provider with a key; with
-  both keys and no choice the run stops (they are billed separately). No default model.
-- Gemini: key in the `x-goog-api-key` header (never in the URL); model id restricted to
-  `[A-Za-z0-9._-]` because it is part of the URL path; `SAFETY`/blocked responses are
-  failures.
-- 429/5xx back off 5 s before the retry; timeout per request is 120 s.
-- Verified live on one market (written to a temp file, not the repo): `gemini-2.5-flash`
-  is no longer available to new keys (HTTP 404); `gemini-3.x-flash` returned 503
-  (overloaded) at the time; `gemini-3.1-flash-lite` and `gemini-flash-lite-latest`
-  translated and passed validation first time.
-- `scripts/verify-build.sh` also fails if a Gemini endpoint or `GEMINI_API_KEY` reaches
-  the app bundle.
+- Config: `GEMINI_API_KEY` + `GEMINI_MODEL`, both required, no default model. The model id
+  is restricted to `[A-Za-z0-9._-]` because it is part of the URL path.
+- The key goes in the `x-goog-api-key` header, never the URL. `SAFETY`/blocked responses
+  are failures. 429/5xx back off 5 s before the retry; the timeout is 120 s per request.
+- Verified live on one market (temp file, not the repo): `gemini-2.5-flash` is no longer
+  available to new keys (HTTP 404); `gemini-3.x-flash` returned 503 at the time;
+  `gemini-3.1-flash-lite` and `gemini-flash-lite-latest` passed validation first time.
+- `scripts/verify-build.sh` fails if a Gemini or OpenAI endpoint or key name reaches the
+  app bundle.
 
 ## D-017 — LMSR liquidity default needs an owner decision
 
@@ -313,7 +341,7 @@ so a row is readable only by its owner; the schema version in the localStorage k
 to a migration number. On first authenticated load the client would upload any
 locally-stored positions once, then treat the server as authoritative and keep
 localStorage only as an offline cache. Auth moves from the demo modal to Supabase Auth
-(phone OTP + Google provider), which removes the self-declared session object entirely.
+(email OTP + Google provider, D-019), which removes the self-declared session object entirely.
 
 ## Legal status of all placeholder copy
 

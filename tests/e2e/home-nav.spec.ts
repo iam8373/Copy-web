@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { MARKETS } from "../../src/data/markets";
 import { STORAGE_KEY } from "../../src/i18n";
 import { hi } from "../../src/i18n/hi";
-import { resetState, signInWithPhone } from "./helpers";
+import { resetState, signInWithEmail } from "./helpers";
 
 /** Work order 4, Phase 3: home and navigation polish. */
 
@@ -127,7 +127,7 @@ test.describe("navigation", () => {
 
   test("account menu closes on Escape and returns focus", async ({ page }) => {
     await page.goto("/");
-    await signInWithPhone(page);
+    await signInWithEmail(page);
     const button = page.getByRole("button", { name: /account menu/i });
     await button.click();
     await expect(button).toHaveAttribute("aria-expanded", "true");

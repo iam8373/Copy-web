@@ -23,9 +23,9 @@ interface TradeIntent {
 }
 
 export interface Session {
-  /** "phone" or "google" */
-  method: "phone" | "google";
-  /** Display handle: masked mobile number or email */
+  /** Email code or Google (no phone/SMS sign-in, D-019). */
+  method: "email" | "google";
+  /** Display handle: the account's email address */
   handle: string;
   initial: string;
   /**
@@ -242,7 +242,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     get().pushToast({
       titleKey: "welcome",
       vars: { handle: session.handle },
-      bodyKey: session.method === "phone" ? "signedInPhone" : "signedInGoogle",
+      bodyKey: session.method === "email" ? "signedInEmail" : "signedInGoogle",
       tone: "success",
     });
   },
@@ -381,6 +381,12 @@ export function restoreSession() {
     const raw = window.localStorage.getItem("bp-session");
     if (!raw) return;
     const parsed = JSON.parse(raw) as Session;
+    // Phone sign-in was removed (D-019): a stored phone session is dropped,
+    // so the user signs in again with email or Google.
+    if (parsed?.method !== "email" && parsed?.method !== "google") {
+      window.localStorage.removeItem("bp-session");
+      return;
+    }
     if (parsed?.handle && parsed?.initial) {
       const stored = readPositions(parsed.handle);
       let positions: Position[];

@@ -19,8 +19,10 @@ Alloy preview proxies :8080 → :3000 (`.alloy/environment.json`).
 
 ## Key facts to not re-learn
 
-- **Auth is demo-only.** Phone OTP accepts any 6 digits; Google is a static account
-  picker. Session persists in `localStorage` under `bp-session`.
+- **Auth is demo-only.** Email code (any 6 digits) or a static Google account picker;
+  no phone sign-in and no KYC (D-019). Session persists in `localStorage` under
+  `bp-session`; a stored `method: "phone"` session is discarded. Tests sign in with
+  `signInWithEmail` / `signInWithGoogle` from `tests/e2e/helpers.ts`.
 - **Positions persist per account** under `bp-positions:v1:<handle>` (Phase C). Demo
   ledger seeds once per new account. Signed-out users see no positions.
 - **Prices jitter every 6s** via `LiveTicker` → `tick()`. Never assert exact prices in
@@ -135,8 +137,8 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   any amount input; never hard-code min/max/step.
 - **Market translations** (Phase 6, D-014): read with `useMarketText(market)` /
   `getMarketText(market, locale)` from `@/lib/market-text` — never `market.title`
-  directly in UI. Regenerate with `npm run translate:markets` (needs `OPENAI_API_KEY` and
-  `OPENAI_MODEL` in `.env.local`); check with `npm run validate:translations`.
+  directly in UI. Regenerate with `npm run translate:markets` (needs `GEMINI_API_KEY` and
+  `GEMINI_MODEL` in `.env.local`); check with `npm run validate:translations`.
   App code must not import `services/translation/{translate,run,store}` (ESLint enforces).
 - **Secret scan:** `npm run check:secrets`. Inside the Alloy container, git reports
   "dubious ownership", so the scan fails closed there; run it on the host or in CI.
@@ -173,9 +175,10 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   `npx playwright install-deps chromium`.
 - Page check script (scratch): `.scratch/shots.spec.ts` via
   `npx playwright test -c .scratch/shots.config.ts` (both themes, 360/1280, overflow).
-- Gemini key is in `.env.local` as `GEMINI_API_KEY`, with `GEMINI_MODEL=gemini-3.1-flash-lite`
-  and `TRANSLATION_PROVIDER=gemini` (both keys are present, so the provider must be named).
-  `gemini-2.5-flash` returns 404 for this key (retired for new users).
+- Translation is **Gemini only** (D-018). `.env.local` has `GEMINI_API_KEY` and
+  `GEMINI_MODEL=gemini-3.1-flash-lite`. `gemini-2.5-flash` returns 404 for this key (retired
+  for new users). The old `OPENAI_API_KEY` in `.env.local` is unused (and was exposed —
+  the owner should revoke it).
 - Phase 1 done. Legacy colour aliases are gone: use `bg-surface-1/2/3`,
   `text-primary/secondary/muted`, `border-subtle/strong`, `brand`, `success/danger/warning`.
   The cleanup codemod (`.scratch/codemod.py`) also rewrites words in comments ("rounded" →

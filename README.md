@@ -4,10 +4,10 @@ India's prediction market — trade the outcome of Indian and global events, pri
 
 BharatPredict is an India-first prediction market interface. Cricket sits at the top of the
 navigation, elections and RBI policy are first-class categories, volumes are shown in lakh and
-crore, and sign-in is mobile-OTP or Google rather than a crypto wallet.
+crore, and sign-in is an email code or Google rather than a crypto wallet.
 
 > **Demo build.** All market data, prices, positions and authentication are mocked in the
-> browser. No funds are custodied, no OTP is sent, and no order reaches a real exchange.
+> browser. No funds are custodied, no sign-in email is sent, and no order reaches a real exchange.
 
 ## Mission
 
@@ -76,14 +76,8 @@ suite. It uses no secrets and read-only permissions.
 
 Market titles and descriptions are translated **once**, offline, and committed to
 `src/data/market-translations.json`; the app never calls an AI service. To (re)translate
-new or edited markets, configure **one** provider in `.env.local`:
-
-| Provider | Variables |
-| --- | --- |
-| OpenAI | `OPENAI_API_KEY`, `OPENAI_MODEL` |
-| Google Gemini | `GEMINI_API_KEY`, `GEMINI_MODEL` (e.g. `gemini-3.1-flash-lite`) |
-
-If both keys are present, `TRANSLATION_PROVIDER=openai|gemini` chooses. Then:
+new or edited markets, put `GEMINI_API_KEY` and `GEMINI_MODEL` (for example
+`gemini-3.1-flash-lite`) in `.env.local`. Gemini is the only provider (D-018). Then:
 
 ```bash
 npm run translate:markets                      # up to 25 markets per run
@@ -113,7 +107,7 @@ is what `.alloy/environment.json` points at.
 ## Environment variables
 
 Everything is mocked today, so no variable is required to boot. `.env.example` documents the
-keys the real integrations will need (OTP provider, Google OAuth, UPI/payment gateway, live
+keys the real integrations will need (Supabase, Google OAuth, UPI/payment gateway, live
 data feeds) plus the optional `NEXT_DIST_DIR` / `E2E_PORT` testing knobs.
 
 ## Project structure
@@ -160,7 +154,7 @@ under Entertainment, RBI and Budget under Economy, Football and Hockey under Spo
   bar and bottom sheet on phones)
 - **Honest order book** — the market maker's quotes for 10/50/100/500 shares with price
   impact, instead of invented bids and asks; the price chart is labelled "Demo data"
-- **Auth** via mobile number + OTP or Google, with a required self-declared 18+
+- **Auth** via a 6-digit email code or Google (no phone, no KYC), with a required self-declared 18+
   confirmation and a session-aware header avatar
 - **Per-account persistence** of positions in `localStorage`, validated on load
 - **Dashboard and P&L** — portfolio value, open positions, resolved history, per-market profit
@@ -183,7 +177,7 @@ server-side trading route must follow.
 
 ## Roadmap
 
-- Real OTP and Google OAuth sessions
+- Real email-OTP and Google OAuth sessions (Supabase Auth, custom SMTP, CAPTCHA)
 - UPI deposits and withdrawals in ₹
 - Native-speaker review of all five Indic dictionaries
 - Legal review of every policy page by Indian counsel

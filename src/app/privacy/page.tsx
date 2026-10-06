@@ -29,12 +29,12 @@ export default function PrivacyPage() {
           What this demo actually stores
         </h2>
         <p className="mt-2 text-13 leading-relaxed text-secondary">
-          Your mobile number or email is held{" "}
+          Your email address is held{" "}
           <span className="font-semibold text-primary">
             only in your own browser&apos;s local storage
           </span>{" "}
           as part of a demo session, alongside your theme preference, language choice and
-          simulated positions. Nothing is transmitted to a server, no OTP is actually sent,
+          simulated positions. Nothing is transmitted to a server, no sign-in code is actually emailed,
           and there is no account database. Clearing site data removes all of it.
         </p>
       </section>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         },
         {
           h: "Data minimisation",
-          p: "We deliberately do not collect your date of birth; the 18+ requirement is a self-declaration. Only the minimum needed to operate an account would be collected.",
+          p: "Sign-in uses only your email address or your Google account. We do not run identity (KYC) checks and do not collect your phone number or date of birth; the 18+ requirement is a self-declaration. Only the minimum needed to operate an account would be collected.",
         },
         {
           h: "Your rights",
