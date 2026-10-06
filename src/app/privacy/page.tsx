@@ -12,25 +12,25 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <p className="w-fit rounded-md bg-accent-yellow/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-accent-yellow">
+        <p className="w-fit rounded-chip bg-warning/15 px-2 py-1 text-11 font-bold uppercase tracking-wide text-warning">
           Draft — pending legal review
         </p>
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
           Privacy Policy
         </h1>
-        <p className="text-[14px] leading-relaxed text-content-secondary">
+        <p className="text-14 leading-relaxed text-secondary">
           Drafted against the principles of India&apos;s Digital Personal Data Protection
           Act, 2023. Placeholder text — not yet reviewed by counsel.
         </p>
       </header>
 
-      <section className="rounded-xl border border-accent-green/30 bg-accent-green/[0.06] p-4 sm:p-6">
-        <h2 className="text-[17px] font-bold text-content-primary">
+      <section className="rounded-card border border-success/30 bg-success/[0.06] p-4 sm:p-6">
+        <h2 className="text-18 font-bold text-primary">
           What this demo actually stores
         </h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-content-secondary">
+        <p className="mt-2 text-13 leading-relaxed text-secondary">
           Your mobile number or email is held{" "}
-          <span className="font-semibold text-content-primary">
+          <span className="font-semibold text-primary">
             only in your own browser&apos;s local storage
           </span>{" "}
           as part of a demo session, alongside your theme preference, language choice and
@@ -71,14 +71,14 @@ export default function PrivacyPage() {
       ].map((s) => (
         <section
           key={s.h}
-          className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6"
+          className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6"
         >
-          <h2 className="text-[15px] font-bold text-content-primary">{s.h}</h2>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">{s.p}</p>
+          <h2 className="text-16 font-bold text-primary">{s.h}</h2>
+          <p className="mt-1.5 text-13 leading-relaxed text-secondary">{s.p}</p>
         </section>
       ))}
 
-      <nav className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-accent-blue">
+      <nav className="flex flex-wrap gap-x-5 gap-y-2 text-13 font-semibold text-brand">
         <Link href="/terms">Terms of Use</Link>
         <Link href="/responsible-play">Responsible play</Link>
         <Link href="/grievance">Grievance redressal</Link>

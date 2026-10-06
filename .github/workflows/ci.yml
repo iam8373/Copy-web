@@ -49,6 +49,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Design tokens (no hard-coded hex/px outside token files)
+        run: npm run check:tokens
+
       - name: Validate translations (locale key parity + stored market translations)
         run: npm run validate:translations
 

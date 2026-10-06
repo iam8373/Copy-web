@@ -49,19 +49,6 @@ const config: Config = {
           strong: rgb("--brand-fill-hover"),
           yellow: rgb("--warning"),
         },
-        // Legacy names, removed once the token cleanup batches finish.
-        bg: {
-          primary: rgb("--surface-1"),
-          secondary: rgb("--surface-2"),
-          tertiary: rgb("--surface-3"),
-        },
-        subtle: rgb("--border-subtle"),
-        strong: rgb("--border-strong"),
-        content: {
-          primary: rgb("--text-primary"),
-          secondary: rgb("--text-secondary"),
-          muted: rgb("--text-muted"),
-        },
       },
       // text-primary / text-secondary / text-muted
       textColor: {

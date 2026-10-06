@@ -26,13 +26,13 @@ export default function LearnPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-accent-blue">
+        <p className="text-11 font-bold uppercase tracking-wide text-brand">
           Learn Hub
         </p>
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
           Predictions 101
         </h1>
-        <p className="text-[14px] leading-relaxed text-content-secondary">
+        <p className="text-14 leading-relaxed text-secondary">
           How prediction markets work, end to end — with Indian examples.
         </p>
       </header>
@@ -41,23 +41,23 @@ export default function LearnPage() {
         {STEPS.map((s, i) => (
           <section
             key={s.title}
-            className="rounded-xl border border-subtle bg-bg-secondary p-4"
+            className="rounded-card border border-subtle bg-surface-2 p-4"
           >
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-accent-blue/15 text-[13px] font-bold text-accent-blue">
+            <span className="grid h-7 w-7 place-items-center rounded-btn bg-brand/15 text-13 font-bold text-brand">
               {i + 1}
             </span>
-            <h2 className="mt-3 text-[15px] font-bold text-content-primary">{s.title}</h2>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">{s.body}</p>
+            <h2 className="mt-3 text-16 font-bold text-primary">{s.title}</h2>
+            <p className="mt-1.5 text-13 leading-relaxed text-secondary">{s.body}</p>
           </section>
         ))}
       </div>
 
       <section
         id="mailing-list"
-        className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6"
+        className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6"
       >
-        <h2 className="text-[15px] font-bold text-content-primary">Join the mailing list</h2>
-        <p className="mt-1 text-[13px] text-content-secondary">
+        <h2 className="text-16 font-bold text-primary">Join the mailing list</h2>
+        <p className="mt-1 text-13 text-secondary">
           New Indian markets, resolution notes and product updates.
         </p>
         <form className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -65,11 +65,11 @@ export default function LearnPage() {
             type="email"
             required
             placeholder="you@example.com"
-            className="h-11 flex-1 rounded-lg border border-subtle bg-bg-tertiary px-3 text-[14px] text-content-primary outline-none focus:border-accent-blue"
+            className="h-11 flex-1 rounded-btn border border-subtle bg-surface-3 px-3 text-14 text-primary outline-none focus:border-brand"
           />
           <button
             type="submit"
-            className="h-11 rounded-lg bg-accent-blue px-5 text-[14px] font-bold text-white transition-colors hover:bg-accent-strong"
+            className="h-11 rounded-btn bg-brand-fill px-5 text-14 font-bold text-white transition-colors hover:bg-brand-fill-hover"
           >
             Subscribe
           </button>
@@ -77,9 +77,9 @@ export default function LearnPage() {
       </section>
 
       {/* Kept as anchors so older /learn#terms and /learn#privacy links resolve. */}
-      <section id="terms" className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">Legal &amp; policies</h2>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
+      <section id="terms" className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
+        <h2 className="text-16 font-bold text-primary">Legal &amp; policies</h2>
+        <p className="mt-1.5 text-13 leading-relaxed text-secondary">
           This is a demonstration interface with simulated market data. No real funds are
           custodied, no orders reach a live exchange, and nothing here is an offer to
           participate in real-money gaming or trading. You must be 18 or older to place an
@@ -87,7 +87,7 @@ export default function LearnPage() {
         </p>
         <nav
           id="privacy"
-          className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-accent-blue"
+          className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-13 font-semibold text-brand"
         >
           <Link href="/terms">Terms of Use (incl. 18+ eligibility)</Link>
           <Link href="/privacy">Privacy Policy</Link>
@@ -98,7 +98,7 @@ export default function LearnPage() {
 
       <Link
         href="/"
-        className="text-[13px] font-semibold text-accent-blue transition-opacity hover:opacity-80"
+        className="text-13 font-semibold text-brand transition-opacity hover:opacity-80"
       >
         ← Back to markets
       </Link>

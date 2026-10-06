@@ -22,7 +22,7 @@ export default function E2EThrower() {
   if (boom) throw new Error("E2E_SECRET_INTERNAL_DETAIL");
 
   return (
-    <p data-testid="e2e-recovered" className="text-content-primary">
+    <p data-testid="e2e-recovered" className="text-primary">
       Recovered
     </p>
   );

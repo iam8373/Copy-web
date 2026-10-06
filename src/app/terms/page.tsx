@@ -19,13 +19,13 @@ export default function TermsPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <p className="w-fit rounded-md bg-accent-yellow/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-accent-yellow">
+        <p className="w-fit rounded-chip bg-warning/15 px-2 py-1 text-11 font-bold uppercase tracking-wide text-warning">
           Draft — pending legal review
         </p>
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
           Terms of Use
         </h1>
-        <p className="text-[14px] leading-relaxed text-content-secondary">
+        <p className="text-14 leading-relaxed text-secondary">
           Placeholder terms for a demonstration product. Nothing here is legal advice or a
           binding agreement.
         </p>
@@ -33,12 +33,12 @@ export default function TermsPage() {
 
       <section
         id="eligibility"
-        className="rounded-xl border border-accent-yellow/30 bg-accent-yellow/[0.06] p-4 sm:p-6"
+        className="rounded-card border border-warning/30 bg-warning/[0.06] p-4 sm:p-6"
       >
-        <h2 className="text-[17px] font-bold text-content-primary">Eligibility (18+)</h2>
-        <div className="mt-2 flex flex-col gap-3 text-[13px] leading-relaxed text-content-secondary">
+        <h2 className="text-18 font-bold text-primary">Eligibility (18+)</h2>
+        <div className="mt-2 flex flex-col gap-3 text-13 leading-relaxed text-secondary">
           <p>
-            <span className="font-semibold text-content-primary">
+            <span className="font-semibold text-primary">
               You must be at least 18 years old to create an account or place any order.
             </span>{" "}
             By signing in you self-declare that you meet this age requirement. We do not
@@ -50,7 +50,7 @@ export default function TermsPage() {
             any simulated balances voided.
           </p>
           <p>
-            <span className="font-semibold text-content-primary">Availability:</span>{" "}
+            <span className="font-semibold text-primary">Availability:</span>{" "}
             access to this service may be restricted in some Indian states. The definitive
             list of restricted states, and the mechanism used to enforce it, is to be
             finalised by qualified Indian counsel before any launch. This draft makes no
@@ -59,18 +59,18 @@ export default function TermsPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">Demonstration only</h2>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
+      <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
+        <h2 className="text-16 font-bold text-primary">Demonstration only</h2>
+        <p className="mt-1.5 text-13 leading-relaxed text-secondary">
           All markets, prices, balances and positions in this application are simulated. No
           real money is accepted, held or paid out, no order reaches an exchange, and
           nothing here is an offer to participate in real-money gaming or trading.
         </p>
       </section>
 
-      <section className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">Acceptable use</h2>
-        <ul className="mt-1.5 flex list-disc flex-col gap-1.5 pl-5 text-[13px] leading-relaxed text-content-secondary">
+      <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
+        <h2 className="text-16 font-bold text-primary">Acceptable use</h2>
+        <ul className="mt-1.5 flex list-disc flex-col gap-1.5 pl-5 text-13 leading-relaxed text-secondary">
           <li>One account per person; do not share or transfer your account.</li>
           <li>Do not attempt to manipulate prices or resolution outcomes.</li>
           <li>Do not use automated tooling to place orders at scale.</li>
@@ -78,31 +78,31 @@ export default function TermsPage() {
         </ul>
       </section>
 
-      <section className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">
+      <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
+        <h2 className="text-16 font-bold text-primary">
           Market resolution and disputes
         </h2>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
+        <p className="mt-1.5 text-13 leading-relaxed text-secondary">
           Each market names its resolution source before you trade. Where a source is
           unavailable, delayed or ambiguous, resolution may be postponed. Placeholder
           dispute-handling and escalation terms are to be drafted with counsel; raise
           concerns through the{" "}
-          <Link href="/grievance" className="font-semibold text-accent-blue">
+          <Link href="/grievance" className="font-semibold text-brand">
             grievance channel
           </Link>
           .
         </p>
       </section>
 
-      <section className="rounded-xl border border-subtle bg-bg-secondary p-4 sm:p-6">
-        <h2 className="text-[15px] font-bold text-content-primary">Changes to these terms</h2>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-content-secondary">
+      <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
+        <h2 className="text-16 font-bold text-primary">Changes to these terms</h2>
+        <p className="mt-1.5 text-13 leading-relaxed text-secondary">
           These terms may change. Material changes will be surfaced in the product before
           they take effect. Continued use after a change indicates acceptance.
         </p>
       </section>
 
-      <nav className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-accent-blue">
+      <nav className="flex flex-wrap gap-x-5 gap-y-2 text-13 font-semibold text-brand">
         <Link href="/privacy">Privacy Policy</Link>
         <Link href="/responsible-play">Responsible play</Link>
         <Link href="/grievance">Grievance redressal</Link>

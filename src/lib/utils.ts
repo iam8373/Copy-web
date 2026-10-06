@@ -69,17 +69,17 @@ export function countdown(iso: string, now = Date.now()) {
 }
 
 export const CATEGORY_TINT: Record<string, string> = {
-  cricket: "text-accent-green",
-  politics: "text-accent-blue",
-  entertainment: "text-accent-red",
-  economy: "text-accent-yellow",
-  finance: "text-accent-green",
-  sports: "text-accent-blue",
-  esports: "text-accent-blue",
-  tech: "text-accent-blue",
-  "world-news": "text-accent-yellow",
-  war: "text-accent-red",
-  ai: "text-accent-blue",
+  cricket: "text-success",
+  politics: "text-brand",
+  entertainment: "text-danger",
+  economy: "text-warning",
+  finance: "text-success",
+  sports: "text-brand",
+  esports: "text-brand",
+  tech: "text-brand",
+  "world-news": "text-warning",
+  war: "text-danger",
+  ai: "text-brand",
 };
 
 export const CATEGORY_LABEL: Record<string, string> = {

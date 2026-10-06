@@ -306,7 +306,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 
 | Phase | Scope | Status |
 | --- | --- | --- |
-| 1 | Foundations: DESIGN.md, tokens, fonts, hard-coded value cleanup | In progress |
+| 1 | Foundations: DESIGN.md, tokens, fonts, hard-coded value cleanup | Done |
 | 2 | Shared components (`src/components/ui/`) | Not started |
 | 3 | Home and navigation polish | Not started |
 | 4 | Market detail page | Not started |
@@ -328,7 +328,17 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
   `tailwind.config.ts` (extends defaults only); `src/lib/tokens.ts` for Recharts/SVG.
 - Fonts: Inter → active Noto → system-ui via `--font-indic`; Geist Mono (400/500/600,
   OFL file included) for aligned numerals, `preload: false`.
-- `npm run check:tokens` added; it fails until the cleanup batches finish.
+- `npm run check:tokens` added and run in CI; it passes on all of `src/`.
+- Cleanup in 5 batches, each checked at 360/1280 px in both themes: (1) header, nav,
+  footer, toaster, language picker; (2) market card, grid, home feed, carousel, category,
+  search; (3) market detail, trade modal, amount field, auth modal; (4) dashboard, profit,
+  skeletons, error/not-found/loading; (5) legal and learn pages, category tint map.
+- Legacy Tailwind aliases (`bg-bg-*`, `text-content-*`, colour `subtle`/`strong`) deleted;
+  brand `accent-*` names kept as aliases of the semantic colours.
+- `min-w-table` (720px) token for the dashboard positions table.
 - Fixed: ThemeProvider wrote "dark" before reading the saved theme (lost under StrictMode);
   `<kbd>` hints inherited the mono font and pulled Geist Mono into every English page.
 - Found: white text on the old brand fill `#7C5CFF` was 4.35:1 (fails AA) → `brand-fill`.
+
+**Results:** typecheck, lint, check:tokens clean; Playwright 334/334; no horizontal
+overflow on any checked page at 360 px.
