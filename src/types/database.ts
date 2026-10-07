@@ -11,6 +11,7 @@ export type Database = {
                   Row: {
                     "created_at": string,"key": string,"updated_at": string,"updated_by": string | null,"value": NonNullable<Json>
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"key": string,"updated_at"?: string,"updated_by"?: string | null,"value": NonNullable<Json>
                   }
@@ -30,6 +31,7 @@ isOneToOne: false
                   Row: {
                     "action": string,"actor_id": string | null,"after": Json | null,"before": Json | null,"created_at": string,"entity": string,"entity_id": string | null,"id": string,"ip": unknown
                   }
+                  ComputedFields: never
                   Insert: {
                     "action": string,"actor_id"?: string | null,"after"?: Json | null,"before"?: Json | null,"created_at"?: string,"entity": string,"entity_id"?: string | null,"id"?: string,"ip"?: unknown
                   }
@@ -49,6 +51,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"email": string,"id": string,"message": string,"name": string,"status": string,"subject": string,"updated_at": string,"user_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"email": string,"id"?: string,"message": string,"name": string,"status"?: string,"subject": string,"updated_at"?: string,"user_id"?: string | null
                   }
@@ -68,6 +71,7 @@ isOneToOne: false
                   Row: {
                     "amount": number,"created_at": string,"id": string,"note": string | null,"ref_id": string | null,"type": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount": number,"created_at"?: string,"id"?: string,"note"?: string | null,"ref_id"?: string | null,"type": string,"user_id": string
                   }
@@ -87,6 +91,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"description": string,"id": string,"locale": string,"market_id": string,"reviewed_by": string | null,"source_hash": string,"status": string,"title": string,"translated_at": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"description"?: string,"id"?: string,"locale": string,"market_id": string,"reviewed_by"?: string | null,"source_hash": string,"status"?: string,"title": string,"translated_at"?: string,"updated_at"?: string
                   }
@@ -112,6 +117,7 @@ isOneToOne: false
                   Row: {
                     "category": string,"created_at": string,"created_by": string | null,"description": string,"end_date": string,"id": string,"is_binary": boolean,"is_featured": boolean,"is_live": boolean,"legacy_id": string | null,"liquidity_b": number,"resolution_source": string,"resolved_at": string | null,"resolved_outcome_id": string | null,"slug": string,"status": string,"subcategory": string,"title": string,"total_volume": number,"updated_at": string,"volume_change_24h": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "category": string,"created_at"?: string,"created_by"?: string | null,"description"?: string,"end_date": string,"id"?: string,"is_binary"?: boolean,"is_featured"?: boolean,"is_live"?: boolean,"legacy_id"?: string | null,"liquidity_b"?: number,"resolution_source"?: string,"resolved_at"?: string | null,"resolved_outcome_id"?: string | null,"slug": string,"status"?: string,"subcategory": string,"title": string,"total_volume"?: number,"updated_at"?: string,"volume_change_24h"?: number
                   }
@@ -137,6 +143,7 @@ isOneToOne: false
                   Row: {
                     "amount": number,"avg_price": number,"created_at": string,"id": string,"idempotency_key": string,"market_id": string,"outcome_id": string,"shares": number,"side": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount": number,"avg_price": number,"created_at"?: string,"id"?: string,"idempotency_key": string,"market_id": string,"outcome_id": string,"shares": number,"side"?: string,"user_id": string
                   }
@@ -168,6 +175,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"id": string,"label": string,"legacy_key": string | null,"market_id": string,"price": number,"shares_outstanding": number,"sort_order": number,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"id"?: string,"label": string,"legacy_key"?: string | null,"market_id": string,"price": number,"shares_outstanding"?: number,"sort_order"?: number,"updated_at"?: string
                   }
@@ -187,6 +195,7 @@ isOneToOne: false
                   Row: {
                     "avg_price": number,"created_at": string,"id": string,"market_id": string,"outcome_id": string,"realized_pnl": number,"resolved": boolean,"shares": number,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "avg_price"?: number,"created_at"?: string,"id"?: string,"market_id": string,"outcome_id": string,"realized_pnl"?: number,"resolved"?: boolean,"shares"?: number,"updated_at"?: string,"user_id": string
                   }
@@ -218,6 +227,7 @@ isOneToOne: false
                   Row: {
                     "at": string,"id": string,"market_id": string,"outcome_id": string,"price": number,"volume": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "at"?: string,"id"?: string,"market_id": string,"outcome_id": string,"price": number,"volume"?: number
                   }
@@ -243,6 +253,7 @@ isOneToOne: false
                   Row: {
                     "age_confirmed_at": string | null,"created_at": string,"display_name": string | null,"handle": string,"id": string,"language": string,"role": string,"status": string,"terms_version": string | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "age_confirmed_at"?: string | null,"created_at"?: string,"display_name"?: string | null,"handle": string,"id": string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
                   }
@@ -256,6 +267,7 @@ isOneToOne: false
                   Row: {
                     "balance": number,"created_at": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "balance"?: number,"created_at"?: string,"updated_at"?: string,"user_id": string
                   }
@@ -277,7 +289,12 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "confirm_age":
+{ Args: { "p_terms_version": string }; Returns: string
+                           },
+"unique_handle":
+{ Args: { "p_email": string }; Returns: string
+                           }
           }
           Enums: {
             [_ in never]: never

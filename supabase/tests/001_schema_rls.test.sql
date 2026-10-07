@@ -9,14 +9,15 @@ select plan(31);
 
 -- ---------------------------------------------------------------- fixtures
 -- Two users (A, B), a draft market and an open market with two outcomes.
+-- Since Phase 2 the on_auth_user_created trigger makes the profile and wallet;
+-- the signup credit is zeroed here so these tests control the balances.
+-- (002_auth_profiles.test.sql covers the trigger itself.)
+update app_settings set value = '0'::jsonb where key = 'signup_credit';
 insert into auth.users (id, email, aud, role)
 values ('00000000-0000-0000-0000-00000000000a', 'a@test.local', 'authenticated', 'authenticated'),
        ('00000000-0000-0000-0000-00000000000b', 'b@test.local', 'authenticated', 'authenticated');
-insert into profiles (id, handle) values
-  ('00000000-0000-0000-0000-00000000000a', 'user-a'),
-  ('00000000-0000-0000-0000-00000000000b', 'user-b');
-insert into wallets (user_id) values
-  ('00000000-0000-0000-0000-00000000000a'), ('00000000-0000-0000-0000-00000000000b');
+update profiles set handle = 'user-a' where id = '00000000-0000-0000-0000-00000000000a';
+update profiles set handle = 'user-b' where id = '00000000-0000-0000-0000-00000000000b';
 insert into markets (id, slug, title, category, subcategory, end_date, status) values
   ('10000000-0000-0000-0000-000000000001', 'open-mkt', 'An open market', 'cricket', 'IPL', now() + interval '7 days', 'open'),
   ('10000000-0000-0000-0000-000000000002', 'draft-mkt', 'A draft market', 'cricket', 'IPL', now() + interval '7 days', 'draft');

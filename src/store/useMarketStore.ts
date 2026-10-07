@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { MARKETS } from "@/data/markets";
 import type { Market } from "@/lib/types";
 import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
+import { AUTH_MODE } from "@/lib/supabase/config";
 
 /**
  * Toasts store i18n coordinates rather than resolved strings: the store has no
@@ -27,6 +28,8 @@ export interface Session {
   method: "email" | "google";
   /** Display handle: the account's email address */
   handle: string;
+  /** Supabase user id (Supabase mode only). */
+  userId?: string;
   initial: string;
   /**
    * ISO timestamp of the self-declared 18+ confirmation (Phase D). Sessions
@@ -146,6 +149,12 @@ interface MarketState {
   tick: () => void;
   signIn: (session: Session) => void;
   signOut: () => void;
+  /**
+   * Supabase mode: take over a server-verified session (AuthSync). Unlike the
+   * demo signIn, nothing is written to localStorage; the auth cookie is the
+   * source of truth. `announce` shows the welcome toast (fresh sign-ins only).
+   */
+  adoptSession: (session: Session, opts?: { announce?: boolean }) => void;
   setAuthOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
   openTrade: (market: Market, outcomeId: string) => void;
@@ -245,6 +254,20 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       bodyKey: session.method === "email" ? "signedInEmail" : "signedInGoogle",
       tone: "success",
     });
+  },
+
+  adoptSession: (session, opts) => {
+    const stored = readPositions(session.handle);
+    const positions = stored ?? [];
+    set({ session, authOpen: false, positions });
+    if (opts?.announce) {
+      get().pushToast({
+        titleKey: "welcome",
+        vars: { handle: session.handle },
+        bodyKey: session.method === "email" ? "signedInEmail" : "signedInGoogle",
+        tone: "success",
+      });
+    }
   },
 
   signOut: () => {
@@ -375,8 +398,9 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
 
-/** Restores a persisted demo session on first client render. */
+/** Restores a persisted demo session on first client render (demo mode only). */
 export function restoreSession() {
+  if (AUTH_MODE !== "demo") return;
   try {
     const raw = window.localStorage.getItem("bp-session");
     if (!raw) return;

@@ -249,7 +249,7 @@ route handlers, zod, Vercel. Virtual play credits only.
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Schema, RLS, seed | **Done** |
-| 2 | Real authentication | Not started |
+| 2 | Real authentication | **Done** (D-020) |
 | 3 | Read path from the database | Not started |
 | 4 | Trading engine + wallet | Not started |
 | 5 | Portfolio from the database | Not started |
@@ -496,9 +496,40 @@ are market data and stay English until the backend serves translations.
   page removed. 18+ checkbox and `ageConfirmedAt` unchanged; stored phone sessions are
   discarded. Supabase email-OTP template, SMTP, CAPTCHA and rate limits documented in D-019
   for backend Phase 2.
-- **Admin + resolution work order (R1–R7): blocked.** Its precondition (real auth, markets
-  from the DB, `place_order`, portfolio from the DB) is not met: backend Phases 2–5 above
-  are not started. See the questions in the session report.
+- **Admin + resolution work order (R1–R7):** after backend Phases 2–5 (owner decision).
+  Owner values: signup_credit 10,000; max_trade 1,00,000; admin credit cap per action
+  10,000; default_liquidity_b 20,000; single admin may self-approve (audited as
+  "self-approved"), dispute window 24 h, typed-slug confirmation and MFA kept.
 
 **Results:** typecheck, lint, check:tokens, validate:translations clean; Playwright 556/556.
+
+## Backend Phase 2 — real authentication (detail)
+
+- Dependencies (owner-approved): `@supabase/ssr` 0.12.7, `zod` 4.6.5, `server-only`
+  0.0.1, `supabase` CLI 2.120.0 (dev). `@supabase/supabase-js` was already present.
+- Migration `20261007000100_auth_profiles.sql`: `handle_new_user` trigger (profile,
+  wallet, signup credit, audit), `unique_handle`, `confirm_age`. Rollback in the header.
+  `src/types/database.ts` regenerated.
+- App: `src/lib/supabase/{config,client,server}.ts`, `src/middleware.ts`,
+  `src/app/auth/callback/route.ts`, `src/services/auth/{client,session}.ts`,
+  `src/components/{AuthSync,Turnstile}.tsx`, `AuthModal` real mode (send/verify with
+  errors for rate limits, wrong/expired codes and CAPTCHA, 60 s resend timer, Google
+  button), `src/lib/legal.ts`. New strings in all six locales.
+- Supabase config: email templates with `{{ .Token }}`, Turnstile and Resend blocks
+  (documented, off locally), callback redirect URLs, generous local rate limits.
+- `.alloy/populate-env.sh`; `scripts/db-seed.ts` refuses a non-local database unless
+  `--remote`; `verify-build.sh` checks no service-role name in browser bundles; CI job
+  `supabase` (pgTAP + real-auth e2e on `supabase start`).
+- **Bug found:** `??` fallback treated an empty `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+  as set, silently forcing demo mode; now `||`.
+
+**Results:** typecheck, lint, check:tokens, check:secrets, validate:translations clean;
+normal build + verify-build pass; pgTAP 57/57 (31 + 26); demo e2e 555/556 then the one
+failure (search shortcut, timing) passed 6/6 on re-run; real-auth e2e 16/16 (desktop +
+mobile) against the local stack.
+
+**Not verifiable here:** Google OAuth end-to-end (needs the owner's OAuth client; the
+redirect to Supabase's authorize endpoint with PKCE is tested), Turnstile with a real site
+key, Resend delivery, and the new CI job (written against `supabase start`, which cannot
+run in this sandbox).
 

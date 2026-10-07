@@ -157,11 +157,17 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://localhost:3000"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# /auth/callback finishes Google sign-in (PKCE code exchange). :3100 is the e2e build.
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "http://127.0.0.1:3000/auth/callback",
+  "http://localhost:3100/auth/callback",
+  "http://localhost:3200/auth/callback",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -196,8 +202,11 @@ password_requirements = ""
 # rp_origins = ["http://127.0.0.1:3000"]
 
 [auth.rate_limit]
+# LOCAL values: generous so the real-auth e2e suite (npm run test:e2e:auth) is
+# never throttled. Production limits are set in the hosted project's Auth >
+# Rate Limits (see docs/DECISIONS.md D-019 for the recommended values).
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+email_sent = 100
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -212,10 +221,13 @@ token_verifications = 30
 web3 = 30
 
 # Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
+# BharatPredict uses Cloudflare Turnstile (D-019). Off locally; on in hosted
+# projects (Auth > Bot and Abuse Protection) with NEXT_PUBLIC_TURNSTILE_SITE_KEY
+# set for the widget. To try it locally, uncomment and export the secret:
 # [auth.captcha]
 # enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# provider = "turnstile"
+# secret = "env(SUPABASE_AUTH_CAPTCHA_SECRET)"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -234,15 +246,28 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
+# Production email goes through Resend SMTP (D-019), configured in the hosted
+# project (Auth > Emails > SMTP Settings). Locally the codes land in the
+# built-in mail catcher (local_smtp above). Equivalent local block:
 # [auth.email.smtp]
 # enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+# admin_email = "no-reply@<your verified domain>"
+# sender_name = "BharatPredict"
+
+# The 6-digit sign-in code. Email OTP shares the Magic Link implementation;
+# {{ .Token }} in the template is what puts the code in the email. New users get
+# the "confirmation" template instead when confirmations are on, so both carry it.
+[auth.email.template.magic_link]
+subject = "Your BharatPredict sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Your BharatPredict sign-in code"
+content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

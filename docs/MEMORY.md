@@ -155,15 +155,22 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   server or SECURITY DEFINER functions.
 - **`legacy_id` / `legacy_key`** map DB rows to the old static ids (`mkt_001`, `yes`).
   Only the seed uses `src/data/markets.ts` going forward (Phase 3 removes runtime use).
-- **Sandbox stand-in for `supabase start`:** `supabase start` fails here ("unable to
-  derive the IP value for host-gateway") because the sandbox Docker daemon runs with
-  `--bridge=none` and cannot be restarted. Instead, containers run with `--network host`:
-  `bp-pg` (supabase/postgres 17, port 54322), `bp-rest` (PostgREST, 54330), `bp-kong`
-  (Kong, 54321 → `/rest/v1/`). `.scratch/db-apply.sh` = `db reset`. Local JWTs in
-  `.scratch/localstack/keys.json`; `.env.local` points at them. GoTrue and Realtime are
-  not running yet (Phase 2/3). On a normal machine just use `supabase start`.
-- **Supabase CLI** is a downloaded binary in `.scratch/` here, not a project dependency
-  (awaiting approval to add `supabase` as a devDependency).
+- **Sandbox stand-in for `supabase start`:** it fails here ("unable to derive the IP
+  value for host-gateway"; the Docker daemon runs `--bridge=none`). Instead
+  `.scratch/localstack/up.sh` runs the CLI's own pinned images on `--network host`:
+  Postgres 54322, Kong 54321 (`/rest/v1`, `/auth/v1`, with the CORS plugin — without it
+  the browser's preflight succeeds and the POST never happens), GoTrue 54329, PostgREST
+  54330, Mailpit 54324 (API) / 54325 (SMTP), template server 54331. Then
+  `.scratch/db-apply.sh` (= `db reset`) and `.scratch/pgtap.sh` (= `supabase test db`).
+  Keys in `.scratch/localstack/keys.json`; `.env.local` points at them. GoTrue needs
+  `GOTRUE_MAILER_AUTOCONFIRM=true` (else new users get the confirmation template) and
+  `GOTRUE_SMTP_MAX_FREQUENCY=1s` (else a second code within 60 s is refused, like prod).
+- **Real auth** is opt-in: `NEXT_PUBLIC_AUTH_MODE=supabase` (D-020). The dev server and
+  the main e2e suite run in demo mode. `npm run test:e2e:auth` builds a Supabase-mode app
+  on :3200 into `.next-auth` and needs the local stack up.
+- **Supabase CLI** is a devDependency (`npx supabase …`); the real binary is
+  `node_modules/@supabase/cli-linux-x64/bin/supabase`. `npm run db:types:url` regenerates
+  types from `$SUPABASE_DB_URL` (works in the sandbox).
 
 ## Design system (work order 4)
 

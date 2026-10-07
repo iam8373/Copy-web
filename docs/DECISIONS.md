@@ -2,10 +2,59 @@
 
 Architecture and product decisions, newest first.
 
+## D-020 — Backend Phase 2: how real authentication is wired
+
+**Date:** Backend Phase 2
+**Status:** Accepted
+
+- **Opt-in mode.** `NEXT_PUBLIC_AUTH_MODE=supabase` plus a URL and publishable (or legacy
+  anon) key turns on real sign-in; anything else runs the in-browser demo, so the app
+  builds and runs with no secrets and CI's main suite stays offline. Placeholder values
+  count as unset. `.alloy/populate-env.sh` copies secrets from the sandbox environment
+  into `.env.local` and switches the mode on only when a hosted URL and key are present.
+- **Sessions are cookies** (`@supabase/ssr`). `src/middleware.ts` calls
+  `auth.getClaims()` on every request to validate and refresh the token and forwards the
+  cookies plus the no-store cache headers (per the current Next.js guide; Next 14 still
+  uses `middleware.ts`). Server code must verify identity with `getClaims()`, never
+  `getSession()`. `src/lib/supabase/server.ts` is `server-only`.
+- **Sign-up is one transaction in the database.** An `after insert on auth.users`
+  trigger (`handle_new_user`, SECURITY DEFINER, `search_path` pinned, not executable by
+  any client role) creates the profile (unique handle from the email), an empty wallet
+  and the one-time `signup_credit` ledger entry (amount from `app_settings`, 10,000), and
+  audits it. The DB still allows only one signup credit per user.
+- **18+ consent** is recorded by `confirm_age(terms_version)` (SECURITY DEFINER, identity
+  from `auth.uid()` only, refuses suspended accounts, audited every time). Email OTP
+  calls it right after `verifyOtp`; Google sets a session flag before the redirect and
+  `AuthSync` records it when the session appears. `TERMS_VERSION` lives in
+  `src/lib/legal.ts`. Trading will check `age_confirmed_at` server-side in Phase 4.
+- **Google** uses PKCE: `/auth/callback` exchanges the code; `next` must be a same-site
+  path (no open redirect); failures land on `/?auth_error=1` with a toast.
+- **UI holds no auth logic**: `AuthModal` calls `src/services/auth/client.ts`;
+  `AuthSync` mirrors the verified session (and the user's own profile, via RLS) into the
+  existing store, so every existing screen keeps working. Suspended users are signed out
+  with a message.
+- **Turnstile** is the plain script with explicit rendering (no package), shown only when
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set; its token goes to Supabase as `captchaToken`
+  and Supabase verifies it with the secret configured in the project.
+- **Emails:** `supabase/templates/magic_link.html` and `confirmation.html` show only
+  `{{ .Token }}` (no sign-in link). Wired in `config.toml` for `supabase start`; paste
+  into the hosted project's templates.
+- **Hosted project checklist** (owner, in the Supabase dashboard): Site URL and redirect
+  URL `https://<domain>/auth/callback`; Email provider on, OTP length 6, expiry 3600 s;
+  both templates; SMTP = Resend (`smtp.resend.com`, port 465, user `resend`, password =
+  Resend API key, verified sender domain); Turnstile on with its secret; Google provider
+  with the OAuth client (authorised redirect = the project's `/auth/v1/callback`); rate
+  limits: keep the defaults (60 s between codes per address, 30 sign-in and 30
+  verification requests per 5 min per IP) and set the hourly email cap to what the
+  Resend plan allows.
+- **Tests:** pgTAP `002_auth_profiles.test.sql` (26 checks); `tests/e2e-auth/` runs the
+  real flow against a local Supabase and reads the code from the mail catcher
+  (`npm run test:e2e:auth`); CI runs both against `supabase start`.
+
 ## D-019 — Sign-in is email OTP + Google only; no phone, no KYC
 
 **Date:** Owner decision, before the admin/resolution work order
-**Status:** Accepted (UI done in the demo; Supabase wiring is backend Phase 2)
+**Status:** Accepted — implemented in backend Phase 2 (D-020)
 
 - **Methods:** a 6-digit code sent by email, or Google. Phone/SMS OTP is removed
   completely (AuthModal tab, its strings in all six locales, its tests, the SMS/DLT

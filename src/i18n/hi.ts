@@ -112,6 +112,17 @@ export const hi: Dictionary = {
     demoNote: "केवल डेमो प्रमाणीकरण — कोई ईमेल असल में नहीं भेजा जाता और कोई जानकारी आपके ब्राउज़र से बाहर नहीं जाती।",
     errorEmail: "सही ईमेल पता डालें।",
     errorCode: "6 अंकों का कोड डालें। इस डेमो में कोई भी 6 अंक चलेंगे।",
+    continueGoogle: "Google से जारी रखें",
+    googleHint: "Google से साइन इन करने के बाद आप यहीं लौट आएँगे।",
+    codeHint: "हम आपको 6 अंकों का कोड ईमेल करेंगे। पासवर्ड की ज़रूरत नहीं।",
+    resendCode: "नया कोड भेजें",
+    resendIn: "{seconds} सेकंड में नया कोड",
+    errorRateLimit: "बहुत ज़्यादा प्रयास। एक मिनट रुककर फिर कोशिश करें।",
+    errorSendFailed: "कोड नहीं भेजा जा सका। फिर कोशिश करें।",
+    errorCodeInvalid: "यह कोड गलत है या उसकी अवधि खत्म हो गई है। सबसे नया ईमेल देखें या नया कोड भेजें।",
+    errorCaptcha: "कृपया सुरक्षा जाँच पूरी करें।",
+    errorGoogle: "Google साइन-इन शुरू नहीं हो सका। फिर कोशिश करें।",
+    realNote: "कोड एक बार ही चलता है और 1 घंटे में खत्म हो जाता है। इसे किसी से साझा न करें।",
   },
 
   dashboard: {
@@ -170,6 +181,10 @@ export const hi: Dictionary = {
     invalidAmountBody: "राशि {min} और {max} के बीच होनी चाहिए।",
     signedInEmail: "ईमेल कोड से साइन इन किया गया।",
     signInToOrderBody: "अपना ईमेल या Google खाता इस्तेमाल करें।",
+    authFailed: "साइन-इन पूरा नहीं हुआ",
+    authFailedBody: "कृपया फिर कोशिश करें।",
+    accountSuspended: "खाता निलंबित",
+    accountSuspendedBody: "कृपया शिकायत पेज के ज़रिए हमसे संपर्क करें।",
   },
 
   bottomNav: {

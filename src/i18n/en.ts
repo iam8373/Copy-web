@@ -116,6 +116,17 @@ export const en = {
     demoNote: "Demo authentication only — no email is actually sent and no credentials leave your browser.",
     errorEmail: "Enter a valid email address.",
     errorCode: "Enter the 6-digit code. Any 6 digits work in this demo.",
+    continueGoogle: "Continue with Google",
+    googleHint: "You'll come back here after signing in with Google.",
+    codeHint: "We'll email you a 6-digit code. No password needed.",
+    resendCode: "Send a new code",
+    resendIn: "New code in {seconds}s",
+    errorRateLimit: "Too many attempts. Please wait a minute and try again.",
+    errorSendFailed: "We couldn't send the code. Please try again.",
+    errorCodeInvalid: "That code is wrong or has expired. Use the latest email or send a new code.",
+    errorCaptcha: "Please complete the security check.",
+    errorGoogle: "Google sign-in couldn't start. Please try again.",
+    realNote: "Codes work once and expire after 1 hour. Never share yours.",
   },
 
   dashboard: {
@@ -173,6 +184,10 @@ export const en = {
     invalidAmountBody: "Amount must be between {min} and {max}.",
     signedInEmail: "Signed in with an email code.",
     signInToOrderBody: "Use your email or Google account.",
+    authFailed: "Sign-in didn't complete",
+    authFailedBody: "Please try again.",
+    accountSuspended: "Account suspended",
+    accountSuspendedBody: "Please contact us through the grievance page.",
   },
 
   bottomNav: {

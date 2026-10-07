@@ -1,0 +1,25 @@
+<!--
+  Supabase Auth "Magic Link" template, used for the 6-digit email sign-in code
+  (docs/DECISIONS.md D-019). Email OTP shares the Magic Link implementation;
+  including {{ .Token }} is what makes the email carry the code. There is
+  deliberately no sign-in link: users type the code into the app.
+  Local: served to GoTrue by .scratch/localstack (sandbox) or config.toml
+  (supabase start). Hosted: paste into Auth > Email Templates > Magic Link.
+-->
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6f7f9;font-family:Arial,Helvetica,sans-serif;color:#0a0b0d;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid #dfe2e8;border-radius:12px;">
+      <tr>
+        <td style="padding:24px;">
+          <p style="margin:0 0 4px;font-size:14px;font-weight:bold;color:#5228ff;">BharatPredict</p>
+          <h1 style="margin:0 0 16px;font-size:20px;">Your sign-in code</h1>
+          <p style="margin:0 0 16px;font-size:14px;line-height:20px;">Enter this code in the app to sign in:</p>
+          <p style="margin:0 0 16px;font-size:32px;line-height:40px;font-weight:bold;letter-spacing:8px;font-family:'Courier New',monospace;" data-otp>{{ .Token }}</p>
+          <p style="margin:0 0 8px;font-size:13px;line-height:18px;color:#5d636e;">The code expires in 1 hour and works once. If you did not ask for it, you can ignore this email.</p>
+          <p style="margin:0;font-size:12px;line-height:16px;color:#5d636e;">BharatPredict uses virtual play credits only. Never share this code.</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

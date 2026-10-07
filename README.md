@@ -52,6 +52,22 @@ npm run check:tokens           # fail on hard-coded hex colours / px outside the
 npm run translate:markets -- --dry-run   # list markets needing translation (0 API calls)
 ```
 
+### Real sign-in (Supabase)
+
+The app runs a self-contained demo by default. For real sign-in (6-digit email code +
+Google, D-019/D-020):
+
+```bash
+npx supabase start                  # local Postgres, Auth and a mail catcher
+# put the printed API URL and publishable/anon key in .env.local, then:
+NEXT_PUBLIC_AUTH_MODE=supabase npm run dev
+npm run test:e2e:auth               # real email-code flow against the local stack
+```
+
+Codes sent locally appear in the mail catcher (http://127.0.0.1:54324). The hosted
+project's setup (templates, Resend SMTP, Turnstile, Google, rate limits) is listed in
+`docs/DECISIONS.md` (D-020).
+
 ### Design system
 
 Read [`docs/DESIGN.md`](docs/DESIGN.md) before UI work. In short:

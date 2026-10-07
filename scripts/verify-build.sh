@@ -23,6 +23,11 @@ hits=$(search 'api\.openai\.com|OPENAI_API_KEY|generativelanguage\.googleapis\.c
 if [ -n "$hits" ]; then echo "✗ AI provider (OpenAI/Gemini) references in the build:"; echo "$hits" | sed 's/^/    /'; fail=1
 else echo "✓ no OpenAI or Gemini references"; fi
 
+# 2b. The Supabase service-role key never reaches the browser (backend Phase 2).
+hits=$(grep -rlE 'SUPABASE_SERVICE_ROLE_KEY|service_role' "$dist/static" 2>/dev/null || true)
+if [ -n "$hits" ]; then echo "✗ service-role references in browser bundles:"; echo "$hits" | sed 's/^/    /'; fail=1
+else echo "✓ no service-role key or name in browser bundles"; fi
+
 # 3. No Google Fonts in app output (Phase 2, D-010). Next's framework chunks
 #    carry an inert GOOGLE_FONT_PROVIDER constant, so only app output is checked.
 app_out=$(grep -rlE 'fonts\.(googleapis|gstatic)\.com' "$dist/server/app" "$dist/static/css" 2>/dev/null || true)

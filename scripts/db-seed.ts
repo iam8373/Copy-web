@@ -34,6 +34,13 @@ async function main() {
     console.error("error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set (see .env.example).");
     process.exit(1);
   }
+  // Safety: .env.local may hold a hosted project's keys (populate-env.sh).
+  // Seeding a hosted database must be a deliberate choice.
+  const local = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/.test(url);
+  if (!local && !process.argv.includes("--remote")) {
+    console.error("error: NEXT_PUBLIC_SUPABASE_URL is not a local database. Re-run with `npm run db:seed -- --remote` to seed it on purpose.");
+    process.exit(1);
+  }
   const db = createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
   const { data: setting } = await db.from("app_settings").select("value").eq("key", "default_liquidity_b").maybeSingle();

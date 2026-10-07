@@ -14,6 +14,7 @@ import { TradeModal } from "@/components/TradeModal";
 import { Toaster } from "@/components/Toaster";
 import { TradeSuccess } from "@/components/TradeSuccess";
 import { LiveTicker } from "@/components/LiveTicker";
+import { AuthSync } from "@/components/AuthSync";
 
 export const metadata: Metadata = {
   // noindex/nofollow on every page unless ALLOW_INDEXING === "true". Covers
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
         <ThemeProvider>
           <LiveTicker />
+          <AuthSync />
           <Header />
           <CategoryNav />
           <main className="mx-auto max-w-content px-gutter pb-24 pt-4 sm:pb-12 sm:pt-6">

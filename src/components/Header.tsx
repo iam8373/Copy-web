@@ -9,6 +9,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Button, FOCUS_RING, IconButton } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { signOutEverywhere } from "@/services/auth/session";
 
 const MENU_ITEM =
   "flex min-h-touch w-full items-center gap-2 rounded-btn px-3 text-13 font-medium transition-colors duration-xs hover:bg-surface-3 " +
@@ -19,7 +20,6 @@ export function Header() {
   const setSearchOpen = useMarketStore((s) => s.setSearchOpen);
   const setAuthOpen = useMarketStore((s) => s.setAuthOpen);
   const session = useMarketStore((s) => s.session);
-  const signOut = useMarketStore((s) => s.signOut);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const { t } = useT();
@@ -103,7 +103,7 @@ export function Header() {
                       type="button"
                       onClick={() => {
                         setMenuOpen(false);
-                        signOut();
+                        void signOutEverywhere();
                       }}
                       className={cn(MENU_ITEM, "text-danger")}
                     >

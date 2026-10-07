@@ -1,12 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, Mail, ShieldCheck } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { Button, Dialog, FOCUS_RING, Segmented } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { AUTH_MODE, TURNSTILE_SITE_KEY } from "@/lib/supabase/config";
+import { sendEmailCode, startGoogleSignIn, verifyEmailCode } from "@/services/auth/client";
+import { Turnstile, type TurnstileHandle } from "@/components/Turnstile";
+
+const REAL = AUTH_MODE === "supabase";
+/** Supabase allows one code request per 60 s per address by default. */
+const RESEND_SECONDS = 60;
 
 type Tab = "email" | "google";
 
@@ -20,10 +27,13 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
  * Sign-in: a 6-digit code sent by email, or Google. No phone/SMS route
- * (docs/DECISIONS.md D-019). DEMO: no email is sent and any 6 digits verify;
- * Supabase Auth (email OTP + Google OAuth) replaces the store call in backend
- * Phase 2. The self-declared 18+ box gates both routes and is recorded as
- * `ageConfirmedAt` on the session.
+ * (docs/DECISIONS.md D-019). The self-declared 18+ box gates both routes.
+ *
+ * - Supabase mode (NEXT_PUBLIC_AUTH_MODE=supabase): real email OTP with an
+ *   optional Cloudflare Turnstile check, and Google OAuth. The consent is
+ *   recorded server-side by confirm_age(); AuthSync adopts the session.
+ * - Demo mode: nothing leaves the browser and any 6 digits verify; the store
+ *   records `ageConfirmedAt` on the local session.
  */
 export function AuthModal() {
   const open = useMarketStore((s) => s.authOpen);
@@ -36,7 +46,18 @@ export function AuthModal() {
   const [stage, setStage] = useState<"email" | "code">("email");
   const [ageOk, setAgeOk] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+  const turnstile = useRef<TurnstileHandle>(null);
   const { t } = useT();
+  const needsCaptcha = REAL && TURNSTILE_SITE_KEY !== "";
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
 
   // Reset on CLOSE, not on open. Resetting in an effect after opening raced
   // with fast input: ticking the 18+ box before the effect ran got undone,
@@ -49,20 +70,55 @@ export function AuthModal() {
       setStage("email");
       setAgeOk(false);
       setError(null);
+      setBusy(false);
+      setCaptcha(null);
     }
   }, [open]);
 
   const address = email.trim().toLowerCase();
 
-  const sendCode = () => {
+  const sendCode = async () => {
     if (!ageOk) return setError(t("auth", "errorAge"));
     if (!EMAIL.test(address)) return setError(t("auth", "errorEmail"));
     setError(null);
-    setStage("code");
+    if (!REAL) {
+      setStage("code");
+      return;
+    }
+    if (needsCaptcha && !captcha) return setError(t("auth", "errorCaptcha"));
+    setBusy(true);
+    const r = await sendEmailCode(address, captcha ?? undefined);
+    setBusy(false);
+    turnstile.current?.reset(); // tokens are single-use
+    if (r.ok) {
+      setStage("code");
+      setCode("");
+      setCooldown(RESEND_SECONDS);
+      return;
+    }
+    setError(
+      t(
+        "auth",
+        r.reason === "rate_limited"
+          ? "errorRateLimit"
+          : r.reason === "captcha"
+            ? "errorCaptcha"
+            : r.reason === "invalid_email"
+              ? "errorEmail"
+              : "errorSendFailed"
+      )
+    );
   };
 
-  const verifyCode = () => {
+  const verifyCode = async () => {
     if (code.replace(/\D/g, "").length !== 6) return setError(t("auth", "errorCode"));
+    if (REAL) {
+      setBusy(true);
+      const r = await verifyEmailCode(address, code);
+      setBusy(false);
+      if (r.ok) return setOpen(false); // AuthSync adopts the new session
+      return setError(t("auth", r.reason === "invalid" ? "errorCodeInvalid" : r.reason === "rate_limited" ? "errorRateLimit" : "errorSendFailed"));
+    }
     signIn({
       method: "email",
       handle: address,
@@ -137,17 +193,22 @@ export function AuthModal() {
                   setEmail(e.target.value);
                   setError(null);
                 }}
-                onKeyDown={(e) => e.key === "Enter" && sendCode()}
+                onKeyDown={(e) => e.key === "Enter" && void sendCode()}
                 className={cn(
                   "h-11 w-full rounded-btn border border-subtle bg-surface-3 px-3 text-16 text-primary placeholder:text-muted focus:border-brand",
                   FOCUS_RING
                 )}
               />
+              {REAL && <p className="text-12 text-secondary">{t("auth", "codeHint")}</p>}
+              {needsCaptcha && (
+                <Turnstile ref={turnstile} siteKey={TURNSTILE_SITE_KEY} onToken={setCaptcha} />
+              )}
               <Button
                 size="lg"
                 fullWidth
-                onClick={sendCode}
-                disabled={!ageOk}
+                onClick={() => void sendCode()}
+                loading={busy}
+                disabled={!ageOk || (needsCaptcha && !captcha)}
                 leadingIcon={<Mail className="h-4 w-4" />}
                 className="mt-1 text-14"
               >
@@ -185,18 +246,67 @@ export function AuthModal() {
                   setCode(e.target.value.replace(/\D/g, "").slice(0, 6));
                   setError(null);
                 }}
-                onKeyDown={(e) => e.key === "Enter" && verifyCode()}
+                onKeyDown={(e) => e.key === "Enter" && void verifyCode()}
                 className={cn(
                   "tnum h-11 w-full rounded-btn border border-subtle bg-surface-3 px-3 text-center text-18 font-bold tracking-[0.4em] text-primary focus:border-brand",
                   FOCUS_RING
                 )}
               />
-              <Button size="lg" fullWidth onClick={verifyCode} leadingIcon={<Check className="h-4 w-4" />} className="mt-1 text-14">
+              <Button
+                size="lg"
+                fullWidth
+                onClick={() => void verifyCode()}
+                loading={busy}
+                leadingIcon={<Check className="h-4 w-4" />}
+                className="mt-1 text-14"
+              >
                 {t("auth", "verify")}
               </Button>
-              <p className="text-center text-11 text-secondary">{t("auth", "demoCodeNote")}</p>
+              {REAL ? (
+                <>
+                  {needsCaptcha && (
+                    <Turnstile ref={turnstile} siteKey={TURNSTILE_SITE_KEY} onToken={setCaptcha} />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    data-testid="resend-code"
+                    disabled={cooldown > 0 || busy || (needsCaptcha && !captcha)}
+                    onClick={() => void sendCode()}
+                    className="self-center text-12"
+                  >
+                    {cooldown > 0 ? t("auth", "resendIn", { seconds: cooldown }) : t("auth", "resendCode")}
+                  </Button>
+                </>
+              ) : (
+                <p className="text-center text-11 text-secondary">{t("auth", "demoCodeNote")}</p>
+              )}
             </div>
           )
+        ) : REAL ? (
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              fullWidth
+              disabled={!ageOk || busy}
+              loading={busy}
+              data-testid="google-signin"
+              onClick={async () => {
+                if (!ageOk) return setError(t("auth", "errorAge"));
+                setBusy(true);
+                const r = await startGoogleSignIn(`${window.location.pathname}${window.location.search}`);
+                if (r && !r.ok) {
+                  setBusy(false);
+                  setError(t("auth", "errorGoogle"));
+                }
+              }}
+              className="text-14"
+            >
+              {t("auth", "continueGoogle")}
+            </Button>
+            <p className="text-12 text-secondary">{t("auth", "googleHint")}</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-2">
             <p className="text-12 text-secondary">{t("auth", "chooseGoogle")}</p>
@@ -236,7 +346,7 @@ export function AuthModal() {
 
         <p className="flex items-start gap-2 text-11 text-secondary">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" aria-hidden />
-          {t("auth", "demoNote")}
+          {t("auth", REAL ? "realNote" : "demoNote")}
         </p>
       </div>
     </Dialog>
