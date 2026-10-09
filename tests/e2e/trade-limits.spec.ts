@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/trade-limits";
 import { useMarketStore } from "../../src/store/useMarketStore";
 import { MARKETS } from "../../src/data/markets";
-import { resetState, signInWithGoogle } from "./helpers";
+import { resetState, signInWithEmail } from "./helpers";
 
 // ---------------------------------------------------------------- pure logic
 test.describe("validateAmount", () => {
@@ -91,7 +91,7 @@ async function openQuickTrade(page: Page) {
 test.describe("trade modal amount field", () => {
   test.beforeEach(async ({ page }) => {
     await resetState(page);
-    await signInWithGoogle(page);
+    await signInWithEmail(page);
     await openQuickTrade(page);
   });
 

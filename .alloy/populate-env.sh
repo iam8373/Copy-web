@@ -10,8 +10,8 @@
 #   placeholder, or points at the sandbox's local Supabase stand-in
 #   (127.0.0.1:54321), so hosted keys from the secrets screen take over from
 #   local-dev defaults but never from something you typed yourself.
-# - Real Supabase mode is switched on only when the URL and the publishable
-#   key are both present, unless NEXT_PUBLIC_AUTH_MODE is set explicitly.
+# - AUTH_COOKIE_SECRET is generated once if missing; EMAIL_OTP_ENABLED
+#   defaults to false (no custom SMTP yet).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 FILE=.env.local
@@ -42,8 +42,8 @@ changed=()
 local_url=false
 case "$(current NEXT_PUBLIC_SUPABASE_URL)" in http://127.0.0.1:54321*|http://localhost:54321*) local_url=true ;; esac
 
-for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY NEXT_PUBLIC_SUPABASE_ANON_KEY \
-            SUPABASE_SERVICE_ROLE_KEY NEXT_PUBLIC_TURNSTILE_SITE_KEY NEXT_PUBLIC_SITE_URL \
+for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY SUPABASE_SECRET_KEY \
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY NEXT_PUBLIC_SITE_URL EMAIL_OTP_ENABLED \
             GEMINI_API_KEY GEMINI_MODEL; do
   value="${!name:-}"
   [ -n "$value" ] || continue
@@ -53,14 +53,10 @@ for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY NEXT_P
   fi
 done
 
-url="$(current NEXT_PUBLIC_SUPABASE_URL)"
-key="$(current NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)"; [ -n "$key" ] || key="$(current NEXT_PUBLIC_SUPABASE_ANON_KEY)"
-if [ -n "${NEXT_PUBLIC_AUTH_MODE:-}" ]; then
-  [ "$(current NEXT_PUBLIC_AUTH_MODE)" = "$NEXT_PUBLIC_AUTH_MODE" ] || { put NEXT_PUBLIC_AUTH_MODE "$NEXT_PUBLIC_AUTH_MODE"; changed+=(NEXT_PUBLIC_AUTH_MODE); }
-elif [ -z "$(current NEXT_PUBLIC_AUTH_MODE)" ]; then
-  case "$url" in
-    https://*) if [ -n "$key" ]; then put NEXT_PUBLIC_AUTH_MODE supabase; changed+=(NEXT_PUBLIC_AUTH_MODE); fi ;;
-  esac
+# A signing key for the 18+ consent cookie, generated once (shell-safe hex).
+if [ -z "$(current AUTH_COOKIE_SECRET)" ]; then
+  put AUTH_COOKIE_SECRET "$(openssl rand -hex 32)"; changed+=(AUTH_COOKIE_SECRET)
 fi
+[ -n "$(current EMAIL_OTP_ENABLED)" ] || { put EMAIL_OTP_ENABLED false; changed+=(EMAIL_OTP_ENABLED); }
 
 if [ ${#changed[@]} -eq 0 ]; then echo "populate-env: .env.local unchanged"; else echo "populate-env: updated ${changed[*]}"; fi

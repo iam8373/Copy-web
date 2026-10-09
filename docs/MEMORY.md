@@ -165,9 +165,18 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   Keys in `.scratch/localstack/keys.json`; `.env.local` points at them. GoTrue needs
   `GOTRUE_MAILER_AUTOCONFIRM=true` (else new users get the confirmation template) and
   `GOTRUE_SMTP_MAX_FREQUENCY=1s` (else a second code within 60 s is refused, like prod).
-- **Real auth** is opt-in: `NEXT_PUBLIC_AUTH_MODE=supabase` (D-020). The dev server and
-  the main e2e suite run in demo mode. `npm run test:e2e:auth` builds a Supabase-mode app
-  on :3200 into `.next-auth` and needs the local stack up.
+- **Auth is always real Supabase (D-021).** Tests never touch the hosted project: both
+  Playwright configs build with `testAppEnv()` from `tests/support/local-supabase.ts`,
+  which overrides every hosted value from `.env.local` with the local stand-in
+  (`E2E_SUPABASE_*`). Bring the stand-in up first (`.scratch/localstack/up.sh`,
+  `.scratch/db-apply.sh`). Images can disappear after a sandbox restart; re-pull with
+  retries (ECR rate-limits). Sign in in tests with `signInWithEmail(page)` (fresh
+  address each call; code read from Mailpit).
+- `.env.local` holds the HOSTED project's keys (publishable, secret, Turnstile site key);
+  the dev preview points at it. Its schema is not applied yet, so signing in there
+  creates an auth user without a profile until the owner runs the migrations.
+- Never call a Server Action on mount to read state (router refresh → broken error
+  boundaries); use a GET route handler.
 - **Supabase CLI** is a devDependency (`npx supabase …`); the real binary is
   `node_modules/@supabase/cli-linux-x64/bin/supabase`. `npm run db:types:url` regenerates
   types from `$SUPABASE_DB_URL` (works in the sandbox).

@@ -9,7 +9,8 @@ import { useT } from "@/i18n/LanguageProvider";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Button, FOCUS_RING, IconButton } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { signOutEverywhere } from "@/services/auth/session";
+import { signOut as signOutAction } from "@/app/actions/auth";
+import { notifyAuthChanged } from "@/components/AuthSync";
 
 const MENU_ITEM =
   "flex min-h-touch w-full items-center gap-2 rounded-btn px-3 text-13 font-medium transition-colors duration-xs hover:bg-surface-3 " +
@@ -103,7 +104,10 @@ export function Header() {
                       type="button"
                       onClick={() => {
                         setMenuOpen(false);
-                        void signOutEverywhere();
+                        void signOutAction().finally(() => {
+                          useMarketStore.getState().signOut();
+                          notifyAuthChanged();
+                        });
                       }}
                       className={cn(MENU_ITEM, "text-danger")}
                     >

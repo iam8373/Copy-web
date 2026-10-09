@@ -263,6 +263,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"rate_limits": {
+                  Row: {
+                    "bucket": string,"hits": number,"key_hash": string,"window_start": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "bucket": string,"hits"?: number,"key_hash": string,"window_start": string
+                  }
+                  Update: {
+                    "bucket"?: string,"hits"?: number,"key_hash"?: string,"window_start"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"wallets": {
                   Row: {
                     "balance": number,"created_at": string,"updated_at": string,"user_id": string
@@ -291,6 +305,9 @@ isOneToOne: true
           Functions: {
             "confirm_age":
 { Args: { "p_terms_version": string }; Returns: string
+                           },
+"hit_rate_limit":
+{ Args: { "p_bucket": string,"p_key_hash": string,"p_limit": number,"p_window_seconds": number }; Returns: boolean
                            },
 "unique_handle":
 { Args: { "p_email": string }; Returns: string

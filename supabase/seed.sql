@@ -9,5 +9,6 @@ insert into public.app_settings (key, value) values
   ('min_trade',       '1'::jsonb),        -- credits; mirrors MIN_TRADE in trade-limits.ts
   ('max_trade',       '100000'::jsonb),   -- credits; mirrors MAX_TRADE in trade-limits.ts
   ('signup_credit',   '10000'::jsonb),    -- one-time grant on first sign-in (Phase 2)
-  ('default_liquidity_b', '1000'::jsonb)  -- LMSR b for new markets (Phase 6 form default)
+  ('default_liquidity_b', '20000'::jsonb), -- LMSR b for new markets (owner decision, D-017)
+  ('admin_credit_cap', '10000'::jsonb)    -- max credits per admin adjustment (R1)
 on conflict (key) do nothing;

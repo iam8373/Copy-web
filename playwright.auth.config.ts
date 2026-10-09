@@ -1,27 +1,16 @@
 import { defineConfig, devices } from "@playwright/test";
-import { readFileSync, existsSync } from "node:fs";
+import { testAppEnv } from "./tests/support/local-supabase";
 
 /**
- * Real Supabase Auth end-to-end tests (backend Phase 2), separate from the
- * main suite, which always runs in demo mode with no network.
- *
- * Needs a local Supabase with the mail catcher:
- *   - normal machine / CI: `supabase start` (API :54321, Mailpit/Inbucket :54324)
- *   - this sandbox: `.scratch/localstack/up.sh`
- * and the local URL + keys in .env.local (or the environment).
+ * The production sign-in configuration: EMAIL_OTP_ENABLED=false (no custom
+ * SMTP yet), so the sheet offers Google only. Built separately from the main
+ * suite, which enables email codes to exercise that path against the local
+ * mail catcher. Uses the LOCAL Supabase stack only.
  *
  *   npm run test:e2e:auth
  */
-function env(name: string): string {
-  if (process.env[name]) return process.env[name]!;
-  if (!existsSync(".env.local")) return "";
-  const m = readFileSync(".env.local", "utf8").match(new RegExp(`^${name}=(.*)$`, "m"));
-  return m ? m[1].replace(/^["']|["']$/g, "").trim() : "";
-}
-
 const PORT = Number(process.env.E2E_AUTH_PORT ?? 3200);
-const URL = env("E2E_SUPABASE_URL") || "http://127.0.0.1:54321";
-const KEY = env("E2E_SUPABASE_ANON_KEY") || env("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+const APP_ENV = testAppEnv({ EMAIL_OTP_ENABLED: "false" });
 
 export default defineConfig({
   testDir: "./tests/e2e-auth",
@@ -38,9 +27,8 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      `NEXT_PUBLIC_AUTH_MODE=supabase NEXT_PUBLIC_SUPABASE_URL=${URL} NEXT_PUBLIC_SUPABASE_ANON_KEY=${KEY} ` +
-      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY= NEXT_PUBLIC_TURNSTILE_SITE_KEY= NEXT_DIST_DIR=.next-auth npx next build && ` +
-      `NEXT_DIST_DIR=.next-auth npx next start -p ${PORT}`,
+      `${APP_ENV} NEXT_DIST_DIR=.next-auth npx next build && ` +
+      `${APP_ENV} NEXT_DIST_DIR=.next-auth npx next start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 300_000,

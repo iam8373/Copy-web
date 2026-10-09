@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { testAppEnv } from "./tests/support/local-supabase";
 
 /**
  * Runs the tests against a production build so the suite exercises the same
@@ -12,6 +13,11 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = Number(process.env.E2E_PORT ?? 3000);
 const BASE_URL = `http://localhost:${PORT}`;
 const DIST = process.env.E2E_PORT ? ".next-e2e" : ".next";
+const APP_ENV = testAppEnv({
+  EMAIL_OTP_ENABLED: "true",
+  AUTH_RATE_LIMIT_PER_IP: "100000",
+  AUTH_RATE_LIMIT_PER_EMAIL: "4",
+});
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -46,7 +52,12 @@ export default defineConfig({
     // NEXT_PUBLIC_E2E_ERROR_TRIGGER=1 bundles the test-only /e2e-error route;
     // a normal `npm run build` compiles it out (see src/app/e2e-error).
     // NEXT_PUBLIC_E2E_UI_GALLERY=1 does the same for /e2e-ui (src/app/e2e-ui).
-    command: `NEXT_PUBLIC_E2E_ERROR_TRIGGER=1 NEXT_PUBLIC_E2E_UI_GALLERY=1 NEXT_DIST_DIR=${DIST} npx next build && NEXT_DIST_DIR=${DIST} npx next start -p ${PORT}`,
+    // Real Supabase Auth against the LOCAL stack (tests/support/local-supabase.ts):
+    // email codes on (read from the local mail catcher), generous per-IP limit,
+    // a low per-email limit so the limiter itself is testable.
+    command:
+      `${APP_ENV} NEXT_PUBLIC_E2E_ERROR_TRIGGER=1 NEXT_PUBLIC_E2E_UI_GALLERY=1 NEXT_DIST_DIR=${DIST} npx next build && ` +
+      `${APP_ENV} NEXT_DIST_DIR=${DIST} npx next start -p ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

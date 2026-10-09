@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { openAuthModal, resetState } from "./helpers";
+import { localRest, localUserId, openAuthModal, resetState, signInWithEmail } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await resetState(page);
@@ -7,64 +7,54 @@ test.beforeEach(async ({ page }) => {
 
 test("cannot sign in without ticking the 18+ box", async ({ page }) => {
   await openAuthModal(page);
-
   const box = page.locator('[data-testid="age-confirm"]');
   await expect(box).toBeVisible();
   await expect(box).not.toBeChecked();
 
   // Both routes are disabled until the box is ticked.
   await expect(page.getByRole("button", { name: /send code/i })).toBeDisabled();
-  await page.getByRole("button", { name: /^Google$/ }).click();
-  await expect(page.locator('[data-testid="google-account"]').first()).toBeDisabled();
-
-  // Still signed out.
+  await page.getByTestId("auth-modal").getByRole("button", { name: /^Google$/ }).click();
+  await expect(page.getByTestId("google-signin")).toBeDisabled();
   await expect(page.getByRole("button", { name: /account menu/i })).toHaveCount(0);
 });
 
 test("ticking the box enables both sign-in routes", async ({ page }) => {
   await openAuthModal(page);
   await page.locator('[data-testid="age-confirm"]').check();
-
   await expect(page.getByRole("button", { name: /send code/i })).toBeEnabled();
-  await page.getByRole("button", { name: /^Google$/ }).click();
-  await expect(page.locator('[data-testid="google-account"]').first()).toBeEnabled();
+  await page.getByTestId("auth-modal").getByRole("button", { name: /^Google$/ }).click();
+  await expect(page.getByTestId("google-signin")).toBeEnabled();
 });
 
-test("age confirmation is recorded on the session", async ({ page }) => {
-  await openAuthModal(page);
-  await page.locator('[data-testid="age-confirm"]').check();
-  await page.getByRole("button", { name: /^Google$/ }).click();
-  await page.locator('[data-testid="google-account"]').first().click();
-  await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
-
-  const session = await page.evaluate(() =>
-    JSON.parse(window.localStorage.getItem("bp-session") ?? "null")
-  );
-  expect(typeof session.ageConfirmedAt).toBe("string");
-  expect(Number.isNaN(Date.parse(session.ageConfirmedAt))).toBe(false);
-});
-
-test("a legacy session without age confirmation must re-confirm before ordering", async ({
-  page,
-}) => {
-  // Simulate a session stored before Phase D existed.
-  await page.evaluate(() => {
-    window.localStorage.setItem(
-      "bp-session",
-      JSON.stringify({ method: "google", handle: "arjun.mehta@gmail.com", initial: "A" })
-    );
-  });
-
+test("a missing consent is asked for again before the first order, and stored on the server", async ({ page }) => {
+  const email = await signInWithEmail(page);
+  const id = await localUserId(email);
+  // e.g. a Google sign-in whose consent cookie expired on the way back.
+  await localRest(`profiles?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ age_confirmed_at: null }) });
   await page.goto("/markets/cricket");
   await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
 
   await page.getByRole("button", { name: /^Trade$/ }).first().click();
   await page.getByRole("button", { name: /place order/i }).click();
 
-  // Order refused, auth modal reopened for re-confirmation.
-  await expect(page.getByText(/confirm your age to continue/i)).toBeVisible();
-  await expect(page.locator('[data-testid="age-confirm"]')).toBeVisible();
-  await expect(page.getByRole("status")).toHaveCount(0);
+  const dialog = page.getByTestId("age-confirm-dialog");
+  await expect(dialog).toBeVisible();
+  await expect(page.getByText(/order placed successfully/i)).toHaveCount(0);
+  const confirm = dialog.getByRole("button", { name: /confirm and continue/i });
+  await expect(confirm).toBeDisabled();
+  await dialog.getByTestId("age-reconfirm").check();
+  await confirm.click();
+  await expect(dialog).toHaveCount(0);
+
+  const [profile] = await localRest<Array<{ age_confirmed_at: string | null }>>(
+    `profiles?id=eq.${id}&select=age_confirmed_at`
+  );
+  expect(profile.age_confirmed_at).not.toBeNull();
+
+  // Now the order goes through.
+  await page.getByRole("button", { name: /^Trade$/ }).first().click();
+  await page.getByRole("button", { name: /place order/i }).click();
+  await expect(page.getByText(/order placed successfully/i)).toBeVisible();
 });
 
 test("legal pages render and old anchors still resolve", async ({ page }) => {
@@ -113,6 +103,6 @@ test("reopening the modal starts unticked, and an immediate tick sticks", async 
   await box.check();
   await page.waitForTimeout(300);
   await expect(box).toBeChecked();
-  await page.getByRole("button", { name: /^Google$/ }).click();
-  await expect(page.locator('[data-testid="google-account"]').first()).toBeEnabled();
+  await page.getByTestId("auth-modal").getByRole("button", { name: /^Google$/ }).click();
+  await expect(page.getByTestId("google-signin")).toBeEnabled();
 });

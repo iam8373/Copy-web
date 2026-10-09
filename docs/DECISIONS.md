@@ -2,10 +2,55 @@
 
 Architecture and product decisions, newest first.
 
+## D-021 — Phase B2: hosted keys, no demo auth, email codes behind a flag
+
+**Date:** Backend Phase B2 (supersedes the opt-in mode of D-020)
+**Status:** Accepted
+
+- **One server key: `SUPABASE_SECRET_KEY` (`sb_secret_…`).** Supabase's current docs
+  recommend the new publishable/secret keys and are deprecating the legacy JWT
+  `anon`/`service_role` keys by the end of 2026; supabase-js 2.117 supports both. The
+  service-role JWT is no longer read anywhere and is not in `.env.example`. The secret
+  key is imported only by `src/lib/server/env.ts` and `src/lib/supabase/admin.ts`, both
+  `server-only`. Browser code uses only `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+  JWT verification uses `getClaims()`, which checks the signature against the
+  project's JWKS (asymmetric keys) or the Auth server.
+- **Demo auth removed.** No `NEXT_PUBLIC_AUTH_MODE`, no demo Google accounts, no
+  `bp-session`; a leftover `bp-session` is deleted on load. Without Supabase
+  configuration the sheet says sign-in is unavailable and the app still runs.
+- **Email codes are off by default (`EMAIL_OTP_ENABLED=false`).** Supabase's built-in
+  sender (checked in the current docs) only delivers to the project's team members and
+  is limited to about 2 messages per hour, with no delivery guarantee. Public email
+  sign-in therefore needs custom SMTP first. With the flag off the sheet shows Google only
+  plus a translated note, and the email Server Actions refuse. The flag is read by the
+  sheet at build time and by the server at request time.
+- **Sign-in runs through Server Actions** (`src/app/actions/auth.ts` → zod →
+  `src/services/auth/server.ts`): email code request/verify, Google start, consent,
+  sign-out. Session cookies are written by the `@supabase/ssr` server client. Reads of
+  "who is signed in" use `GET /api/session` (no-store) instead of an action, because an
+  action on mount re-renders the route and broke error boundaries.
+- **Rate limits (server-side):** `hit_rate_limit()` fixed windows per IP and per email
+  (defaults 20/IP and 5/email per 10 min; env-tunable), keyed by SHA-256 hashes — no raw
+  IPs or emails stored; fails closed. Because the server calls Supabase Auth, Supabase's
+  own per-IP limits see the server's address: raise those per-IP limits in the dashboard
+  and rely on these app limits plus Turnstile and the per-address 60 s resend window.
+- **18+ consent across Google:** a signed (HMAC, `AUTH_COOKIE_SECRET`), httpOnly,
+  10-minute cookie scoped to `/auth/callback`, recorded by `confirm_age()` after the code
+  exchange. Missing consent blocks orders and opens a re-confirmation dialog that calls
+  the server. The DB-level check on orders comes with `place_order` (B4).
+- **Turnstile:** plain script, loaded only when a widget mounts (sheet open, email
+  route); token reset after each attempt; failures and expiry clear the token.
+- **Bundle/secret scans:** tracked files may not contain `sb_secret_…`, any JWT,
+  Turnstile secrets, `AIza…` or `sk-…`; browser bundles may not contain secret-key
+  shapes, secret variable names, `service_role` or a non-anon JWT.
+- **Exposure note:** the owner sent the secret key, the legacy service-role JWT and the
+  Turnstile secret in chat. Supabase's guidance is that secret keys must never travel
+  over chat. Rotate all three (runbook in docs/DEPLOY_RUNBOOK.md).
+
 ## D-020 — Backend Phase 2: how real authentication is wired
 
 **Date:** Backend Phase 2
-**Status:** Accepted
+**Status:** Accepted, partly superseded by D-021 (no demo mode; one secret key)
 
 - **Opt-in mode.** `NEXT_PUBLIC_AUTH_MODE=supabase` plus a URL and publishable (or legacy
   anon) key turns on real sign-in; anything else runs the in-browser demo, so the app

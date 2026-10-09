@@ -99,7 +99,6 @@ export const hi: Dictionary = {
     privacyLink: "गोपनीयता नीति",
     tabGoogle: "गूगल",
     verify: "सत्यापित करें और आगे बढ़ें",
-    chooseGoogle: "आगे बढ़ने के लिए एक डेमो गूगल खाता चुनें।",
     errorAge: "आगे बढ़ने के लिए पुष्टि करें कि आपकी उम्र 18 वर्ष या अधिक है।",
     tabEmail: "ईमेल",
     emailLabel: "ईमेल पता",
@@ -108,8 +107,6 @@ export const hi: Dictionary = {
     changeEmail: "दूसरा ईमेल इस्तेमाल करें",
     codeSentTo: "{email} पर भेजा गया 6 अंकों का कोड डालें",
     codePlaceholder: "6 अंकों का कोड",
-    demoCodeNote: "डेमो मोड — कोई भी 6 अंक सत्यापित हो जाएँगे।",
-    demoNote: "केवल डेमो प्रमाणीकरण — कोई ईमेल असल में नहीं भेजा जाता और कोई जानकारी आपके ब्राउज़र से बाहर नहीं जाती।",
     errorEmail: "सही ईमेल पता डालें।",
     errorCode: "6 अंकों का कोड डालें। इस डेमो में कोई भी 6 अंक चलेंगे।",
     continueGoogle: "Google से जारी रखें",
@@ -123,6 +120,9 @@ export const hi: Dictionary = {
     errorCaptcha: "कृपया सुरक्षा जाँच पूरी करें।",
     errorGoogle: "Google साइन-इन शुरू नहीं हो सका। फिर कोशिश करें।",
     realNote: "कोड एक बार ही चलता है और 1 घंटे में खत्म हो जाता है। इसे किसी से साझा न करें।",
+    emailSoon: "ईमेल से साइन-इन जल्द आ रहा है। अभी Google से जारी रखें।",
+    authUnavailable: "अभी साइन-इन उपलब्ध नहीं है। कृपया बाद में कोशिश करें।",
+    confirmAgeButton: "पुष्टि करें और आगे बढ़ें",
   },
 
   dashboard: {

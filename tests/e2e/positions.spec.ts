@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { resetState, signInWithGoogle, signOut } from "./helpers";
+import { resetState, signInWithEmail, signOut, uniqueEmail } from "./helpers";
 
-const KEY_A = "bp-positions:v1:arjun.mehta@gmail.com";
+// Positions are still kept in localStorage per account until backend Phase B5.
+const keyFor = (email: string) => `bp-positions:v1:${email}`;
 
 /** Places one order on the first cricket market. */
 async function placeOneOrder(page: import("@playwright/test").Page) {
@@ -11,7 +12,7 @@ async function placeOneOrder(page: import("@playwright/test").Page) {
   await expect(page.getByRole("status")).toBeVisible();
 }
 
-async function storedPositions(page: import("@playwright/test").Page, key = KEY_A) {
+async function storedPositions(page: import("@playwright/test").Page, key: string) {
   return page.evaluate((k) => {
     try {
       return JSON.parse(window.localStorage.getItem(k) ?? "null");
@@ -31,10 +32,11 @@ test("signed-out state shows no positions", async ({ page }) => {
 });
 
 test("a placed order survives a reload with an averaged price", async ({ page }) => {
-  await signInWithGoogle(page);
+  const email = await signInWithEmail(page);
+  const KEY_A = keyFor(email);
   await placeOneOrder(page);
 
-  const before = await storedPositions(page);
+  const before = await storedPositions(page, KEY_A);
   expect(Array.isArray(before)).toBe(true);
   expect(before.length).toBeGreaterThan(0);
 
@@ -53,7 +55,7 @@ test("a placed order survives a reload with an averaged price", async ({ page })
   // first Trade button belongs to, so find the entry that actually changed
   // instead of assuming an index.
   await placeOneOrder(page);
-  const after = await storedPositions(page);
+  const after = await storedPositions(page, KEY_A);
   expect(after.length).toBe(before.length);
 
   type Stored = { marketId: string; outcomeId: string; shares: number; avgPrice: number };
@@ -78,45 +80,40 @@ test("a placed order survives a reload with an averaged price", async ({ page })
 });
 
 test("different accounts keep separate positions", async ({ page }) => {
-  await signInWithGoogle(page, 0);
+  const emailA = uniqueEmail("a");
+  const emailB = uniqueEmail("b");
+  await signInWithEmail(page, emailA);
   await placeOneOrder(page);
-  const accountA = await storedPositions(page);
+  const accountA = await storedPositions(page, keyFor(emailA));
+  expect(accountA.length).toBeGreaterThan(0);
   await signOut(page);
 
   // Signed out: memory is cleared even though storage is retained.
   await page.goto("/dashboard");
   await expect(page.getByText(/no open positions yet/i)).toBeVisible();
 
-  await signInWithGoogle(page, 1);
-  const keyB = "bp-positions:v1:priya.sharma@gmail.com";
-  const accountB = await storedPositions(page, keyB);
+  // A new account starts empty: no demo seeding any more.
+  await signInWithEmail(page, emailB);
+  expect(await storedPositions(page, keyFor(emailB))).toBeNull();
+  await page.goto("/dashboard");
+  await expect(page.getByText(/no open positions yet/i)).toBeVisible();
+  expect(await storedPositions(page, keyFor(emailA))).toEqual(accountA);
 
-  // B gets its own seeded ledger, not A's post-order ledger.
-  expect(accountB).not.toEqual(accountA);
-  // A's data is untouched by B signing in.
-  expect(await storedPositions(page, KEY_A)).toEqual(accountA);
-
-  // Signing back in as A restores A's positions.
   await signOut(page);
-  await signInWithGoogle(page, 0);
-  expect(await storedPositions(page, KEY_A)).toEqual(accountA);
+  await signInWithEmail(page, emailA);
+  expect(await storedPositions(page, keyFor(emailA))).toEqual(accountA);
 });
 
 test("corrupt stored positions do not crash the app", async ({ page }) => {
-  await page.evaluate((k) => {
-    window.localStorage.setItem(k, "{not json at all");
-    window.localStorage.setItem(
-      "bp-session",
-      JSON.stringify({ method: "google", handle: "arjun.mehta@gmail.com", initial: "A" })
-    );
-  }, KEY_A);
-
+  const email = await signInWithEmail(page);
+  await page.evaluate((k) => window.localStorage.setItem(k, "{not json at all"), keyFor(email));
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
   await expect(page.getByText(/portfolio value/i)).toBeVisible();
 });
 
 test("structurally invalid entries are discarded, valid ones kept", async ({ page }) => {
+  const email = await signInWithEmail(page);
   await page.evaluate((k) => {
     window.localStorage.setItem(
       k,
@@ -129,14 +126,10 @@ test("structurally invalid entries are discarded, valid ones kept", async ({ pag
         "nonsense",
       ])
     );
-    window.localStorage.setItem(
-      "bp-session",
-      JSON.stringify({ method: "google", handle: "arjun.mehta@gmail.com", initial: "A" })
-    );
-  }, KEY_A);
-
-  await page.goto("/dashboard");
+  }, keyFor(email));
+  await page.reload();
   await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
+  await page.goto("/dashboard");
   // Only the single valid entry should survive the validator.
   await expect(page.locator('a[href^="/market/"]:visible')).toHaveCount(1);
 });

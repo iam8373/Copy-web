@@ -197,3 +197,26 @@ test.describe("UI primitives", () => {
     });
   }
 });
+
+test.describe("Turnstile widget", () => {
+  test("loads only when shown, yields a token, resets, and reports failures", async ({ page }) => {
+    const scripts: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("challenges.cloudflare.com")) scripts.push(r.url());
+    });
+    await page.goto("/e2e-ui");
+    await expect(page.getByTestId("ui-gallery")).toBeVisible();
+    expect(scripts).toEqual([]); // not loaded until a widget is rendered
+
+    await page.getByTestId("captcha-pass").click();
+    await expect(page.getByTestId("captcha-token")).toHaveText("XXXX.DUMMY.TOKEN.XXXX", { timeout: 20_000 });
+    expect(scripts.some((u) => u.includes("/turnstile/v0/api.js"))).toBe(true);
+
+    await page.getByTestId("captcha-reset").click();
+    await expect(page.getByTestId("captcha-token")).toHaveText("no token");
+
+    await page.getByTestId("captcha-fail").click();
+    await page.waitForTimeout(3000);
+    await expect(page.getByTestId("captcha-token")).toHaveText("no token");
+  });
+});

@@ -2,14 +2,14 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "@/types/database";
-import { AUTH_MODE, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./config";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "./config";
 
 /**
- * Browser Supabase client (cookie session shared with the server).
- * createBrowserClient is a singleton, so calling this repeatedly is cheap.
- * Only valid in Supabase mode; callers check AUTH_MODE first.
+ * Browser Supabase client, publishable key only. Used for public, read-only
+ * live data (Realtime price updates, B3). Sign-in goes through Server Actions;
+ * nothing personal is read or written from the browser.
  */
 export function getBrowserSupabase() {
-  if (AUTH_MODE !== "supabase") throw new Error("Supabase auth is not enabled");
+  if (!supabaseConfigured) throw new Error("Supabase is not configured");
   return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 }

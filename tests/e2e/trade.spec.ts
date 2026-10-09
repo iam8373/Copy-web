@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { resetState, signInWithGoogle } from "./helpers";
+import { resetState, signInWithEmail } from "./helpers";
 
 /** Opens the quick-trade modal from the first market card on a page. */
 async function openFirstTrade(page: import("@playwright/test").Page) {
@@ -27,7 +27,7 @@ test("signed-out order opens the auth modal and places nothing", async ({ page }
 test("signed-in order shows the success animation, a toast, and lands on the dashboard", async ({
   page,
 }) => {
-  await signInWithGoogle(page);
+  await signInWithEmail(page);
   await openFirstTrade(page);
 
   // The animation deliberately self-dismisses in ~1.2s, so start waiting for
@@ -58,7 +58,7 @@ test("signed-in order shows the success animation, a toast, and lands on the das
 });
 
 test("rapid consecutive orders do not stack the animation", async ({ page }) => {
-  await signInWithGoogle(page);
+  await signInWithEmail(page);
   await openFirstTrade(page);
 
   const place = page.getByRole("button", { name: /place order/i });

@@ -4,7 +4,7 @@
  * untouched (insert-if-missing), so it never clobbers prices, volumes or
  * edits made since. Uses the service role; run it only on a trusted machine.
  *
- * Reads NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from
+ * Reads NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY from
  * .env.local or the environment. The key is never printed.
  */
 import { existsSync, readFileSync } from "node:fs";
@@ -29,9 +29,9 @@ function loadEnvFile(path: string): Record<string, string> {
 async function main() {
   const env = { ...loadEnvFile(resolve(".env.local")), ...process.env };
   const url = env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = env.SUPABASE_SECRET_KEY;
   if (!url || !key) {
-    console.error("error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set (see .env.example).");
+    console.error("error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY must be set (see .env.example).");
     process.exit(1);
   }
   // Safety: .env.local may hold a hosted project's keys (populate-env.sh).

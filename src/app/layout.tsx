@@ -15,6 +15,8 @@ import { Toaster } from "@/components/Toaster";
 import { TradeSuccess } from "@/components/TradeSuccess";
 import { LiveTicker } from "@/components/LiveTicker";
 import { AuthSync } from "@/components/AuthSync";
+import { AgeConfirmDialog } from "@/components/AgeConfirmDialog";
+import { emailOtpEnabled } from "@/lib/server/env";
 
 export const metadata: Metadata = {
   // noindex/nofollow on every page unless ALLOW_INDEXING === "true". Covers
@@ -41,7 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <BottomNav />
           <SearchModal />
-          <AuthModal />
+          <AuthModal emailOtpEnabled={emailOtpEnabled()} />
+          <AgeConfirmDialog />
           <TradeModal />
           <TradeSuccess />
           <Toaster />

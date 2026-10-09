@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   check:
-    name: Typecheck, lint, build and e2e
+    name: Typecheck, lint, scans and build
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -61,26 +61,8 @@ jobs:
       - name: Verify build output
         run: bash scripts/verify-build.sh .next
 
-      - name: Install Playwright browser (chromium)
-        run: npx playwright install --with-deps chromium
-
-      # playwright.config.ts builds with the e2e-only flag and serves it itself.
-      - name: End-to-end tests
-        run: npm run test:e2e
-
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 7
-          if-no-files-found: ignore
-
   supabase:
-    name: Database (pgTAP) and real-auth e2e
+    name: Database (pgTAP) and end-to-end tests on a local Supabase
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -115,25 +97,36 @@ jobs:
         run: |
           npx supabase status -o env > "$RUNNER_TEMP/sb.env"
           set -a; . "$RUNNER_TEMP/sb.env"; set +a
+          # Local stack only. The legacy JWT keys are used for tests because the
+          # helpers call the Auth admin API with a Bearer token.
           {
             echo "E2E_SUPABASE_URL=$API_URL"
-            echo "E2E_SUPABASE_ANON_KEY=$ANON_KEY"
-            echo "E2E_SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "E2E_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY"
+            echo "E2E_SUPABASE_SECRET_KEY=$SERVICE_ROLE_KEY"
             echo "E2E_MAILPIT_URL=${MAILPIT_URL:-$INBUCKET_URL}"
           } >> "$GITHUB_ENV"
 
       - name: Install Playwright browser (chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: Real-auth end-to-end tests (email OTP via the local mail catcher)
+      # Both suites build the app against the LOCAL stack only
+      # (tests/support/local-supabase.ts) and read sign-in codes from its
+      # mail catcher. Main suite: email codes on. Auth suite: production
+      # setting (Google only).
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: End-to-end tests (Google-only sign-in build)
         run: npm run test:e2e:auth
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: playwright-auth-report
-          path: test-results/
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
           if-no-files-found: ignore
 

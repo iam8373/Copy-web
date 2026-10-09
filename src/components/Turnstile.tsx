@@ -19,7 +19,6 @@ interface TurnstileApi {
   render: (el: HTMLElement, opts: Record<string, unknown>) => string;
   reset: (id: string) => void;
   remove: (id: string) => void;
-  ready: (cb: () => void) => void;
 }
 
 declare global {
@@ -38,7 +37,9 @@ function loadTurnstile(): Promise<TurnstileApi> {
     s.src = SCRIPT_SRC;
     s.async = true;
     s.defer = true;
-    s.onload = () => (window.turnstile ? window.turnstile.ready(() => resolve(window.turnstile!)) : reject());
+    // The API is usable once the script has run. turnstile.ready() is not
+    // allowed for scripts loaded with async/defer, so resolve on load.
+    s.onload = () => (window.turnstile ? resolve(window.turnstile) : reject(new Error("Turnstile missing")));
     s.onerror = () => {
       loading = null;
       reject(new Error("Turnstile failed to load"));

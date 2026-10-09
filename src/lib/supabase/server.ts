@@ -11,8 +11,9 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./config";
  * there; src/middleware.ts refreshes the session on every request.
  *
  * Verify identity with `supabase.auth.getClaims()`, never getSession().
+ * Pass { readOnly: true } for reads (see setAll).
  */
-export function getServerSupabase() {
+export function getServerSupabase(opts: { readOnly?: boolean } = {}) {
   const store = cookies();
   return createServerClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
@@ -20,6 +21,11 @@ export function getServerSupabase() {
         return store.getAll();
       },
       setAll(toSet) {
+        // Read-only clients never write cookies: in a Server Action any cookie
+        // write makes the client router refresh the whole route, so reads
+        // (who is signed in, own profile) must not touch them. The middleware
+        // refreshes the session on every request anyway.
+        if (opts.readOnly) return;
         try {
           for (const { name, value, options } of toSet) store.set(name, value, options);
         } catch {

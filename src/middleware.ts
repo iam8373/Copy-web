@@ -1,17 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { AUTH_MODE, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/config";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 
 /**
- * Refreshes the Supabase session cookie on each request (Supabase mode only),
+ * Refreshes the Supabase session cookie on each request,
  * per the @supabase/ssr Next.js guide: getClaims() validates and refreshes the
  * token, setAll writes the new cookies to both the request (for Server
  * Components) and the response (for the browser), with the no-store cache
  * headers so a CDN never serves one user's cookie to another.
- * In demo mode this is a pass-through.
+ * Without Supabase configuration it is a pass-through.
  */
 export async function middleware(request: NextRequest) {
-  if (AUTH_MODE !== "supabase") return NextResponse.next();
+  if (!supabaseConfigured) return NextResponse.next();
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {

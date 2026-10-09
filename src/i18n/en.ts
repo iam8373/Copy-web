@@ -103,7 +103,6 @@ export const en = {
     privacyLink: "Privacy Policy",
     tabGoogle: "Google",
     verify: "Verify & continue",
-    chooseGoogle: "Choose a demo Google account to continue.",
     errorAge: "Please confirm you are 18 or older to continue.",
     tabEmail: "Email",
     emailLabel: "Email address",
@@ -112,8 +111,6 @@ export const en = {
     changeEmail: "Use a different email",
     codeSentTo: "Enter the 6-digit code sent to {email}",
     codePlaceholder: "6-digit code",
-    demoCodeNote: "Demo mode — any 6 digits will verify.",
-    demoNote: "Demo authentication only — no email is actually sent and no credentials leave your browser.",
     errorEmail: "Enter a valid email address.",
     errorCode: "Enter the 6-digit code. Any 6 digits work in this demo.",
     continueGoogle: "Continue with Google",
@@ -127,6 +124,9 @@ export const en = {
     errorCaptcha: "Please complete the security check.",
     errorGoogle: "Google sign-in couldn't start. Please try again.",
     realNote: "Codes work once and expire after 1 hour. Never share yours.",
+    emailSoon: "Email sign-in is coming soon. For now, please continue with Google.",
+    authUnavailable: "Sign-in isn't available right now. Please try again later.",
+    confirmAgeButton: "Confirm and continue",
   },
 
   dashboard: {

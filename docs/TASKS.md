@@ -533,3 +533,42 @@ redirect to Supabase's authorize endpoint with PKCE is tested), Turnstile with a
 key, Resend delivery, and the new CI job (written against `supabase start`, which cannot
 run in this sandbox).
 
+---
+
+# Backend work order B2–B6 (hosted Supabase + Railway)
+
+Owner setup: hosted Supabase project (Google provider, Turnstile, redirect URL to the
+Railway domain), Railway for Next.js, no custom SMTP yet. Sandbox can reach the
+project's Auth and REST endpoints; it has **no database password or access token**, so
+migrations are applied by the owner (docs/DEPLOY_RUNBOOK.md) and every database test
+runs on the local stand-in.
+
+## B2 — real authentication (done)
+
+- Migration `20261008000100_auth_hardening.sql`: `rate_limits` + `hit_rate_limit()`
+  (service_role only), owner settings (b = 20,000, max_trade 1,00,000, admin credit cap
+  10,000), markets.liquidity_b default 20,000.
+- Server-only: `src/lib/server/{env,origin}.ts`, `src/lib/supabase/admin.ts`,
+  `src/services/auth/server.ts`; Server Actions `src/app/actions/auth.ts` (zod);
+  `GET /api/session`; `/auth/callback` records the signed consent cookie.
+- Demo auth removed (AUTH_MODE, demo Google accounts, `bp-session`, seeded positions).
+  `AuthModal`: Google only + note when `EMAIL_OTP_ENABLED=false`; email code + Turnstile
+  when on. `AgeConfirmDialog` asks again before trading when consent is missing.
+- Tests now always use real Supabase Auth on the local stand-in
+  (`tests/support/local-supabase.ts`): main suite with email codes on (codes read from
+  the local mail catcher), `test:e2e:auth` with the production setting (Google only).
+  pgTAP `003_auth_hardening.test.sql`. Turnstile widget tested with Cloudflare's test
+  sitekeys in the `/e2e-ui` gallery.
+- Scans: secret patterns in tracked files and the client bundle (D-021).
+- **Bug found:** a Server Action called on mount made the router re-render the route and
+  turned a page's error boundary into the global error screen (React "more hooks");
+  reads now use `GET /api/session`.
+
+**Results:** typecheck, lint, check:tokens, check:secrets clean; normal build +
+verify-build pass; pgTAP 69/69; e2e 558/558 (main) and 6/6 (Google-only build).
+
+**Verified against the hosted project:** Auth health endpoint reachable with the
+publishable key (GoTrue v2.197.0). **Not verified:** a real Google sign-in (needs a
+browser with a Google account), Turnstile with the production site key, and anything
+touching the hosted database (schema not applied yet: `public.markets` does not exist).
+

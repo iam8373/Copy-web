@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { MARKETS } from "@/data/markets";
 import type { Market } from "@/lib/types";
 import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
-import { AUTH_MODE } from "@/lib/supabase/config";
 
 /**
  * Toasts store i18n coordinates rather than resolved strings: the store has no
@@ -61,7 +60,6 @@ export interface Position {
 const POSITIONS_SCHEMA = "v1";
 const positionsKey = (handle: string) => `bp-positions:${POSITIONS_SCHEMA}:${handle}`;
 /** Marks an account as seeded so the demo ledger is only ever injected once. */
-const seededKey = (handle: string) => `bp-seeded:${POSITIONS_SCHEMA}:${handle}`;
 
 /**
  * Phase C: demo-grade per-user persistence. Parsed data is validated field by
@@ -110,52 +108,29 @@ function writePositions(handle: string, positions: Position[]) {
   }
 }
 
-function hasBeenSeeded(handle: string) {
-  try {
-    return window.localStorage.getItem(seededKey(handle)) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function markSeeded(handle: string) {
-  try {
-    window.localStorage.setItem(seededKey(handle), "1");
-  } catch {
-    /* ignore */
-  }
-}
-
-/** Mock ledger, injected once per account that has never stored anything. */
-const SEED_POSITIONS: Position[] = [
-  { marketId: "mkt_002", outcomeId: "mumbai-indians", shares: 1420, avgPrice: 0.16 },
-  { marketId: "mkt_001", outcomeId: "yes", shares: 860, avgPrice: 0.31 },
-  { marketId: "mkt_012", outcomeId: "yes", shares: 540, avgPrice: 0.88 },
-  { marketId: "mkt_030", outcomeId: "yes", shares: 2100, avgPrice: 0.61 },
-  { marketId: "mkt_021", outcomeId: "ankita-sharma", shares: 320, avgPrice: 0.22 },
-  { marketId: "mkt_038", outcomeId: "yes", shares: 780, avgPrice: 0.39, resolved: "won" },
-  { marketId: "mkt_004", outcomeId: "no", shares: 410, avgPrice: 0.48, resolved: "lost" },
-];
-
 interface MarketState {
   markets: Market[];
   session: Session | null;
   authOpen: boolean;
+  /** Re-confirmation of the 18+ consent before trading (AgeConfirmDialog). */
+  ageConfirmOpen: boolean;
   searchOpen: boolean;
   trade: TradeIntent | null;
   positions: Position[];
   lastFill: Fill | null;
   toasts: Toast[];
   tick: () => void;
-  signIn: (session: Session) => void;
   signOut: () => void;
   /**
-   * Supabase mode: take over a server-verified session (AuthSync). Unlike the
-   * demo signIn, nothing is written to localStorage; the auth cookie is the
-   * source of truth. `announce` shows the welcome toast (fresh sign-ins only).
+   * Take over a server-verified session (AuthSync). Nothing about the session
+   * is written to localStorage; the Supabase auth cookie is the source of
+   * truth. `announce` shows the welcome toast (fresh sign-ins only).
    */
   adoptSession: (session: Session, opts?: { announce?: boolean }) => void;
   setAuthOpen: (open: boolean) => void;
+  setAgeConfirmOpen: (open: boolean) => void;
+  /** Records a server-confirmed consent time on the current session. */
+  setAgeConfirmed: (at: string) => void;
   setSearchOpen: (open: boolean) => void;
   openTrade: (market: Market, outcomeId: string) => void;
   closeTrade: () => void;
@@ -209,6 +184,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   markets: MARKETS,
   session: null,
   authOpen: false,
+  ageConfirmOpen: false,
   searchOpen: false,
   trade: null,
   positions: [],
@@ -226,35 +202,6 @@ export const useMarketStore = create<MarketState>((set, get) => ({
         markets: state.markets.map((m, i) => (targets.has(i) ? jitter(m) : m)),
       };
     }),
-
-  signIn: (session) => {
-    // Stored data is the source of truth; the demo ledger is only a first-run
-    // convenience for an account that has never persisted anything.
-    const stored = readPositions(session.handle);
-    let positions: Position[];
-    if (stored !== null) {
-      positions = stored;
-    } else if (hasBeenSeeded(session.handle)) {
-      positions = [];
-    } else {
-      positions = SEED_POSITIONS;
-      markSeeded(session.handle);
-      writePositions(session.handle, positions);
-    }
-
-    set({ session, authOpen: false, positions });
-    try {
-      window.localStorage.setItem("bp-session", JSON.stringify(session));
-    } catch {
-      /* storage unavailable — session stays in memory only */
-    }
-    get().pushToast({
-      titleKey: "welcome",
-      vars: { handle: session.handle },
-      bodyKey: session.method === "email" ? "signedInEmail" : "signedInGoogle",
-      tone: "success",
-    });
-  },
 
   adoptSession: (session, opts) => {
     const stored = readPositions(session.handle);
@@ -274,15 +221,16 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     // Stored positions are deliberately left in place so signing back in
     // restores them; only the in-memory copy is dropped.
     set({ session: null, positions: [] });
-    try {
-      window.localStorage.removeItem("bp-session");
-    } catch {
-      /* ignore */
-    }
     get().pushToast({ titleKey: "signedOut", tone: "info" });
   },
 
   setAuthOpen: (open) => set({ authOpen: open }),
+  setAgeConfirmOpen: (open) => set({ ageConfirmOpen: open }),
+  setAgeConfirmed: (at) =>
+    set((state) => ({
+      ageConfirmOpen: false,
+      session: state.session ? { ...state.session, ageConfirmedAt: at } : null,
+    })),
   setSearchOpen: (open) => set({ searchOpen: open }),
   openTrade: (market, outcomeId) => set({ trade: { market, outcomeId } }),
   closeTrade: () => set({ trade: null }),
@@ -318,15 +266,10 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       return;
     }
 
-    // A session restored from before the 18+ confirmation existed must
-    // re-confirm before it can trade again.
+    // No recorded 18+ consent (e.g. a Google sign-in whose consent cookie
+    // expired): ask again before any order. The server checks it too (B4).
     if (!current.ageConfirmedAt) {
-      set({ trade: null, authOpen: true });
-      get().pushToast({
-        titleKey: "confirmAge",
-        bodyKey: "confirmAgeBody",
-        tone: "info",
-      });
+      set({ trade: null, ageConfirmOpen: true });
       return;
     }
 
@@ -397,35 +340,3 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   dismissToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
-
-/** Restores a persisted demo session on first client render (demo mode only). */
-export function restoreSession() {
-  if (AUTH_MODE !== "demo") return;
-  try {
-    const raw = window.localStorage.getItem("bp-session");
-    if (!raw) return;
-    const parsed = JSON.parse(raw) as Session;
-    // Phone sign-in was removed (D-019): a stored phone session is dropped,
-    // so the user signs in again with email or Google.
-    if (parsed?.method !== "email" && parsed?.method !== "google") {
-      window.localStorage.removeItem("bp-session");
-      return;
-    }
-    if (parsed?.handle && parsed?.initial) {
-      const stored = readPositions(parsed.handle);
-      let positions: Position[];
-      if (stored !== null) {
-        positions = stored;
-      } else if (hasBeenSeeded(parsed.handle)) {
-        positions = [];
-      } else {
-        positions = SEED_POSITIONS;
-        markSeeded(parsed.handle);
-        writePositions(parsed.handle, positions);
-      }
-      useMarketStore.setState({ session: parsed, positions });
-    }
-  } catch {
-    /* ignore malformed storage */
-  }
-}

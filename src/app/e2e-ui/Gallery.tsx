@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Turnstile, type TurnstileHandle } from "@/components/Turnstile";
 import { ArrowRight, Flame, MessageSquare, Star, TrendingUp } from "lucide-react";
 import {
   Badge,
@@ -27,6 +28,10 @@ export default function Gallery() {
   const [pill, setPill] = useState("1D");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Cloudflare's documented test sitekeys: always pass / always fail.
+  const [captchaKey, setCaptchaKey] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<TurnstileHandle>(null);
 
   return (
     <div className="flex flex-col gap-8" data-testid="ui-gallery">
@@ -159,6 +164,25 @@ export default function Gallery() {
           body="Try a different filter or check back shortly."
           action={<Button size="sm" variant="secondary">Clear filters</Button>}
         />
+      </section>
+
+      <section className="flex flex-col gap-3" aria-labelledby="g-captcha">
+        <h2 id="g-captcha" className="text-18 font-semibold text-primary">Turnstile (test keys)</h2>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="secondary" data-testid="captcha-pass" onClick={() => setCaptchaKey("1x00000000000000000000AA")}>
+            Always passes
+          </Button>
+          <Button size="sm" variant="secondary" data-testid="captcha-fail" onClick={() => setCaptchaKey("2x00000000000000000000AB")}>
+            Always fails
+          </Button>
+          <Button size="sm" variant="ghost" data-testid="captcha-reset" onClick={() => captchaRef.current?.reset()}>
+            Reset
+          </Button>
+        </div>
+        {captchaKey && <Turnstile key={captchaKey} ref={captchaRef} siteKey={captchaKey} onToken={setCaptchaToken} />}
+        <p className="text-13 text-secondary" data-testid="captcha-token">
+          {captchaToken ?? "no token"}
+        </p>
       </section>
 
       <Dialog
