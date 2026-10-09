@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { MARKETS } from "@/data/markets";
 import type { Market } from "@/lib/types";
 import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
 
@@ -59,7 +58,6 @@ export interface Position {
 
 const POSITIONS_SCHEMA = "v1";
 const positionsKey = (handle: string) => `bp-positions:${POSITIONS_SCHEMA}:${handle}`;
-/** Marks an account as seeded so the demo ledger is only ever injected once. */
 
 /**
  * Phase C: demo-grade per-user persistence. Parsed data is validated field by
@@ -76,7 +74,7 @@ function isValidPosition(raw: unknown): raw is Position {
   if (p.avgPrice < 0 || p.avgPrice > 1) return false;
   if (p.resolved !== undefined && p.resolved !== "won" && p.resolved !== "lost") return false;
 
-  const market = MARKETS.find((m) => m.id === p.marketId);
+  const market = useMarketStore.getState().markets.find((m) => m.id === p.marketId);
   if (!market) return false;
   return market.outcomes.some((o) => o.id === p.outcomeId);
 }
@@ -119,7 +117,13 @@ interface MarketState {
   positions: Position[];
   lastFill: Fill | null;
   toasts: Toast[];
-  tick: () => void;
+  /** "loading" until MarketsHydrator runs; "error" when the DB was unreachable. */
+  marketsStatus: "loading" | "ready" | "error";
+  /**
+   * Applies live prices (Realtime or the /api/prices poll). Recomputes each
+   * outcome's 24 h change from its reference price; unknown ids are ignored.
+   */
+  applyPrices: (prices: Record<string, number>) => void;
   signOut: () => void;
   /**
    * Take over a server-verified session (AuthSync). Nothing about the session
@@ -140,48 +144,9 @@ interface MarketState {
   dismissToast: (id: string) => void;
 }
 
-function jitter(market: Market): Market {
-  // Nudge outcome prices by a small amount, keeping binary markets normalised.
-  if (market.isBinary) {
-    const delta = (Math.random() - 0.5) * 0.024;
-    const yes = Math.min(0.97, Math.max(0.03, market.outcomes[0].price + delta));
-    return {
-      ...market,
-      totalVolume: market.totalVolume + Math.round(Math.random() * 900),
-      outcomes: [
-        {
-          ...market.outcomes[0],
-          price: Number(yes.toFixed(4)),
-          change24h: Number((market.outcomes[0].change24h + delta).toFixed(4)),
-        },
-        {
-          ...market.outcomes[1],
-          price: Number((1 - yes).toFixed(4)),
-          change24h: Number((market.outcomes[1].change24h - delta).toFixed(4)),
-        },
-      ],
-    };
-  }
-
-  const idx = Math.floor(Math.random() * market.outcomes.length);
-  return {
-    ...market,
-    totalVolume: market.totalVolume + Math.round(Math.random() * 1400),
-    outcomes: market.outcomes.map((o, i) => {
-      if (i !== idx) return o;
-      const delta = (Math.random() - 0.5) * 0.02;
-      const price = Math.min(0.97, Math.max(0.02, o.price + delta));
-      return {
-        ...o,
-        price: Number(price.toFixed(4)),
-        change24h: Number((o.change24h + delta).toFixed(4)),
-      };
-    }),
-  };
-}
-
 export const useMarketStore = create<MarketState>((set, get) => ({
-  markets: MARKETS,
+  markets: [],
+  marketsStatus: "loading",
   session: null,
   authOpen: false,
   ageConfirmOpen: false,
@@ -191,16 +156,23 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   lastFill: null,
   toasts: [],
 
-  tick: () =>
+  applyPrices: (prices) =>
     set((state) => {
-      const count = Math.max(3, Math.round(state.markets.length * 0.18));
-      const targets = new Set<number>();
-      while (targets.size < count) {
-        targets.add(Math.floor(Math.random() * state.markets.length));
-      }
-      return {
-        markets: state.markets.map((m, i) => (targets.has(i) ? jitter(m) : m)),
-      };
+      let changed = false;
+      const markets = state.markets.map((m) => {
+        let touched = false;
+        const outcomes = m.outcomes.map((o) => {
+          const p = prices[o.id];
+          if (p === undefined || !Number.isFinite(p) || Math.abs(p - o.price) < 1e-9) return o;
+          touched = true;
+          const ref = o.refPrice ?? o.price;
+          return { ...o, price: p, change24h: Math.round((p - ref) * 10000) / 10000 };
+        });
+        if (!touched) return m;
+        changed = true;
+        return { ...m, outcomes };
+      });
+      return changed ? { markets } : {};
     }),
 
   adoptSession: (session, opts) => {

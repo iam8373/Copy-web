@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 import robots from "../../src/app/robots";
-import sitemap from "../../src/app/sitemap";
+import { buildSitemap } from "../../src/lib/sitemap-entries";
+import { MARKETS } from "../../src/data/markets";
+
+// The served sitemap reads slugs from the database; the builder is the same.
+const sitemap = () => buildSitemap(MARKETS.map((m) => m.slug));
 
 /**
  * Phase 3. The served build uses the default environment (ALLOW_INDEXING not

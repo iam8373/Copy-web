@@ -219,6 +219,8 @@ export const mr: Dictionary = {
   },
 
   empty: {
+    unavailableTitle: "सध्या मार्केट उपलब्ध नाहीत",
+    unavailableBody: "मार्केट लोड करता आले नाहीत. थोड्या वेळाने पुन्हा प्रयत्न करा.",
     noMarketsTitle: "येथे अद्याप कोणतेही मार्केट नाही",
     noMarketsBody: "दुसरा फिल्टर निवडा किंवा थोड्या वेळाने पाहा.",
     noOpenPositions: "अद्याप कोणतीही खुली पोझिशन नाही.",

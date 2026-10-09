@@ -20,7 +20,7 @@ import { media, chartColor } from "@/lib/tokens";
 import { Countdown } from "@/components/Countdown";
 import { FlashValue } from "@/components/FlashValue";
 import { TradeForm } from "@/components/TradeForm";
-import { PriceChart, chartedOutcomes } from "@/components/market/PriceChart";
+import { PriceChart, chartedOutcomes, type RecordedPoint } from "@/components/market/PriceChart";
 import { OrderBook } from "@/components/market/OrderBook";
 import {
   Badge,
@@ -40,7 +40,7 @@ type Section = "activity" | "holders" | "positions" | "comments";
  * Market page. lg+: content on the left, sticky trade panel on the right.
  * Below lg: a fixed Yes/No bar opens the trade sheet (TradeModal).
  */
-export function MarketDetail({ market: initial }: { market: Market }) {
+export function MarketDetail({ market: initial, history = [] }: { market: Market; history?: RecordedPoint[] }) {
   const markets = useMarketStore((s) => s.markets);
   const openTrade = useMarketStore((s) => s.openTrade);
   const market = markets.find((m) => m.id === initial.id) ?? initial;
@@ -114,7 +114,7 @@ export function MarketDetail({ market: initial }: { market: Market }) {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-market">
         <div className="flex min-w-0 flex-col gap-5">
-          <PriceChart market={market} />
+          <PriceChart market={market} recorded={history} />
 
           {!market.isBinary && (
             <OutcomeList market={market} selectedId={outcomeId} onBuy={buy} />

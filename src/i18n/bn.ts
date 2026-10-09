@@ -219,6 +219,8 @@ export const bn: Dictionary = {
   },
 
   empty: {
+    unavailableTitle: "এখন মার্কেট পাওয়া যাচ্ছে না",
+    unavailableBody: "মার্কেট লোড করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
     noMarketsTitle: "এখানে এখনও কোনো মার্কেট নেই",
     noMarketsBody: "অন্য ফিল্টার বেছে নিন বা একটু পরে দেখুন।",
     noOpenPositions: "এখনও কোনো খোলা পজিশন নেই।",

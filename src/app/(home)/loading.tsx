@@ -1,6 +1,10 @@
 import { SkeletonBlock, SkeletonGrid, SkeletonRegion } from "@/components/Skeleton";
 
-/** Home: featured panel plus rows of cards. */
+/**
+ * Home: featured panel plus rows of cards. Lives in the (home) route group so
+ * it does not wrap other routes: a loading boundary above a page that calls
+ * notFound() makes the response stream with status 200 instead of 404.
+ */
 export default function Loading() {
   return (
     <SkeletonRegion>

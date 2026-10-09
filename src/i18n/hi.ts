@@ -213,6 +213,8 @@ export const hi: Dictionary = {
   },
 
   empty: {
+    unavailableTitle: "अभी मार्केट उपलब्ध नहीं हैं",
+    unavailableBody: "मार्केट लोड नहीं हो सके। थोड़ी देर में फिर कोशिश करें।",
     noMarketsTitle: "यहाँ अभी कोई मार्केट नहीं",
     noMarketsBody: "कोई दूसरा फ़िल्टर चुनें या कुछ देर बाद देखें।",
     noOpenPositions: "अभी कोई खुली पोज़िशन नहीं।",

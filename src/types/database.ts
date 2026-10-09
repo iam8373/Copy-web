@@ -115,14 +115,14 @@ isOneToOne: false
                   ]
                 },"markets": {
                   Row: {
-                    "category": string,"created_at": string,"created_by": string | null,"description": string,"end_date": string,"id": string,"is_binary": boolean,"is_featured": boolean,"is_live": boolean,"legacy_id": string | null,"liquidity_b": number,"resolution_source": string,"resolved_at": string | null,"resolved_outcome_id": string | null,"slug": string,"status": string,"subcategory": string,"title": string,"total_volume": number,"updated_at": string,"volume_change_24h": number
+                    "category": string,"created_at": string,"created_by": string | null,"description": string,"end_date": string,"id": string,"is_binary": boolean,"is_featured": boolean,"is_live": boolean,"legacy_id": string | null,"liquidity_b": number,"region": string,"resolution_source": string,"resolved_at": string | null,"resolved_outcome_id": string | null,"slug": string,"status": string,"subcategory": string,"tags": (string)[],"title": string,"total_volume": number,"updated_at": string,"volume_change_24h": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "category": string,"created_at"?: string,"created_by"?: string | null,"description"?: string,"end_date": string,"id"?: string,"is_binary"?: boolean,"is_featured"?: boolean,"is_live"?: boolean,"legacy_id"?: string | null,"liquidity_b"?: number,"resolution_source"?: string,"resolved_at"?: string | null,"resolved_outcome_id"?: string | null,"slug": string,"status"?: string,"subcategory": string,"title": string,"total_volume"?: number,"updated_at"?: string,"volume_change_24h"?: number
+                    "category": string,"created_at"?: string,"created_by"?: string | null,"description"?: string,"end_date": string,"id"?: string,"is_binary"?: boolean,"is_featured"?: boolean,"is_live"?: boolean,"legacy_id"?: string | null,"liquidity_b"?: number,"region"?: string,"resolution_source"?: string,"resolved_at"?: string | null,"resolved_outcome_id"?: string | null,"slug": string,"status"?: string,"subcategory": string,"tags"?: (string)[],"title": string,"total_volume"?: number,"updated_at"?: string,"volume_change_24h"?: number
                   }
                   Update: {
-                    "category"?: string,"created_at"?: string,"created_by"?: string | null,"description"?: string,"end_date"?: string,"id"?: string,"is_binary"?: boolean,"is_featured"?: boolean,"is_live"?: boolean,"legacy_id"?: string | null,"liquidity_b"?: number,"resolution_source"?: string,"resolved_at"?: string | null,"resolved_outcome_id"?: string | null,"slug"?: string,"status"?: string,"subcategory"?: string,"title"?: string,"total_volume"?: number,"updated_at"?: string,"volume_change_24h"?: number
+                    "category"?: string,"created_at"?: string,"created_by"?: string | null,"description"?: string,"end_date"?: string,"id"?: string,"is_binary"?: boolean,"is_featured"?: boolean,"is_live"?: boolean,"legacy_id"?: string | null,"liquidity_b"?: number,"region"?: string,"resolution_source"?: string,"resolved_at"?: string | null,"resolved_outcome_id"?: string | null,"slug"?: string,"status"?: string,"subcategory"?: string,"tags"?: (string)[],"title"?: string,"total_volume"?: number,"updated_at"?: string,"volume_change_24h"?: number
                   }
                   Relationships: [
                     {
@@ -308,6 +308,16 @@ isOneToOne: true
                            },
 "hit_rate_limit":
 { Args: { "p_bucket": string,"p_key_hash": string,"p_limit": number,"p_window_seconds": number }; Returns: boolean
+                           },
+"market_volume_24h":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "market_id": string,"volume": number
+            }[]
+                           },
+"outcome_prices_24h_ago":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "outcome_id": string,"price": number
+            }[]
                            },
 "unique_handle":
 { Args: { "p_email": string }; Returns: string

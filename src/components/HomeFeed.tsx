@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { FeaturedCarousel } from "@/components/FeaturedCarousel";
+import { MarketsUnavailable } from "@/components/MarketsUnavailable";
 import { MarketRow } from "@/components/MarketGrid";
 import { FOCUS_RING } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,7 @@ const SECTIONS: Category[] = [
 
 export function HomeFeed() {
   const markets = useMarketStore((s) => s.markets);
+  const status = useMarketStore((s) => s.marketsStatus);
   const { t } = useT();
 
   const popular = [...markets].sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 6);
@@ -70,6 +72,7 @@ export function HomeFeed() {
       <h1 className="sr-only">
         {t("brand", "name")} — {t("brand", "tagline")}
       </h1>
+      {status === "error" && <MarketsUnavailable />}
       <FeaturedCarousel />
 
       <section>

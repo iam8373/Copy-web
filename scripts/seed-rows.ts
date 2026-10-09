@@ -23,6 +23,8 @@ export interface SeedMarketRow {
   liquidity_b: number;
   total_volume: number;
   volume_change_24h: number;
+  tags: string[];
+  region: string;
 }
 
 export interface SeedOutcomeRow {
@@ -32,6 +34,8 @@ export interface SeedOutcomeRow {
   legacy_key: string;
   price: number;
   shares_outstanding: number;
+  /** Seeded starting point for the 24 h change (price_history). */
+  price_24h_ago: number;
 }
 
 export interface SeedTranslationRow {
@@ -82,6 +86,8 @@ export function buildSeedRows(
       liquidity_b: opts.liquidityB,
       total_volume: round(m.totalVolume, 2),
       volume_change_24h: round(m.volumeChange24h, 2),
+      tags: m.tags.slice(0, 20),
+      region: m.region,
     });
 
     // LMSR requires prices that sum to 1; multi-outcome seed data may not.
@@ -97,6 +103,7 @@ export function buildSeedRows(
         legacy_key: o.id,
         price: round(normalized[i], 10),
         shares_outstanding: round(q[i], 8),
+        price_24h_ago: round(Math.min(0.99, Math.max(0.01, normalized[i] - o.change24h)), 10),
       });
     });
 

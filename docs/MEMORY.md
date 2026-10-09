@@ -210,3 +210,12 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   amount input is `#detail-amount` (trade panel); the sheet's is `#amount` and on mobile
   the panel is hidden — open the sheet from `[data-testid="mobile-trade-bar"]`. The welcome
   toast is also `role="status"`; assert order toasts by text.
+- **Orphan test servers:** killing a Playwright run can leave `next-server` serving the
+  OLD build on :3100, and `reuseExistingServer` then silently reuses it. Kill it:
+  `docker exec workspace-web-1 bash -lc "for p in $(pgrep -f next-server); do tr '\0' ' ' < /proc/$p/environ | grep -q NEXT_DIST_DIR=.next-e2e && kill $p; done"`.
+- Long e2e runs: start them detached (`docker exec -d … > .scratch/e2e.log`) and poll;
+  foreground tool calls time out.
+- PostgREST embeds of markets→outcomes must name the FK
+  (`outcomes!outcomes_market_id_fkey(...)`): there are two relationships.
+- After moving/removing app routes, delete `.next/types` and restart the dev server, or
+  the e2e build fails type-checking stale generated types.

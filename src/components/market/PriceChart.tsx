@@ -69,12 +69,47 @@ export function chartedOutcomes(market: Market) {
   return [...market.outcomes].sort((a, b) => b.price - a.price).slice(0, MAX_LINES);
 }
 
-export function PriceChart({ market }: { market: Market }) {
+/** Window length per range for recorded history (ALL = everything). */
+const RANGE_SPAN: Record<ChartRange, number> = {
+  "1D": DAY,
+  "1W": 7 * DAY,
+  "1M": 30 * DAY,
+  ALL: Number.POSITIVE_INFINITY,
+};
+
+export interface RecordedPoint {
+  t: number;
+  /** outcome id → probability 0–100 */
+  prices: Record<string, number>;
+}
+
+/**
+ * Recorded points inside the range, carrying the last earlier value forward
+ * to the window start so the line starts at the left edge.
+ */
+function recordedSeries(points: RecordedPoint[], range: ChartRange, now: number, ids: string[]) {
+  const start = now - RANGE_SPAN[range];
+  const before = [...points].reverse().find((p) => p.t < start);
+  const inside = points.filter((p) => p.t >= start && p.t <= now);
+  const series = before && Number.isFinite(start) ? [{ ...before, t: start }, ...inside] : inside;
+  // Fill gaps: an outcome missing at a timestamp keeps its previous value.
+  const last: Record<string, number> = {};
+  return series.map((p) => {
+    const row: Record<string, number> = { t: p.t };
+    for (const id of ids) {
+      if (p.prices[id] !== undefined) last[id] = p.prices[id];
+      if (last[id] !== undefined) row[id] = last[id];
+    }
+    return row;
+  });
+}
+
+export function PriceChart({ market, recorded = [] }: { market: Market; recorded?: RecordedPoint[] }) {
   const { t } = useT();
   const reduced = useReducedMotion();
   const [range, setRange] = useState<ChartRange>("1W");
-  // The demo series depends on "now", so it is built after mount: server and
-  // client then never disagree (the page is statically generated).
+  // Both series depend on "now", so they are built after mount: server and
+  // client then never disagree.
   const [now, setNow] = useState<number | null>(null);
   const firstPaint = useFirstPaint();
   // Anchor the generated history to the prices at mount, so live ticks move
@@ -84,17 +119,24 @@ export function PriceChart({ market }: { market: Market }) {
   useEffect(() => setNow(Date.now()), []);
 
   const lines = chartedOutcomes(market);
+  // Real price history from the database once it has at least two points;
+  // otherwise a generated series, clearly badged "Demo data".
+  const isDemo = recorded.length < 2;
+  const ids = useMemo(() => market.outcomes.map((o) => o.id), [market.outcomes]);
   const history = useMemo(
-    () => (now === null ? null : getPriceHistory(anchor.current, range, now)),
-    [now, range]
+    () => (now === null || !isDemo ? null : getPriceHistory(anchor.current, range, now)),
+    [now, range, isDemo]
   );
   const data = useMemo(() => {
-    if (!history) return [];
-    const pts = history.points.map((p) => ({ ...p }));
+    if (now === null) return [];
+    const pts: Array<Record<string, number>> = isDemo
+      ? (history?.points ?? []).map((p) => ({ ...p }))
+      : recordedSeries(recorded, range, now, ids);
+    if (!isDemo) pts.push({ t: now });
     const last = pts[pts.length - 1];
-    market.outcomes.forEach((o) => (last[o.id] = Number((o.price * 100).toFixed(1))));
-    return pts;
-  }, [history, market.outcomes]);
+    if (last) market.outcomes.forEach((o) => (last[o.id] = Number((o.price * 100).toFixed(1))));
+    return pts as Array<{ t: number } & Record<string, number>>;
+  }, [history, market.outcomes, isDemo, recorded, range, now, ids]);
 
   const yMax = market.isBinary
     ? 100
@@ -162,12 +204,14 @@ export function PriceChart({ market }: { market: Market }) {
               </ul>
             </div>
           )}
-          <span className="ml-auto flex shrink-0 items-center gap-1">
-            <Badge tone="warning" data-testid="demo-data-badge">
-              {t("market", "demoData")}
-            </Badge>
-            <Tooltip label={t("market", "aboutDemoData")} content={t("market", "demoDataTip")} />
-          </span>
+          {isDemo && (
+            <span className="ml-auto flex shrink-0 items-center gap-1">
+              <Badge tone="warning" data-testid="demo-data-badge">
+                {t("market", "demoData")}
+              </Badge>
+              <Tooltip label={t("market", "aboutDemoData")} content={t("market", "demoDataTip")} />
+            </span>
+          )}
         </div>
 
         <div

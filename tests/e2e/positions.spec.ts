@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { resetState, signInWithEmail, signOut, uniqueEmail } from "./helpers";
+import { localRest, resetState, signInWithEmail, signOut, uniqueEmail } from "./helpers";
 
 // Positions are still kept in localStorage per account until backend Phase B5.
 const keyFor = (email: string) => `bp-positions:v1:${email}`;
@@ -114,19 +114,27 @@ test("corrupt stored positions do not crash the app", async ({ page }) => {
 
 test("structurally invalid entries are discarded, valid ones kept", async ({ page }) => {
   const email = await signInWithEmail(page);
-  await page.evaluate((k) => {
-    window.localStorage.setItem(
-      k,
-      JSON.stringify([
-        { marketId: "mkt_002", outcomeId: "mumbai-indians", shares: 100, avgPrice: 0.2 },
-        { marketId: "does_not_exist", outcomeId: "yes", shares: 10, avgPrice: 0.5 },
-        { marketId: "mkt_002", outcomeId: "no-such-outcome", shares: 10, avgPrice: 0.5 },
-        { marketId: "mkt_002", outcomeId: "mumbai-indians", shares: -5, avgPrice: 0.2 },
-        { marketId: "mkt_002", outcomeId: "mumbai-indians", shares: 10, avgPrice: 9 },
-        "nonsense",
-      ])
-    );
-  }, keyFor(email));
+  // Markets come from the database now, so use real ids.
+  const [m] = await localRest<Array<{ id: string; outcomes: Array<{ id: string; label: string }> }>>(
+    "markets?slug=eq.ipl-2026-winner&select=id,outcomes!outcomes_market_id_fkey(id,label)"
+  );
+  const mi = m.outcomes.find((o) => o.label === "Mumbai Indians")!.id;
+  await page.evaluate(
+    ([k, market, outcome]) => {
+      window.localStorage.setItem(
+        k,
+        JSON.stringify([
+          { marketId: market, outcomeId: outcome, shares: 100, avgPrice: 0.2 },
+          { marketId: "does_not_exist", outcomeId: "yes", shares: 10, avgPrice: 0.5 },
+          { marketId: market, outcomeId: "no-such-outcome", shares: 10, avgPrice: 0.5 },
+          { marketId: market, outcomeId: outcome, shares: -5, avgPrice: 0.2 },
+          { marketId: market, outcomeId: outcome, shares: 10, avgPrice: 9 },
+          "nonsense",
+        ])
+      );
+    },
+    [keyFor(email), m.id, mi]
+  );
   await page.reload();
   await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
   await page.goto("/dashboard");

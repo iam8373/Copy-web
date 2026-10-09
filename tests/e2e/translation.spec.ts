@@ -409,8 +409,20 @@ test.describe("translate:markets runner", () => {
 
 // ------------------------------------------------------------------ runtime
 test.describe("runtime reader", () => {
-  const translated = MARKETS.find((m) => m.id === "mkt_002")!;
-  const untranslated = MARKETS.find((m) => !(m.id in (translations as TranslationFile)))!;
+  // Markets now arrive from the database with their saved translations
+  // attached (market_translations); build the same shape from the fixture.
+  const withSaved = (m: (typeof MARKETS)[number]) => {
+    const e = (translations as TranslationFile)[m.id];
+    if (!e) return m;
+    return {
+      ...m,
+      translations: Object.fromEntries(
+        Object.entries(e.locales).map(([l, v]) => [l, { ...v, sourceHash: e.sourceHash, status: e.status }])
+      ),
+    };
+  };
+  const translated = withSaved(MARKETS.find((m) => m.id === "mkt_002")!);
+  const untranslated = withSaved(MARKETS.find((m) => !(m.id in (translations as TranslationFile)))!);
 
   test("returns saved text for a translated locale, English otherwise", () => {
     const t = getMarketText(translated, "hi");

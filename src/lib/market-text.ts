@@ -1,28 +1,21 @@
 "use client";
 
 import { useMemo } from "react";
-import translations from "@/data/market-translations.json";
 import { sourceHashFor } from "@/services/translation/hash";
-import type {
-  TargetLocale,
-  TranslationFile,
-} from "@/services/translation/types";
 import { TARGET_LOCALES } from "@/services/translation/types";
 import { useT } from "@/i18n/LanguageProvider";
 import type { Locale } from "@/i18n";
 import type { Market } from "@/lib/types";
 
 /**
- * Phase 6 runtime: READ-ONLY access to translations saved in
- * src/data/market-translations.json. There are no AI calls here or anywhere
- * in the app; translations are produced offline by `npm run translate:markets`.
+ * READ-ONLY access to saved translations, which arrive with each market from
+ * the database (market_translations, B3). There are no AI calls here or
+ * anywhere in the app at page-view time; translations are made once, offline.
  *
  * Falls back to the English original when the locale is English, the market
  * has no entry, the entry lacks that locale, or the entry is stale (its
  * sourceHash no longer matches the current title/description/subcategory).
  */
-const FILE = translations as TranslationFile;
-
 // Cache hashes by the exact source text, NOT by market id: an id-keyed cache
 // would keep serving a translation after the market's text changed.
 const hashCache = new Map<string, string>();
@@ -45,7 +38,7 @@ export interface MarketText {
 }
 
 export function getMarketText(
-  market: Pick<Market, "id" | "title" | "description" | "subcategory">,
+  market: Pick<Market, "id" | "title" | "description" | "subcategory" | "translations">,
   locale: Locale
 ): MarketText {
   const english: MarketText = {
@@ -55,23 +48,21 @@ export function getMarketText(
   };
   if (!(TARGET_LOCALES as readonly string[]).includes(locale)) return english;
 
-  const entry = FILE[market.id];
-  if (!entry || entry.sourceHash !== currentHash(market)) return english;
-
-  const loc = entry.locales?.[locale as TargetLocale];
-  if (!loc || typeof loc.title !== "string" || !loc.title.trim()) return english;
+  const loc = market.translations?.[locale];
+  if (!loc || loc.sourceHash !== currentHash(market)) return english;
+  if (typeof loc.title !== "string" || !loc.title.trim()) return english;
 
   return {
     title: loc.title,
     description: typeof loc.description === "string" && loc.description.trim() ? loc.description : market.description,
     translated: true,
-    status: entry.status,
+    status: loc.status,
   };
 }
 
 /** Hook form for client components; follows the active UI language. */
 export function useMarketText(
-  market: Pick<Market, "id" | "title" | "description" | "subcategory">
+  market: Pick<Market, "id" | "title" | "description" | "subcategory" | "translations">
 ): MarketText {
   const { locale } = useT();
   return useMemo(() => getMarketText(market, locale), [market, locale]);

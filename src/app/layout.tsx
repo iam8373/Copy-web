@@ -13,7 +13,9 @@ import { BottomNav } from "@/components/BottomNav";
 import { TradeModal } from "@/components/TradeModal";
 import { Toaster } from "@/components/Toaster";
 import { TradeSuccess } from "@/components/TradeSuccess";
-import { LiveTicker } from "@/components/LiveTicker";
+import { LivePrices } from "@/components/LivePrices";
+import { MarketsHydrator } from "@/components/MarketsHydrator";
+import { getMarkets } from "@/services/markets/read";
 import { AuthSync } from "@/components/AuthSync";
 import { AgeConfirmDialog } from "@/components/AgeConfirmDialog";
 import { emailOtpEnabled } from "@/lib/server/env";
@@ -27,13 +29,19 @@ export const metadata: Metadata = {
     "Trade the outcome of Indian and global events — cricket, elections, Bollywood, the economy and markets, priced in ₹.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Every page reads markets from the database at request time (cached via
+// unstable_cache tags), so nothing needs Supabase during `next build`.
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const markets = await getMarkets();
   return (
     <html lang="en" className={fontVariables}>
       <body className="min-h-screen bg-surface-1 font-sans text-primary antialiased">
         <LanguageProvider>
         <ThemeProvider>
-          <LiveTicker />
+          <MarketsHydrator markets={markets.ok ? markets.data : []} ok={markets.ok} />
+          <LivePrices />
           <AuthSync />
           <Header />
           <CategoryNav />

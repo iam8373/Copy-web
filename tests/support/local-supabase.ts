@@ -30,6 +30,8 @@ export function testAppEnv(extra: Record<string, string> = {}): string {
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: LOCAL.publishableKey,
     SUPABASE_SECRET_KEY: LOCAL.secretKey,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: "placeholder",
+    // The local stacks run without Realtime; live prices use the poll.
+    NEXT_PUBLIC_SUPABASE_REALTIME: "off",
     NEXT_PUBLIC_SITE_URL: "placeholder",
     AUTH_COOKIE_SECRET: "test-only-cookie-secret-not-for-production-use-0001",
     GEMINI_API_KEY: "",

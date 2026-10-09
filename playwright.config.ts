@@ -20,6 +20,7 @@ const APP_ENV = testAppEnv({
 });
 
 export default defineConfig({
+  globalSetup: "./tests/support/global-setup.ts",
   testDir: "./tests/e2e",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

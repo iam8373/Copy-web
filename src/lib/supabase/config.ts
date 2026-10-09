@@ -24,3 +24,9 @@ export const TURNSTILE_SITE_KEY = (() => {
   const v = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? "";
   return isPlaceholder(v) ? "" : v;
 })();
+
+/**
+ * Supabase Realtime for live prices. On by default; "off" skips the socket
+ * and relies on the /api/prices poll (local stacks without Realtime, tests).
+ */
+export const REALTIME_ENABLED = process.env.NEXT_PUBLIC_SUPABASE_REALTIME?.trim() !== "off";

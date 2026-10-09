@@ -52,6 +52,12 @@ PYJWT
 if [ -n "$hits$jwt" ]; then echo "✗ secret-shaped strings or secret names in browser bundles:"; printf '%s\n%s\n' "$hits" "$jwt" | sed '/^$/d; s/^/    /'; fail=1
 else echo "✓ no secrets, secret names or non-anon JWTs in browser bundles"; fi
 
+# 2c. The static market catalogue is seed-only (B3): its text must not be in
+#     the browser bundle (pages get markets from the database).
+hits=$(grep -rlF 'holds the office of Prime Minister of India continuously' "$dist/static" 2>/dev/null || true)
+if [ -n "$hits" ]; then echo "✗ static market catalogue bundled into the app:"; echo "$hits" | sed 's/^/    /'; fail=1
+else echo "✓ static market catalogue not in browser bundles"; fi
+
 # 3. No Google Fonts in app output (Phase 2, D-010). Next's framework chunks
 #    carry an inert GOOGLE_FONT_PROVIDER constant, so only app output is checked.
 app_out=$(grep -rlE 'fonts\.(googleapis|gstatic)\.com' "$dist/server/app" "$dist/static/css" 2>/dev/null || true)

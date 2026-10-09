@@ -216,6 +216,8 @@ export const en = {
   },
 
   empty: {
+    unavailableTitle: "Markets are unavailable right now",
+    unavailableBody: "We couldn't load markets. Please try again in a moment.",
     noMarketsTitle: "No markets here yet",
     noMarketsBody: "Try a different filter or check back shortly.",
     noOpenPositions: "No open positions yet.",

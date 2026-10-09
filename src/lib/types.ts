@@ -19,6 +19,16 @@ export interface Outcome {
   price: number;
   change24h: number;
   volume: number;
+  /** Price 24 h ago (from price_history), so live updates can recompute change24h. */
+  refPrice?: number;
+}
+
+/** A saved translation for one locale (market_translations). */
+export interface SavedMarketText {
+  title: string;
+  description: string;
+  sourceHash: string;
+  status: "machine-drafted" | "reviewed";
 }
 
 export interface Market {
@@ -46,6 +56,10 @@ export interface Market {
   currency: "INR";
   region: string;
   tags: string[];
+  /** Lifecycle status from the database (B3). The static catalogue omits it. */
+  status?: "open" | "closed" | "resolving" | "resolved" | "voided";
+  /** Saved translations by locale (database, B3). Users only read saved text. */
+  translations?: Partial<Record<string, SavedMarketText>>;
 }
 
 export interface SubFilter {

@@ -5,6 +5,7 @@ import { Star } from "lucide-react";
 import { Chip, Segmented } from "@/components/ui";
 import { useMarketStore } from "@/store/useMarketStore";
 import { MarketGrid } from "@/components/MarketGrid";
+import { MarketsUnavailable } from "@/components/MarketsUnavailable";
 import { SORT_OPTIONS, type CategoryMeta, type SortOption } from "@/lib/types";
 import { formatVolume } from "@/lib/utils";
 import { NAV_KEY_BY_SLUG, type Dictionary } from "@/i18n";
@@ -18,6 +19,7 @@ const SORT_KEY: Record<SortOption, keyof Dictionary["sort"]> = {
 
 export function CategoryView({ meta }: { meta: CategoryMeta }) {
   const markets = useMarketStore((s) => s.markets);
+  const status = useMarketStore((s) => s.marketsStatus);
   const [subFilter, setSubFilter] = useState(meta.subFilters[0].label);
   const [sort, setSort] = useState<SortOption>("Trending");
   const { t } = useT();
@@ -116,6 +118,8 @@ export function CategoryView({ meta }: { meta: CategoryMeta }) {
           {t("category", "shown", { count: filtered.length })}
         </span>
       </div>
+
+      {status === "error" && <MarketsUnavailable />}
 
       {liveMarkets.length > 0 && (
         <section

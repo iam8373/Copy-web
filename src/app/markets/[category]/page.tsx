@@ -3,10 +3,6 @@ import type { Metadata } from "next";
 import { CategoryView } from "@/components/CategoryView";
 import { CATEGORIES } from "@/lib/types";
 
-export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ category: c.slug }));
-}
-
 export function generateMetadata({
   params,
 }: {

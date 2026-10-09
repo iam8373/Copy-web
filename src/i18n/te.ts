@@ -219,6 +219,8 @@ export const te: Dictionary = {
   },
 
   empty: {
+    unavailableTitle: "ప్రస్తుతం మార్కెట్లు అందుబాటులో లేవు",
+    unavailableBody: "మార్కెట్లను లోడ్ చేయలేకపోయాం. కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.",
     noMarketsTitle: "ఇక్కడ ఇంకా మార్కెట్లు లేవు",
     noMarketsBody: "వేరే ఫిల్టర్ ఎంచుకోండి లేదా కాసేపటి తర్వాత చూడండి.",
     noOpenPositions: "ఇంకా తెరిచిన పొజిషన్లు లేవు.",

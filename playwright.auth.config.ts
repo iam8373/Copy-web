@@ -13,6 +13,7 @@ const PORT = Number(process.env.E2E_AUTH_PORT ?? 3200);
 const APP_ENV = testAppEnv({ EMAIL_OTP_ENABLED: "false" });
 
 export default defineConfig({
+  globalSetup: "./tests/support/global-setup.ts",
   testDir: "./tests/e2e-auth",
   fullyParallel: false,
   workers: 1,

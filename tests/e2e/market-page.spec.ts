@@ -59,12 +59,12 @@ test.describe("market page", () => {
     await resetState(page);
   });
 
-  test("chart is labelled as demo data and switches range", async ({ page }) => {
+  test("chart draws recorded price history (no demo label) and switches range", async ({ page }) => {
     await page.goto(BINARY);
     const chart = page.getByTestId("price-chart");
-    await expect(chart.getByTestId("demo-data-badge")).toHaveText(en.market.demoData);
-    await chart.getByRole("button", { name: en.market.aboutDemoData }).click();
-    await expect(page.getByRole("tooltip")).toContainText(en.market.demoDataTip);
+    // The seed records a starting price 24 h ago and the current price, so
+    // the chart uses real data and the "Demo data" badge is gone (B3).
+    await expect(chart.getByTestId("demo-data-badge")).toHaveCount(0);
 
     const canvas = chart.getByTestId("chart-canvas");
     await expect(canvas.locator("svg.recharts-surface").first()).toBeVisible();
@@ -145,7 +145,6 @@ test.describe("market page", () => {
     await page.goto(BINARY);
     const main = page.locator("main");
     await expect(main.getByRole("heading", { name: hi.market.orderBook })).toBeVisible();
-    await expect(main.getByTestId("demo-data-badge")).toHaveText(hi.market.demoData);
     for (const english of ["Order Book", "Back to", "Rules & resolution", "Demo data", "Top holders"]) {
       await expect(main).not.toContainText(english);
     }

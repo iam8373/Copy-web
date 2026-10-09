@@ -572,3 +572,19 @@ publishable key (GoTrue v2.197.0). **Not verified:** a real Google sign-in (need
 browser with a Google account), Turnstile with the production site key, and anything
 touching the hosted database (schema not applied yet: `public.markets` does not exist).
 
+## B3 — read path from the database (done)
+
+- Migration `20261008000200_read_path.sql`: `markets.tags`/`region`,
+  `outcome_prices_24h_ago()`, `market_volume_24h()`, Realtime publication for outcomes.
+- `src/services/markets/read.ts`; `GET /api/prices`; `MarketsHydrator`, `LivePrices`,
+  `MarketsUnavailable`; market page fetches market + recorded history; sitemap reads
+  slugs at request time (`src/lib/sitemap-entries.ts` is the pure builder).
+- Removed: client price jitter (`LiveTicker`), runtime use of `src/data/markets.ts`,
+  translations JSON at runtime (now from the DB), the market-route loading boundary
+  (404 status).
+- Seed: `scripts/seed-db.ts` (+ tags, region, two price points per new outcome); e2e global
+  setup seeds the local stand-in only.
+- Tests: `tests/e2e/read-path.spec.ts` (DB-rendered page and ids, 404, live price change
+  via the poll, `/api/prices`, `/api/session` signed out); chart test now asserts real
+  history and no demo badge.
+

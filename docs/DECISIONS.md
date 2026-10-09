@@ -2,6 +2,43 @@
 
 Architecture and product decisions, newest first.
 
+## D-022 — Phase B3: markets are read from the database
+
+**Date:** Backend Phase B3
+**Status:** Accepted
+
+- **One read service:** `src/services/markets/read.ts` (`server-only`): `getMarkets`,
+  `getMarket`, `getCategoryMarkets`, `searchMarkets`, `getPriceHistory`, `getLivePrices`.
+  Reads use the publishable key and no user session, so results are the same for everyone
+  and are cached with `unstable_cache`: tag `markets` (30 s), `prices` (5 s),
+  `history:<id>` (30 s). Writers (place_order in B4, admin edits later) call
+  `revalidateTag`. Every function returns `{ ok }` so pages show "Markets are unavailable
+  right now" instead of crashing when the database is unreachable.
+- **No network at build time:** the root layout is `force-dynamic`; nothing reads Supabase
+  during `next build` (CI builds with no Supabase variables at all).
+- **Market shape unchanged** for the UI; ids are now the database uuids. Saved
+  translations arrive with each market (`market_translations`) and `getMarketText` reads
+  them with the same stale-hash fallback to English. The 24 h change uses
+  `outcome_prices_24h_ago()` (price_history); 24 h volume adds real orders
+  (`market_volume_24h()`, aggregate-only, SECURITY DEFINER) to the seeded figure.
+- **Hydration:** the layout fetches the catalogue once and `MarketsHydrator` puts it in the
+  store before anything reads it, so server and client HTML match. The store is a module
+  singleton during SSR; that is acceptable only for public, identical market data and is
+  never used for per-user state.
+- **Live prices:** Supabase Realtime (`postgres_changes` on `outcomes`, which the migration
+  adds to the `supabase_realtime` publication when it exists) plus a 20 s poll of
+  `GET /api/prices` while the tab is visible. The random client jitter is gone.
+  `NEXT_PUBLIC_SUPABASE_REALTIME=off` skips the socket (local stacks without Realtime).
+- **Charts:** recorded `price_history` when there are at least two points (the seed writes
+  a point 24 h ago and one now); otherwise the generated series with the "Demo data" badge.
+- **Seed:** `scripts/seed-db.ts` (shared by `npm run db:seed` and the e2e global setup),
+  insert-if-missing. `db:seed` refuses a non-local URL without `--remote` and
+  `NODE_ENV=production` without `--yes-production`. The static file is imported only by
+  the seed, the translation scripts and tests; `verify-build.sh` fails if its text reaches
+  the browser bundle.
+- **404s:** the home skeleton moved into a `(home)` route group, because a loading boundary
+  above `market/[slug]` made `notFound()` stream with status 200.
+
 ## D-021 — Phase B2: hosted keys, no demo auth, email codes behind a flag
 
 **Date:** Backend Phase B2 (supersedes the opt-in mode of D-020)
