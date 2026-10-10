@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Briefcase, LineChart, LogIn } from "lucide-react";
+import { useEffect } from "react";
+import { ArrowRight, Briefcase, LineChart, LogIn, Receipt, Wallet } from "lucide-react";
+import { Button, EmptyState } from "@/components/ui";
+import type { LedgerRow, OrderRow, PortfolioPage } from "@/store/useMarketStore";
 import { usePortfolio, type EnrichedPosition } from "@/lib/usePortfolio";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
@@ -141,10 +144,104 @@ function PositionCard({ row }: { row: EnrichedPosition }) {
   );
 }
 
+const fmtWhen = (iso: string) =>
+  new Date(iso).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+
+function Pager({ page, total, onPage, testId }: { page: number; total: number; onPage: (p: number) => void; testId: string }) {
+  const { t } = useT();
+  const pages = Math.max(1, Math.ceil(total / 10));
+  if (pages <= 1) return null;
+  return (
+    <div className="mt-3 flex items-center justify-between gap-2" data-testid={testId}>
+      <Button size="sm" variant="secondary" disabled={page <= 1} onClick={() => onPage(page - 1)}>
+        {t("dashboard", "prev")}
+      </Button>
+      <span className="tnum text-12 text-secondary">{t("dashboard", "pageOf", { page, pages })}</span>
+      <Button size="sm" variant="secondary" disabled={page >= pages} onClick={() => onPage(page + 1)}>
+        {t("dashboard", "next")}
+      </Button>
+    </div>
+  );
+}
+
+const LEDGER_LABEL: Record<string, "ledgerSignup" | "ledgerTrade" | "ledgerPayout" | "ledgerRefund" | "ledgerAdjustment"> = {
+  signup_credit: "ledgerSignup",
+  trade: "ledgerTrade",
+  payout: "ledgerPayout",
+  refund: "ledgerRefund",
+  admin_adjustment: "ledgerAdjustment",
+};
+
+function History({ orders, ledger }: { orders: PortfolioPage<OrderRow>; ledger: PortfolioPage<LedgerRow> }) {
+  const { t, locale } = useT();
+  const markets = useMarketStore((s) => s.markets);
+  const load = useMarketStore((s) => s.loadPortfolio);
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <section data-testid="orders-section">
+        <h2 className="mb-3 text-16 font-bold text-primary">{t("dashboard", "ordersTitle")}</h2>
+        {orders.rows.length === 0 ? (
+          <EmptyState size="compact" icon={Receipt} title={t("dashboard", "noOrders")} />
+        ) : (
+          <ul className="flex flex-col divide-y divide-subtle rounded-card border border-subtle bg-surface-2">
+            {orders.rows.map((o) => {
+              const m = markets.find((x) => x.id === o.marketId);
+              const label = m?.outcomes.find((x) => x.id === o.outcomeId)?.label ?? "";
+              return (
+                <li key={o.id} className="flex flex-col gap-1 p-3 text-13" data-testid="order-row">
+                  <span className="truncate font-semibold text-primary">{m ? getMarketText(m, locale).title : "—"}</span>
+                  <span className="tnum flex flex-wrap gap-x-3 text-12 text-secondary">
+                    <span>{label}</span>
+                    <span>{formatRupees(o.amount)}</span>
+                    <span>{t("trade", "shares", { count: o.shares.toFixed(1) })}</span>
+                    <span>@ {o.avgPrice.toFixed(2)}</span>
+                    <span className="ml-auto">{fmtWhen(o.at)}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <Pager page={orders.page} total={orders.total} onPage={(p) => void load({ ordersPage: p })} testId="orders-pager" />
+      </section>
+
+      <section data-testid="ledger-section">
+        <h2 className="mb-3 text-16 font-bold text-primary">{t("dashboard", "ledgerTitle")}</h2>
+        {ledger.rows.length === 0 ? (
+          <EmptyState size="compact" icon={Wallet} title={t("dashboard", "noLedger")} />
+        ) : (
+          <ul className="flex flex-col divide-y divide-subtle rounded-card border border-subtle bg-surface-2">
+            {ledger.rows.map((l) => (
+              <li key={l.id} className="flex items-center gap-3 p-3 text-13" data-testid="ledger-row">
+                <span className="min-w-0 flex-1 truncate text-primary">{t("dashboard", LEDGER_LABEL[l.type] ?? "ledgerAdjustment")}</span>
+                <span className="tnum text-12 text-secondary">{fmtWhen(l.at)}</span>
+                <span className={cn("tnum w-24 text-right font-semibold", l.amount >= 0 ? "text-success" : "text-primary")}>
+                  {l.amount >= 0 ? "+" : "-"}
+                  {formatRupees(Math.abs(l.amount))}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Pager page={ledger.page} total={ledger.total} onPage={(p) => void load({ ledgerPage: p })} testId="ledger-pager" />
+      </section>
+    </div>
+  );
+}
+
 export function DashboardView() {
   const { t, locale } = useT();
   const session = useMarketStore((s) => s.session);
   const setAuthOpen = useMarketStore((s) => s.setAuthOpen);
+  const wallet = useMarketStore((s) => s.wallet);
+  const orders = useMarketStore((s) => s.orders);
+  const ledger = useMarketStore((s) => s.ledger);
+  const loadPortfolio = useMarketStore((s) => s.loadPortfolio);
+
+  // Fresh numbers whenever the dashboard opens (the store may be minutes old).
+  useEffect(() => {
+    if (session) void loadPortfolio();
+  }, [session, loadPortfolio]);
   const {
     open,
     settled,
@@ -165,7 +262,7 @@ export function DashboardView() {
           <p className="mt-1 text-13 text-secondary">
             {session
               ? t("dashboard", "signedInAs", { handle: session.handle })
-              : t("dashboard", "demoPortfolio")}
+              : t("dashboard", "signedOutNote")}
           </p>
         </div>
         <div className="ml-auto flex gap-2">
@@ -189,7 +286,11 @@ export function DashboardView() {
         </div>
       </header>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <StatCard
+          label={t("dashboard", "wallet")}
+          value={session && wallet !== null ? formatRupees(wallet, 0) : "—"}
+        />
         <StatCard label={t("dashboard", "portfolioValue")} value={formatRupees(portfolioValue, 0)} />
         <StatCard label={t("dashboard", "invested")} value={formatRupees(investedOpen, 0)} />
         <StatCard
@@ -324,6 +425,8 @@ export function DashboardView() {
           </section>
         </div>
       </div>
+
+      {session && <History orders={orders} ledger={ledger} />}
     </div>
   );
 }

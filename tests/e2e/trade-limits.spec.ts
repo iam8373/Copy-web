@@ -6,9 +6,8 @@ import {
   formatLimit,
   validateAmount,
 } from "../../src/lib/trade-limits";
-import { useMarketStore } from "../../src/store/useMarketStore";
-import { MARKETS } from "../../src/data/markets";
-import { resetState, signInWithEmail } from "./helpers";
+import { OrderInput } from "../../src/lib/order-schema";
+import { openMarket, resetState, signInWithEmail } from "./helpers";
 
 // ---------------------------------------------------------------- pure logic
 test.describe("validateAmount", () => {
@@ -38,47 +37,30 @@ test.describe("validateAmount", () => {
   });
 });
 
-// -------------------------------------------------------- store (no UI at all)
-test.describe("placeOrder refuses invalid amounts even if the UI is bypassed", () => {
-  const market = MARKETS[0];
-  const session = {
-    method: "google" as const,
-    handle: "store-test@example.com",
-    initial: "S",
-    ageConfirmedAt: "2026-01-01T00:00:00.000Z",
+// ------------------------------------------------ server input (no UI at all)
+// The Server Action validates with OrderInput before calling place_order(),
+// and the database refuses invalid amounts again (supabase/tests/004).
+test.describe("the server's order schema refuses invalid amounts even if the UI is bypassed", () => {
+  const base = {
+    marketId: "00000000-0000-4000-8000-000000000001",
+    outcomeId: "00000000-0000-4000-8000-000000000002",
+    idempotencyKey: "abcdefgh-1234",
   };
-
-  test.beforeEach(() => {
-    useMarketStore.setState({ session, positions: [], toasts: [], lastFill: null, trade: null });
-  });
-
-  for (const bad of [0, -5, NaN, 1e9, Infinity]) {
-    test(`amount ${bad} is refused with an error toast`, () => {
-      useMarketStore.getState().placeOrder({
-        market,
-        outcomeId: market.outcomes[0].id,
-        amount: bad,
-      });
-      const s = useMarketStore.getState();
-      expect(s.positions).toHaveLength(0);
-      expect(s.lastFill).toBeNull();
-      expect(s.toasts.at(-1)).toMatchObject({ titleKey: "invalidAmount", tone: "error" });
+  for (const bad of [0, -5, NaN, 1e9, Infinity, 0.5, 1.234, MAX_TRADE + 1]) {
+    test(`amount ${bad} is refused`, () => {
+      expect(OrderInput.safeParse({ ...base, amount: bad }).success).toBe(false);
     });
   }
-
-  for (const good of [MIN_TRADE, MAX_TRADE]) {
+  for (const good of [MIN_TRADE, 12.5, MAX_TRADE]) {
     test(`amount ${good} is accepted`, () => {
-      useMarketStore.getState().placeOrder({
-        market,
-        outcomeId: market.outcomes[0].id,
-        amount: good,
-      });
-      const s = useMarketStore.getState();
-      expect(s.positions).toHaveLength(1);
-      expect(s.lastFill).not.toBeNull();
-      expect(s.toasts.at(-1)).toMatchObject({ titleKey: "orderPlaced" });
+      expect(OrderInput.safeParse({ ...base, amount: good }).success).toBe(true);
     });
   }
+  test("ids must be uuids and the idempotency key well-formed", () => {
+    expect(OrderInput.safeParse({ ...base, amount: 10, marketId: "mkt_001" }).success).toBe(false);
+    expect(OrderInput.safeParse({ ...base, amount: 10, idempotencyKey: "short" }).success).toBe(false);
+    expect(OrderInput.safeParse({ ...base, amount: 10, idempotencyKey: "has spaces in it" }).success).toBe(false);
+  });
 });
 
 // ------------------------------------------------------------------------ UI
@@ -131,8 +113,17 @@ test.describe("trade modal amount field", () => {
     await expect(page.locator('[data-testid="amount-error"]')).toHaveCount(0);
     await expect(place).toBeEnabled();
 
+    // ₹1 really fills. (The maximum is a valid amount but more than the
+    // 10,000 welcome credit, so the server refuses it for lack of funds.)
+    await input.fill("1");
     await place.click();
     await expect(page.getByText(/order placed successfully/i)).toBeVisible();
+  });
+
+  test("an order larger than the balance is refused by the server with a clear message", async ({ page }) => {
+    await page.locator('[data-testid="amount-input"]').fill(String(MAX_TRADE));
+    await page.getByRole("button", { name: /place order/i }).click();
+    await expect(page.getByText(/not enough credits/i)).toBeVisible();
   });
 
   test("typing moves the slider, and the slider moves the input", async ({ page }) => {
@@ -162,7 +153,8 @@ test.describe("trade modal amount field", () => {
 
 test("the market detail panel uses the same limits", async ({ page, isMobile }) => {
   await resetState(page);
-  await page.goto("/market/ipl-2026-winner");
+  const m = await openMarket(false);
+  await page.goto(`/market/${m.slug}`);
   // Below lg the panel is the trade sheet, opened from the fixed bar.
   if (isMobile) await page.getByTestId("mobile-trade-bar").getByRole("button").click();
   const input = page.locator(isMobile ? "#amount" : "#detail-amount");

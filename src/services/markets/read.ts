@@ -33,7 +33,7 @@ function publicClient() {
 }
 
 const MARKET_COLUMNS =
-  "id, slug, title, description, category, subcategory, end_date, is_live, is_featured, resolution_source, status, is_binary, total_volume, volume_change_24h, region, tags, " +
+  "id, slug, title, description, category, subcategory, end_date, is_live, is_featured, resolution_source, status, is_binary, liquidity_b, total_volume, volume_change_24h, region, tags, " +
   "outcomes!outcomes_market_id_fkey(id, label, price, sort_order), market_translations(locale, title, description, status, source_hash)";
 
 type Row = Database["public"]["Tables"]["markets"]["Row"] & {
@@ -79,6 +79,7 @@ function toMarket(r: Row, ref: Map<string, number>, vol24: Map<string, number>):
     region: r.region,
     tags: r.tags ?? [],
     status: r.status as Market["status"],
+    liquidityB: Number(r.liquidity_b),
     translations,
   };
 }

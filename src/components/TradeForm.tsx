@@ -8,6 +8,7 @@ import { AmountField } from "@/components/AmountField";
 import { AnimatedNumber, Button, FOCUS_RING } from "@/components/ui";
 import { validateAmount } from "@/lib/trade-limits";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
+import { estimateShares } from "@/services/markets/market-data";
 
 export interface TradeFormProps {
   market: Market;
@@ -38,15 +39,20 @@ export function TradeForm({
   openedPrice,
 }: TradeFormProps) {
   const placeOrder = useMarketStore((s) => s.placeOrder);
+  const pending = useMarketStore((s) => s.orderPending);
+  const wallet = useMarketStore((s) => s.wallet);
   const { t } = useT();
 
   const selected = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
   const check = validateAmount(amount);
-  // Demo engine fills at the displayed price (see services/markets/market-data.ts).
-  const shares = check.ok ? check.value / Math.max(selected.price, 0.01) : 0;
+  // LMSR estimate including price impact (same model as place_order); the
+  // server's fill is what the success animation and toast show.
+  const shares = check.ok ? estimateShares(market, selected.id, check.value) : 0;
   const payout = shares;
   const returnPct = check.ok && check.value > 0 ? (payout - check.value) / check.value : 0;
   const slipped = openedPrice !== undefined && Math.abs(selected.price - openedPrice) > 0.01;
+  // Only open markets before their end date take orders (the server checks too).
+  const tradable = (market.status === undefined || market.status === "open") && new Date(market.endDate) > new Date();
 
   return (
     <div className="flex flex-col gap-4" data-testid="trade-form">
@@ -89,7 +95,7 @@ export function TradeForm({
       <dl className="flex flex-col gap-2 rounded-btn bg-surface-3 p-3 text-13">
         <div className="flex justify-between gap-2">
           <dt className="text-secondary">{t("trade", "avgPrice")}</dt>
-          <dd className="tnum font-semibold text-primary">{formatRupees(selected.price)}</dd>
+          <dd className="tnum font-semibold text-primary">{formatRupees(shares > 0 && check.ok ? check.value / shares : selected.price)}</dd>
         </div>
         <div className="flex justify-between gap-2">
           <dt className="text-secondary">{t("trade", "youWillReceive")}</dt>
@@ -131,12 +137,23 @@ export function TradeForm({
           size="lg"
           fullWidth
           // The store re-validates; this is only the UI half of the check.
-          onClick={() => placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })}
-          disabled={!check.ok}
+          onClick={() => void placeOrder({ market, outcomeId: selected.id, amount: Number(amount) })}
+          disabled={!check.ok || !tradable}
+          loading={pending}
           className="text-14 font-bold"
         >
           {t("trade", "placeOrder")}
         </Button>
+        {!tradable && (
+          <p className="text-center text-12 font-semibold text-warning" data-testid="market-closed-note">
+            {t("toast", "orderMarketClosed")}
+          </p>
+        )}
+        {wallet !== null && (
+          <p className="tnum text-center text-12 text-secondary" data-testid="trade-balance">
+            {t("trade", "balance", { amount: formatRupees(wallet) })}
+          </p>
+        )}
         <p className="text-center text-11 text-secondary">{t("trade", "settlementNote")}</p>
       </div>
     </div>

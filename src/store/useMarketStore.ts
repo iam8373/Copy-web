@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import type { Market } from "@/lib/types";
 import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
+import { submitOrder } from "@/app/actions/trade";
 
 /**
  * Toasts store i18n coordinates rather than resolved strings: the store has no
@@ -47,63 +48,60 @@ export interface Fill {
   at: number;
 }
 
+/** A position as the server reports it (B5): the store never computes these. */
 export interface Position {
   marketId: string;
   outcomeId: string;
   shares: number;
   avgPrice: number;
-  /** Set once a market has resolved in the mock ledger. */
+  realizedPnl?: number;
+  /** Settled at resolution. */
   resolved?: "won" | "lost";
 }
 
-const POSITIONS_SCHEMA = "v1";
-const positionsKey = (handle: string) => `bp-positions:${POSITIONS_SCHEMA}:${handle}`;
-
-/**
- * Phase C: demo-grade per-user persistence. Parsed data is validated field by
- * field and anything malformed is discarded rather than trusted, so corrupt
- * localStorage can never crash the app. See docs/DECISIONS.md for the planned
- * Supabase migration.
- */
-function isValidPosition(raw: unknown): raw is Position {
-  if (typeof raw !== "object" || raw === null) return false;
-  const p = raw as Record<string, unknown>;
-  if (typeof p.marketId !== "string" || typeof p.outcomeId !== "string") return false;
-  if (typeof p.shares !== "number" || !Number.isFinite(p.shares) || p.shares <= 0) return false;
-  if (typeof p.avgPrice !== "number" || !Number.isFinite(p.avgPrice)) return false;
-  if (p.avgPrice < 0 || p.avgPrice > 1) return false;
-  if (p.resolved !== undefined && p.resolved !== "won" && p.resolved !== "lost") return false;
-
-  const market = useMarketStore.getState().markets.find((m) => m.id === p.marketId);
-  if (!market) return false;
-  return market.outcomes.some((o) => o.id === p.outcomeId);
+export interface PortfolioPage<T> {
+  rows: T[];
+  page: number;
+  total: number;
 }
 
-function readPositions(handle: string): Position[] | null {
-  try {
-    const raw = window.localStorage.getItem(positionsKey(handle));
-    if (raw === null) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isValidPosition).map((p) => ({
-      marketId: p.marketId,
-      outcomeId: p.outcomeId,
-      shares: p.shares,
-      avgPrice: p.avgPrice,
-      ...(p.resolved ? { resolved: p.resolved } : {}),
-    }));
-  } catch {
-    // Unavailable or corrupt storage: fall back to in-memory only.
-    return null;
-  }
+export interface OrderRow {
+  id: string;
+  marketId: string;
+  outcomeId: string;
+  amount: number;
+  shares: number;
+  avgPrice: number;
+  at: string;
 }
 
-function writePositions(handle: string, positions: Position[]) {
-  try {
-    window.localStorage.setItem(positionsKey(handle), JSON.stringify(positions));
-  } catch {
-    /* storage unavailable — keep working in memory */
-  }
+export interface LedgerRow {
+  id: string;
+  amount: number;
+  type: string;
+  note: string | null;
+  at: string;
+}
+
+const EMPTY_PAGE = { rows: [], page: 1, total: 0 };
+
+/** Error reason → toast body key (translated by the Toaster). */
+const ORDER_ERROR_BODY: Record<string, string> = {
+  suspended: "orderSuspended",
+  trading_disabled: "orderTradingPaused",
+  market_closed: "orderMarketClosed",
+  invalid_amount: "orderInvalidAmount",
+  insufficient_funds: "orderInsufficientFunds",
+  rate_limited: "orderRateLimited",
+  daily_limit: "orderDailyLimit",
+  conflict: "orderFailedBody",
+  failed: "orderFailedBody",
+};
+
+function newIdempotencyKey(): string {
+  const c = globalThis.crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
 interface MarketState {
@@ -114,7 +112,15 @@ interface MarketState {
   ageConfirmOpen: boolean;
   searchOpen: boolean;
   trade: TradeIntent | null;
+  /** Server data (B5), loaded by loadPortfolio(); empty when signed out. */
   positions: Position[];
+  wallet: number | null;
+  orders: PortfolioPage<OrderRow>;
+  ledger: PortfolioPage<LedgerRow>;
+  /** True while an order is in flight (blocks double submits). */
+  orderPending: boolean;
+  /** Fetches the signed-in user's own portfolio from GET /api/portfolio. */
+  loadPortfolio: (opts?: { ordersPage?: number; ledgerPage?: number }) => Promise<void>;
   lastFill: Fill | null;
   toasts: Toast[];
   /** "loading" until MarketsHydrator runs; "error" when the DB was unreachable. */
@@ -138,7 +144,7 @@ interface MarketState {
   setSearchOpen: (open: boolean) => void;
   openTrade: (market: Market, outcomeId: string) => void;
   closeTrade: () => void;
-  placeOrder: (args: { market: Market; outcomeId: string; amount: number }) => void;
+  placeOrder: (args: { market: Market; outcomeId: string; amount: number }) => Promise<void>;
   clearFill: () => void;
   pushToast: (t: Omit<Toast, "id">) => void;
   dismissToast: (id: string) => void;
@@ -153,6 +159,10 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   searchOpen: false,
   trade: null,
   positions: [],
+  wallet: null,
+  orders: EMPTY_PAGE,
+  ledger: EMPTY_PAGE,
+  orderPending: false,
   lastFill: null,
   toasts: [],
 
@@ -175,10 +185,36 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       return changed ? { markets } : {};
     }),
 
+  loadPortfolio: async (opts) => {
+    if (!get().session) return;
+    const q = new URLSearchParams({
+      orders: String(opts?.ordersPage ?? get().orders.page),
+      ledger: String(opts?.ledgerPage ?? get().ledger.page),
+    });
+    try {
+      const res = await fetch(`/api/portfolio?${q}`, { cache: "no-store", credentials: "same-origin" });
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        balance: number;
+        positions: Position[];
+        orders: PortfolioPage<OrderRow>;
+        ledger: PortfolioPage<LedgerRow>;
+      };
+      if (!get().session) return; // signed out meanwhile
+      set({ wallet: data.balance, positions: data.positions, orders: data.orders, ledger: data.ledger });
+    } catch {
+      /* offline: keep what we have */
+    }
+  },
+
   adoptSession: (session, opts) => {
-    const stored = readPositions(session.handle);
-    const positions = stored ?? [];
-    set({ session, authOpen: false, positions });
+    const changed = get().session?.handle !== session.handle;
+    set({
+      session,
+      authOpen: false,
+      ...(changed ? { positions: [], wallet: null, orders: EMPTY_PAGE, ledger: EMPTY_PAGE } : {}),
+    });
+    void get().loadPortfolio();
     if (opts?.announce) {
       get().pushToast({
         titleKey: "welcome",
@@ -190,9 +226,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   },
 
   signOut: () => {
-    // Stored positions are deliberately left in place so signing back in
-    // restores them; only the in-memory copy is dropped.
-    set({ session: null, positions: [] });
+    // Nothing personal stays in memory after sign-out.
+    set({ session: null, positions: [], wallet: null, orders: EMPTY_PAGE, ledger: EMPTY_PAGE });
     get().pushToast({ titleKey: "signedOut", tone: "info" });
   },
 
@@ -207,7 +242,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
   openTrade: (market, outcomeId) => set({ trade: { market, outcomeId } }),
   closeTrade: () => set({ trade: null }),
 
-  placeOrder: ({ market, outcomeId, amount: rawAmount }) => {
+  placeOrder: async ({ market, outcomeId, amount: rawAmount }) => {
     // Defense in depth (Phase 5): never trust the UI. An invalid amount is
     // refused here even if the form's disabled state was bypassed. The trade
     // modal stays open so the user can correct it.
@@ -223,82 +258,57 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     }
     const amount = check.value;
 
-    const outcome = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
-    const shares = amount / Math.max(outcome.price, 0.01);
 
+    // Signed-out and missing-consent cases are decided by the server (it is
+    // the source of truth; the client may not have loaded the session yet).
+    // The age check here only saves a round trip when we already know.
     const current = get().session;
-
-    if (!current) {
-      set({ trade: null, authOpen: true });
-      get().pushToast({
-        titleKey: "signInToOrder",
-        bodyKey: "signInToOrderBody",
-        tone: "info",
-      });
-      return;
-    }
-
-    // No recorded 18+ consent (e.g. a Google sign-in whose consent cookie
-    // expired): ask again before any order. The server checks it too (B4).
-    if (!current.ageConfirmedAt) {
+    if (current && !current.ageConfirmedAt) {
       set({ trade: null, ageConfirmOpen: true });
       return;
     }
 
-    const handle = get().session?.handle;
+    if (get().orderPending) return;
+    set({ orderPending: true });
+    const outcome = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
+    // One key per click: a retried request with the same key can never
+    // spend twice (place_order is idempotent per user + key).
+    const r = await submitOrder({
+      marketId: market.id,
+      outcomeId: outcome.id,
+      amount,
+      idempotencyKey: newIdempotencyKey(),
+    }).catch(() => ({ ok: false as const, reason: "failed" as const }));
+    set({ orderPending: false });
 
-    set((state) => {
-      const existing = state.positions.find(
-        (p) => p.marketId === market.id && p.outcomeId === outcome.id && !p.resolved
-      );
-      const positions = existing
-        ? state.positions.map((p) =>
-            p === existing
-              ? {
-                  ...p,
-                  avgPrice:
-                    (p.avgPrice * p.shares + outcome.price * shares) / (p.shares + shares),
-                  shares: p.shares + shares,
-                }
-              : p
-          )
-        : [
-            ...state.positions,
-            {
-              marketId: market.id,
-              outcomeId: outcome.id,
-              shares,
-              avgPrice: outcome.price,
-            },
-          ];
+    if (!r.ok) {
+      if (r.reason === "not_signed_in") {
+        set({ trade: null, authOpen: true });
+        get().pushToast({ titleKey: "signInToOrder", bodyKey: "signInToOrderBody", tone: "info" });
+      } else if (r.reason === "age_not_confirmed") {
+        set({ trade: null, ageConfirmOpen: true });
+      } else {
+        get().pushToast({ titleKey: "orderRejected", bodyKey: ORDER_ERROR_BODY[r.reason] ?? "orderFailedBody", tone: "error" });
+      }
+      return;
+    }
 
-      if (handle) writePositions(handle, positions);
-
-      return {
-        trade: null,
-        positions,
-        lastFill: {
-          marketId: market.id,
-          outcomeLabel: outcome.label,
-          shares,
-          price: outcome.price,
-          at: Date.now(),
-        },
-        markets: state.markets.map((m) =>
-          m.id === market.id ? { ...m, totalVolume: m.totalVolume + amount } : m
-        ),
-      };
-    });
+    const { fill } = r;
+    get().applyPrices(fill.prices);
+    set((state) => ({
+      trade: null,
+      wallet: fill.balance,
+      // The animation and toast show the fill the server actually made.
+      lastFill: { marketId: fill.marketId, outcomeLabel: outcome.label, shares: fill.shares, price: fill.avgPrice, at: Date.now() },
+      markets: state.markets.map((m) => (m.id === fill.marketId ? { ...m, totalVolume: m.totalVolume + fill.amount } : m)),
+    }));
     get().pushToast({
       titleKey: "orderPlaced",
       bodyKey: "orderFilled",
-      vars: {
-        shares: shares.toFixed(1),
-        outcome: outcome.label,
-        price: outcome.price.toFixed(2),
-      },
+      vars: { shares: fill.shares.toFixed(1), outcome: outcome.label, price: fill.avgPrice.toFixed(2) },
       tone: "success",
     });
+    void get().loadPortfolio();
   },
 
   clearFill: () => set({ lastFill: null }),

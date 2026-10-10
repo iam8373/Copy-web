@@ -56,6 +56,8 @@ export interface Market {
   currency: "INR";
   region: string;
   tags: string[];
+  /** LMSR liquidity parameter b (database). */
+  liquidityB?: number;
   /** Lifecycle status from the database (B3). The static catalogue omits it. */
   status?: "open" | "closed" | "resolving" | "resolved" | "voided";
   /** Saved translations by locale (database, B3). Users only read saved text. */

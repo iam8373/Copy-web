@@ -8,7 +8,7 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Button, FOCUS_RING, IconButton } from "@/components/ui";
-import { cn } from "@/lib/utils";
+import { cn, formatRupees } from "@/lib/utils";
 import { signOut as signOutAction } from "@/app/actions/auth";
 import { notifyAuthChanged } from "@/components/AuthSync";
 
@@ -21,6 +21,7 @@ export function Header() {
   const setSearchOpen = useMarketStore((s) => s.setSearchOpen);
   const setAuthOpen = useMarketStore((s) => s.setAuthOpen);
   const session = useMarketStore((s) => s.session);
+  const wallet = useMarketStore((s) => s.wallet);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const { t } = useT();
@@ -92,6 +93,11 @@ export function Header() {
                     <p className="truncate px-3 py-2 text-12 text-secondary">
                       {session.handle}
                     </p>
+                    {wallet !== null && (
+                      <p className="tnum px-3 pb-2 text-13 font-semibold text-primary" data-testid="menu-balance">
+                        {t("trade", "balance", { amount: formatRupees(wallet) })}
+                      </p>
+                    )}
                     <Link
                       href="/dashboard"
                       onClick={() => setMenuOpen(false)}

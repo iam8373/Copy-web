@@ -18,7 +18,11 @@ export interface EnrichedPosition {
   resolved?: "won" | "lost";
 }
 
-/** Joins the mock position ledger against live market prices. */
+/**
+ * Joins the user's positions (from the database, B5) with live market prices.
+ * Unrealised P&L uses current prices; realised P&L comes from resolved
+ * positions (the database's realized_pnl once a market settles).
+ */
 export function usePortfolio() {
   const positions = useMarketStore((s) => s.positions);
   const markets = useMarketStore((s) => s.markets);
@@ -46,7 +50,7 @@ export function usePortfolio() {
         lastPrice,
         cost,
         value,
-        pnl: value - cost,
+        pnl: p.resolved && p.realizedPnl !== undefined && p.realizedPnl !== 0 ? p.realizedPnl : value - cost,
         pnlPct: cost > 0 ? ((value - cost) / cost) * 100 : 0,
         resolved: p.resolved,
       });

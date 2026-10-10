@@ -5,7 +5,7 @@ import type { Market } from "@/lib/types";
 import { useT } from "@/i18n/LanguageProvider";
 import { Card, Segmented, Tooltip } from "@/components/ui";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
-import { getOrderBook } from "@/services/markets/market-data";
+import { DEFAULT_LIQUIDITY_B, getOrderBook } from "@/services/markets/market-data";
 
 /** Impact (percentage points) above which a row is flagged. */
 const BIG_IMPACT_PTS = 5;
@@ -26,7 +26,10 @@ export function OrderBook({
   onOutcomeChange: (id: string) => void;
 }) {
   const { t } = useT();
-  const book = useMemo(() => getOrderBook(market, outcomeId), [market, outcomeId]);
+  const book = useMemo(
+    () => getOrderBook(market, outcomeId, market.liquidityB ?? DEFAULT_LIQUIDITY_B),
+    [market, outcomeId]
+  );
   const outcome = market.outcomes.find((o) => o.id === book.outcomeId) ?? market.outcomes[0];
   const yesNo = market.isBinary
     ? market.outcomes.map((o, i) => ({ value: o.id, label: o.label, tone: i === 0 ? ("yes" as const) : ("no" as const) }))

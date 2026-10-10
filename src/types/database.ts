@@ -251,14 +251,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "age_confirmed_at": string | null,"created_at": string,"display_name": string | null,"handle": string,"id": string,"language": string,"role": string,"status": string,"terms_version": string | null,"updated_at": string
+                    "age_confirmed_at": string | null,"created_at": string,"daily_trade_limit": number | null,"display_name": string | null,"handle": string,"id": string,"language": string,"role": string,"status": string,"terms_version": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "age_confirmed_at"?: string | null,"created_at"?: string,"display_name"?: string | null,"handle": string,"id": string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
+                    "age_confirmed_at"?: string | null,"created_at"?: string,"daily_trade_limit"?: number | null,"display_name"?: string | null,"handle": string,"id": string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "age_confirmed_at"?: string | null,"created_at"?: string,"display_name"?: string | null,"handle"?: string,"id"?: string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
+                    "age_confirmed_at"?: string | null,"created_at"?: string,"daily_trade_limit"?: number | null,"display_name"?: string | null,"handle"?: string,"id"?: string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -309,6 +309,15 @@ isOneToOne: true
 "hit_rate_limit":
 { Args: { "p_bucket": string,"p_key_hash": string,"p_limit": number,"p_window_seconds": number }; Returns: boolean
                            },
+"lmsr_lse":
+{ Args: { "b": number,"q": (number)[] }; Returns: number
+                           },
+"lmsr_prices":
+{ Args: { "b": number,"q": (number)[] }; Returns: (number)[]
+                           },
+"lmsr_shares_for_amount":
+{ Args: { "amount": number,"b": number,"i": number,"q": (number)[] }; Returns: number
+                           },
 "market_volume_24h":
 { Args: Record<PropertyKey, never>; Returns: {
               "market_id": string,"volume": number
@@ -318,6 +327,9 @@ isOneToOne: true
 { Args: Record<PropertyKey, never>; Returns: {
               "outcome_id": string,"price": number
             }[]
+                           },
+"place_order":
+{ Args: { "p_amount": number,"p_idempotency_key": string,"p_market_id": string,"p_outcome_id": string }; Returns: Json
                            },
 "unique_handle":
 { Args: { "p_email": string }; Returns: string

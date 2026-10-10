@@ -2,6 +2,60 @@
 
 Architecture and product decisions, newest first.
 
+## D-024 — Phase B5: the portfolio is read from the database
+
+**Date:** Backend Phase B5
+**Status:** Accepted
+
+- `src/services/portfolio/server.ts` (`server-only`) reads the signed-in user's wallet,
+  open positions, orders and ledger **as that user** (RLS: own rows only); the secret key
+  is never used for personal data. `GET /api/portfolio?orders=&ledger=` (no-store, 401
+  when signed out, pages of 10) feeds the store; dashboard and profit views keep their
+  shape and compute unrealised P&L from live prices. Realised P&L comes from resolved
+  positions (`realized_pnl`, set by finalisation in the resolution work order).
+- Removed: localStorage positions, the per-account demo ledger and its seeding.
+  Sign-out clears every personal field from memory.
+- Header menu and trade form show the real wallet balance.
+
+## D-023 — Phase B4: LMSR trading engine in Postgres
+
+**Date:** Backend Phase B4
+**Status:** Accepted (D-017 closed: b = 20,000)
+
+`place_order(market_id, outcome_id, amount, idempotency_key)` is the only trade path:
+SECURITY DEFINER, `search_path` pinned, EXECUTE for `authenticated` only, one
+transaction. Order of checks: signed in → per-user lock (profile row) → idempotent replay
+(same key returns the stored fill; a different amount under the same key is refused) →
+active account → 18+ confirmed → kill switch → amount (min/max from `app_settings`, whole
+paise) → market row lock (open and before `end_date`) → outcome belongs to the market → 10
+orders/minute → optional daily limit (`profiles.daily_trade_limit`, IST day) → balance.
+Then LMSR pricing, outcomes, order, position (cost-weighted average), negative `trade`
+ledger entry, one `price_history` row per outcome, market volume. Errors are `BP_*`
+codes mapped to translated messages by `src/services/trading/server.ts`.
+
+- **Maths:** numerically stable log-sum-exp (`lmsr_lse`), prices `exp(q_i/b − lse)`
+  (sum to 1), shares from the closed form in log space (`lmsr_shares_for_amount`, mirrors
+  `src/lib/lmsr.ts`). Postgres `numeric` throughout.
+- **Rounding:** amounts in whole paise; shares truncated to 8 dp (never more than paid
+  for); prices and average prices rounded to 10 dp.
+- **Concurrency:** the market row lock prices concurrent orders one after another; the
+  profile lock serialises one user's orders (rate limit, daily limit, idempotency).
+  Lock order is always profile → market, so no deadlocks.
+- The client estimate (`estimateShares`) uses the same model; the server's fill is what
+  the toast and animation show. Revalidates the `prices`, `markets` and history tags.
+
+**Price impact, fresh 50/50 market, b = 20,000** (verified in
+`supabase/tests/004_trading.test.sql` and in the client-estimate unit test):
+
+| Order | Shares | Avg price | Yes after | Impact |
+| --- | --- | --- | --- | --- |
+| ₹100 | 199.50248653 | 0.5012468854 | 50.25% | +0.25 pts |
+| ₹1,000 | 1952.37195352 | 0.5121974828 | 52.44% | +2.44 pts |
+| ₹10,000 | 16635.93131502 | 0.6011085169 | 69.67% | +19.67 pts |
+
+The market maker's worst-case loss per binary market is b·ln 2 ≈ 13,863 credits.
+Backlog: sell-back in the engine, then a Sell tab.
+
 ## D-022 — Phase B3: markets are read from the database
 
 **Date:** Backend Phase B3

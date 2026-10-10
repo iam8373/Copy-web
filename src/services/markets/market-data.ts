@@ -9,7 +9,7 @@
  * Pure and synchronous for now; they become async when they hit the network.
  */
 import type { Market } from "@/lib/types";
-import { costToBuy, prices, quantitiesForPrices } from "@/lib/lmsr";
+import { costToBuy, prices, quantitiesForPrices, sharesForAmount } from "@/lib/lmsr";
 
 // ---------------------------------------------------------------------------
 // Price history
@@ -93,11 +93,10 @@ export function getPriceHistory(market: Market, range: ChartRange, now = Date.no
 // ---------------------------------------------------------------------------
 
 /**
- * Liquidity parameter used for quotes until markets carry their own `b`.
- * Matches the seeded `default_liquidity_b`; the value itself is an open owner
- * decision (docs/DECISIONS.md D-017).
+ * Fallback liquidity parameter when a market does not carry its own `b`
+ * (markets from the database do). Owner decision: 20,000 (D-017).
  */
-export const DEFAULT_LIQUIDITY_B = 1000;
+export const DEFAULT_LIQUIDITY_B = 20000;
 
 /** Order sizes shown in the ladder, in shares. */
 export const LADDER_SIZES = [10, 50, 100, 500] as const;
@@ -170,4 +169,20 @@ export interface ActivityItem {
  */
 export function getMarketActivity(_market: Market): ActivityItem[] {
   return [];
+}
+
+/**
+ * Shares an order of `amount` would buy now, from the same LMSR model the
+ * database uses (place_order). An estimate: the price can move before the
+ * order lands, and the server's fill is what counts.
+ */
+export function estimateShares(market: Market, outcomeId: string, amount: number): number {
+  if (!(amount > 0)) return 0;
+  const b = market.liquidityB ?? DEFAULT_LIQUIDITY_B;
+  const idx = Math.max(0, market.outcomes.findIndex((o) => o.id === outcomeId));
+  const shown = market.outcomes.map((o) => Math.max(o.price, 0.001));
+  const total = shown.reduce((s, p) => s + p, 0);
+  const modelled = total < 0.999 ? [...shown, 1 - total] : shown;
+  const { q } = quantitiesForPrices(modelled, b);
+  return Math.floor(sharesForAmount(q, b, idx, amount) * 1e8) / 1e8;
 }

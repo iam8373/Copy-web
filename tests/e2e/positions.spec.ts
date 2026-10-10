@@ -1,143 +1,104 @@
-import { test, expect } from "@playwright/test";
-import { localRest, resetState, signInWithEmail, signOut, uniqueEmail } from "./helpers";
+import { test, expect, type Page } from "@playwright/test";
+import { localRest, localUserId, openMarket, resetState, signInWithEmail, signOut, uniqueEmail } from "./helpers";
 
-// Positions are still kept in localStorage per account until backend Phase B5.
-const keyFor = (email: string) => `bp-positions:v1:${email}`;
+/**
+ * Portfolio from the database (B4/B5): orders go through place_order(), and
+ * the dashboard reads the user's own positions, orders and ledger back.
+ */
 
-/** Places one order on the first cricket market. */
-async function placeOneOrder(page: import("@playwright/test").Page) {
-  await page.goto("/markets/cricket");
-  await page.getByRole("button", { name: /^Trade$/ }).first().click();
-  await page.getByRole("button", { name: /place order/i }).click();
-  await expect(page.getByRole("status")).toBeVisible();
-}
-
-async function storedPositions(page: import("@playwright/test").Page, key: string) {
-  return page.evaluate((k) => {
-    try {
-      return JSON.parse(window.localStorage.getItem(k) ?? "null");
-    } catch {
-      return null;
-    }
-  }, key);
+async function placeOneOrder(page: Page, amount = "500") {
+  const m = await openMarket(true);
+  await page.goto(`/market/${m.slug}`);
+  const panel = (await page.getByTestId("trade-panel").isVisible())
+    ? page.getByTestId("trade-panel")
+    : (await page.getByTestId("mobile-trade-bar").getByRole("button").first().click(), page.getByTestId("trade-modal"));
+  await panel.locator('[data-testid="amount-input"]').fill(amount);
+  await panel.getByRole("button", { name: /place order/i }).click();
+  await expect(page.getByText(/order placed successfully/i).first()).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
   await resetState(page);
 });
 
-test("signed-out state shows no positions", async ({ page }) => {
+test("signed out: no portfolio, and the API refuses", async ({ page, request }) => {
   await page.goto("/dashboard");
   await expect(page.getByText(/no open positions yet/i)).toBeVisible();
+  await expect(page.getByTestId("orders-section")).toHaveCount(0);
+  const res = await request.get("/api/portfolio");
+  expect(res.status()).toBe(401);
+  expect(res.headers()["cache-control"]).toMatch(/no-store/);
 });
 
-test("a placed order survives a reload with an averaged price", async ({ page }) => {
+test("an order is written to the database and survives a reload", async ({ page }) => {
   const email = await signInWithEmail(page);
-  const KEY_A = keyFor(email);
-  await placeOneOrder(page);
+  await placeOneOrder(page, "500");
 
-  const before = await storedPositions(page, KEY_A);
-  expect(Array.isArray(before)).toBe(true);
-  expect(before.length).toBeGreaterThan(0);
+  const id = await localUserId(email);
+  const orders = await localRest<Array<{ amount: number; shares: number; avg_price: number }>>(
+    `orders?user_id=eq.${id}&select=amount,shares,avg_price`
+  );
+  expect(orders).toHaveLength(1);
+  expect(Number(orders[0].amount)).toBe(500);
+  // LMSR: a ₹500 order pays slightly more than the starting price per share.
+  expect(Number(orders[0].shares)).toBeGreaterThan(0);
+  const [wallet] = await localRest<Array<{ balance: number }>>(`wallets?user_id=eq.${id}&select=balance`);
+  expect(Number(wallet.balance)).toBe(9500);
 
   await page.goto("/dashboard");
-  await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
-  const visibleRows = page.locator('a[href^="/market/"]:visible');
-  await expect(visibleRows).not.toHaveCount(0);
-  const rowsBefore = await visibleRows.count();
-
+  await expect(page.getByTestId("order-row")).toHaveCount(1);
+  await expect(page.locator('a[href^="/market/"]:visible').first()).toBeVisible();
+  const rowsBefore = await page.locator('a[href^="/market/"]:visible').count();
   await page.reload();
-  await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
-  await expect(visibleRows).toHaveCount(rowsBefore);
-
-  // Averaging: a second order on the same outcome must merge into the existing
-  // row rather than appending a new one. The order targets whichever market the
-  // first Trade button belongs to, so find the entry that actually changed
-  // instead of assuming an index.
-  await placeOneOrder(page);
-  const after = await storedPositions(page, KEY_A);
-  expect(after.length).toBe(before.length);
-
-  type Stored = { marketId: string; outcomeId: string; shares: number; avgPrice: number };
-  const changed = (after as Stored[]).filter((a) => {
-    const prev = (before as Stored[]).find(
-      (b) => b.marketId === a.marketId && b.outcomeId === a.outcomeId
-    );
-    return prev !== undefined && a.shares > prev.shares;
-  });
-
-  expect(changed).toHaveLength(1);
-  expect(changed[0].avgPrice).toBeGreaterThan(0);
-  expect(changed[0].avgPrice).toBeLessThanOrEqual(1);
-
-  // Total exposure grew, and the dashboard still shows one row per position.
-  const totalBefore = (before as Stored[]).reduce((t, p) => t + p.shares, 0);
-  const totalAfter = (after as Stored[]).reduce((t, p) => t + p.shares, 0);
-  expect(totalAfter).toBeGreaterThan(totalBefore);
-  await page.goto("/dashboard");
-  await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
+  await expect(page.getByTestId("order-row")).toHaveCount(1);
   await expect(page.locator('a[href^="/market/"]:visible')).toHaveCount(rowsBefore);
+  // Ledger shows the welcome credit and the order.
+  await expect(page.getByTestId("ledger-row")).toHaveCount(2);
+  // Header menu shows the real balance.
+  await page.getByRole("button", { name: /account menu/i }).click();
+  await expect(page.getByTestId("menu-balance")).toContainText("9,500");
 });
 
-test("different accounts keep separate positions", async ({ page }) => {
-  const emailA = uniqueEmail("a");
-  const emailB = uniqueEmail("b");
-  await signInWithEmail(page, emailA);
-  await placeOneOrder(page);
-  const accountA = await storedPositions(page, keyFor(emailA));
-  expect(accountA.length).toBeGreaterThan(0);
-  await signOut(page);
-
-  // Signed out: memory is cleared even though storage is retained.
-  await page.goto("/dashboard");
-  await expect(page.getByText(/no open positions yet/i)).toBeVisible();
-
-  // A new account starts empty: no demo seeding any more.
-  await signInWithEmail(page, emailB);
-  expect(await storedPositions(page, keyFor(emailB))).toBeNull();
-  await page.goto("/dashboard");
-  await expect(page.getByText(/no open positions yet/i)).toBeVisible();
-  expect(await storedPositions(page, keyFor(emailA))).toEqual(accountA);
-
-  await signOut(page);
-  await signInWithEmail(page, emailA);
-  expect(await storedPositions(page, keyFor(emailA))).toEqual(accountA);
-});
-
-test("corrupt stored positions do not crash the app", async ({ page }) => {
+test("a second order on the same outcome merges into one position", async ({ page }) => {
   const email = await signInWithEmail(page);
-  await page.evaluate((k) => window.localStorage.setItem(k, "{not json at all"), keyFor(email));
-  await page.goto("/dashboard");
-  await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
-  await expect(page.getByText(/portfolio value/i)).toBeVisible();
-});
-
-test("structurally invalid entries are discarded, valid ones kept", async ({ page }) => {
-  const email = await signInWithEmail(page);
-  // Markets come from the database now, so use real ids.
-  const [m] = await localRest<Array<{ id: string; outcomes: Array<{ id: string; label: string }> }>>(
-    "markets?slug=eq.ipl-2026-winner&select=id,outcomes!outcomes_market_id_fkey(id,label)"
+  await placeOneOrder(page, "300");
+  await placeOneOrder(page, "200");
+  const id = await localUserId(email);
+  const positions = await localRest<Array<{ shares: number; avg_price: number }>>(
+    `positions?user_id=eq.${id}&select=shares,avg_price`
   );
-  const mi = m.outcomes.find((o) => o.label === "Mumbai Indians")!.id;
+  expect(positions).toHaveLength(1);
+  const orders = await localRest<Array<{ shares: number }>>(`orders?user_id=eq.${id}&select=shares`);
+  const total = orders.reduce((s, o) => s + Number(o.shares), 0);
+  expect(Number(positions[0].shares)).toBeCloseTo(total, 6);
+  expect(Number(positions[0].avg_price)).toBeCloseTo(500 / total, 6);
+});
+
+test("two accounts never see each other's portfolio", async ({ page }) => {
+  const a = uniqueEmail("a");
+  await signInWithEmail(page, a);
+  await placeOneOrder(page, "400");
+  await page.goto("/dashboard");
+  await expect(page.getByTestId("order-row")).toHaveCount(1);
+  await signOut(page);
+
+  await signInWithEmail(page, uniqueEmail("b"));
+  await page.goto("/dashboard");
+  await expect(page.getByText(/no open positions yet/i)).toBeVisible();
+  await expect(page.getByTestId("order-row")).toHaveCount(0);
+  const res = await page.request.get("/api/portfolio");
+  const body = (await res.json()) as { balance: number; orders: { total: number }; positions: unknown[] };
+  expect(body.balance).toBe(10000);
+  expect(body.orders.total).toBe(0);
+  expect(body.positions).toEqual([]);
+});
+
+test("old localStorage positions are ignored", async ({ page }) => {
+  const email = await signInWithEmail(page);
   await page.evaluate(
-    ([k, market, outcome]) => {
-      window.localStorage.setItem(
-        k,
-        JSON.stringify([
-          { marketId: market, outcomeId: outcome, shares: 100, avgPrice: 0.2 },
-          { marketId: "does_not_exist", outcomeId: "yes", shares: 10, avgPrice: 0.5 },
-          { marketId: market, outcomeId: "no-such-outcome", shares: 10, avgPrice: 0.5 },
-          { marketId: market, outcomeId: outcome, shares: -5, avgPrice: 0.2 },
-          { marketId: market, outcomeId: outcome, shares: 10, avgPrice: 9 },
-          "nonsense",
-        ])
-      );
-    },
-    [keyFor(email), m.id, mi]
+    (k) => window.localStorage.setItem(k, JSON.stringify([{ marketId: "x", outcomeId: "y", shares: 100, avgPrice: 0.2 }])),
+    `bp-positions:v1:${email}`
   );
-  await page.reload();
-  await expect(page.getByRole("button", { name: /account menu/i })).toBeVisible();
   await page.goto("/dashboard");
-  // Only the single valid entry should survive the validator.
-  await expect(page.locator('a[href^="/market/"]:visible')).toHaveCount(1);
+  await expect(page.getByText(/no open positions yet/i)).toBeVisible();
 });

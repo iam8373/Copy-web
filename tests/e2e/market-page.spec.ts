@@ -3,8 +3,8 @@ import { MARKETS } from "../../src/data/markets";
 import { STORAGE_KEY } from "../../src/i18n";
 import { en } from "../../src/i18n/en";
 import { hi } from "../../src/i18n/hi";
-import { getMarketActivity, getOrderBook, getPriceHistory, LADDER_SIZES } from "../../src/services/markets/market-data";
-import { resetState, signInWithEmail } from "./helpers";
+import { estimateShares, getMarketActivity, getOrderBook, getPriceHistory, LADDER_SIZES } from "../../src/services/markets/market-data";
+import { openMarket, resetState, signInWithEmail } from "./helpers";
 
 /** Work order 4, Phase 4: market page. */
 
@@ -47,6 +47,21 @@ test.describe("market data service", () => {
         }
       }
     }
+  });
+
+  test("the trade estimate uses the same LMSR as place_order (price-impact table, b = 20,000)", () => {
+    // Same figures as supabase/tests/004_trading.test.sql and DECISIONS D-023.
+    const fresh = {
+      ...bySlug("will-india-win-the-2026-t20-world-cup"),
+      liquidityB: 20000,
+      outcomes: [
+        { id: "y", label: "Yes", price: 0.5, change24h: 0, volume: 0 },
+        { id: "n", label: "No", price: 0.5, change24h: 0, volume: 0 },
+      ],
+    };
+    expect(estimateShares(fresh, "y", 100)).toBeCloseTo(199.50248653, 6);
+    expect(estimateShares(fresh, "y", 1000)).toBeCloseTo(1952.37195352, 6);
+    expect(estimateShares(fresh, "y", 10000)).toBeCloseTo(16635.93131502, 5);
   });
 
   test("activity is honestly empty until the backend exists", () => {
@@ -183,11 +198,20 @@ test.describe("trade panel (lg+)", () => {
     await expect(page.getByTestId("trade-modal")).toHaveCount(0);
   });
 
-  test("signed-in order from the panel fills", async ({ page }) => {
-    await page.goto(BINARY);
+  test("signed-in order from the panel fills (open market)", async ({ page }) => {
+    const m = await openMarket(true);
+    await page.goto(`/market/${m.slug}`);
     await signInWithEmail(page);
     await page.getByTestId("trade-panel").getByRole("button", { name: /place order/i }).click();
     await expect(page.getByText(/order placed successfully/i)).toBeVisible();
+    await expect(page.getByTestId("trade-balance")).toContainText("9,500");
+  });
+
+  test("a closed market's panel cannot place orders", async ({ page }) => {
+    // The catalogue's T20 World Cup ended in March 2026, so the seed closes it.
+    await page.goto(BINARY);
+    await expect(page.getByTestId("trade-panel").getByTestId("market-closed-note")).toBeVisible();
+    await expect(page.getByTestId("trade-panel").getByRole("button", { name: /place order/i })).toBeDisabled();
   });
 });
 

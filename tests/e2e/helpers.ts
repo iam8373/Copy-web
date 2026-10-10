@@ -102,3 +102,23 @@ export async function localUserId(email: string): Promise<string> {
   if (!u) throw new Error(`no auth user ${email}`);
   return u.id;
 }
+
+export interface OpenMarket {
+  id: string;
+  slug: string;
+  outcomes: Array<{ id: string; label: string; shares_outstanding: number; price: number }>;
+}
+
+/**
+ * An open, non-live market that stays open for at least a few days, so
+ * trading tests never depend on catalogue dates that will pass.
+ */
+export async function openMarket(binary = true, skip = 0): Promise<OpenMarket> {
+  const after = new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString();
+  const rows = await localRest<OpenMarket[]>(
+    `markets?status=eq.open&is_live=eq.false&is_binary=eq.${binary}&end_date=gt.${encodeURIComponent(after)}` +
+      `&select=id,slug,outcomes!outcomes_market_id_fkey(id,label,shares_outstanding,price)&order=total_volume.desc&limit=${skip + 1}`
+  );
+  if (!rows[skip]) throw new Error("no open market in the local database");
+  return rows[skip];
+}
