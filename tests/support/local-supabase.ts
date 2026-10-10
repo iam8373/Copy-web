@@ -19,6 +19,9 @@ export const LOCAL = {
   mailUrl: env("E2E_MAILPIT_URL") || "http://127.0.0.1:54324",
 };
 
+/** Test-only shared secret for POST /api/cron. */
+export const TEST_CRON_SECRET = "test-only-cron-secret-not-for-production-0001";
+
 /**
  * Environment for `next build`/`next start` in tests. Every hosted value that
  * .env.local may hold is overridden explicitly, so a test build can never
@@ -34,6 +37,7 @@ export function testAppEnv(extra: Record<string, string> = {}): string {
     NEXT_PUBLIC_SUPABASE_REALTIME: "off",
     NEXT_PUBLIC_SITE_URL: "placeholder",
     AUTH_COOKIE_SECRET: "test-only-cookie-secret-not-for-production-use-0001",
+    CRON_SECRET: TEST_CRON_SECRET,
     GEMINI_API_KEY: "",
     ...extra,
   };

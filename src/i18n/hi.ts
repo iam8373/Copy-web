@@ -210,6 +210,7 @@ export const hi: Dictionary = {
     orderInsufficientFunds: "इस ऑर्डर के लिए पर्याप्त क्रेडिट नहीं हैं।",
     orderRateLimited: "एक मिनट में बहुत ज़्यादा ऑर्डर। थोड़ा रुकें।",
     orderDailyLimit: "इससे आपकी दैनिक ट्रेडिंग सीमा पार हो जाएगी।",
+    orderStaffCannotTrade: "स्टाफ़ खाते ट्रेड नहीं कर सकते।",
     orderFailedBody: "कुछ गड़बड़ हुई। कुछ भी नहीं कटा; कृपया फिर कोशिश करें।",
   },
 

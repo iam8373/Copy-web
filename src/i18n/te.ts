@@ -216,6 +216,7 @@ export const te: Dictionary = {
     orderInsufficientFunds: "ఈ ఆర్డర్‌కు సరిపడా క్రెడిట్లు లేవు.",
     orderRateLimited: "ఒక నిమిషంలో చాలా ఆర్డర్లు. కాసేపు ఆగండి.",
     orderDailyLimit: "ఇది మీ రోజువారీ ట్రేడింగ్ పరిమితిని దాటుతుంది.",
+    orderStaffCannotTrade: "సిబ్బంది ఖాతాలు ట్రేడ్ చేయలేవు.",
     orderFailedBody: "ఏదో తప్పు జరిగింది. ఏమీ కట్ కాలేదు; మళ్లీ ప్రయత్నించండి.",
   },
 

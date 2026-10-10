@@ -216,6 +216,7 @@ export const ta: Dictionary = {
     orderInsufficientFunds: "இந்த ஆர்டருக்குப் போதுமான கிரெடிட் இல்லை.",
     orderRateLimited: "ஒரு நிமிடத்தில் அதிக ஆர்டர்கள். சற்று காத்திருக்கவும்.",
     orderDailyLimit: "இது உங்கள் தினசரி வர்த்தக வரம்பை மீறும்.",
+    orderStaffCannotTrade: "பணியாளர் கணக்குகள் வர்த்தகம் செய்ய முடியாது.",
     orderFailedBody: "ஏதோ தவறு. எதுவும் கழிக்கப்படவில்லை; மீண்டும் முயலவும்.",
   },
 

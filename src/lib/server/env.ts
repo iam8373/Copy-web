@@ -20,6 +20,19 @@ export function emailOtpEnabled(): boolean {
   return process.env.EMAIL_OTP_ENABLED?.trim() === "true";
 }
 
+/** Shared secret for POST /api/cron. Empty (route disabled) unless 32+ chars. */
+export function cronSecret(): string {
+  const v = process.env.CRON_SECRET?.trim() ?? "";
+  return v.length >= 32 ? v : "";
+}
+
+/** Constant-time string comparison (hashes first so lengths may differ). */
+export function secretsEqual(a: string, b: string): boolean {
+  const ha = createHash("sha256").update(a).digest();
+  const hb = createHash("sha256").update(b).digest();
+  return timingSafeEqual(ha, hb) && a.length > 0;
+}
+
 const int = (v: string | undefined, d: number) => {
   const n = Number(v);
   return Number.isInteger(n) && n > 0 ? n : d;

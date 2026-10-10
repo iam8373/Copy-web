@@ -49,17 +49,23 @@ isOneToOne: false
                   ]
                 },"grievances": {
                   Row: {
-                    "created_at": string,"email": string,"id": string,"message": string,"name": string,"status": string,"subject": string,"updated_at": string,"user_id": string | null
+                    "admin_note": string | null,"category": string,"created_at": string,"email": string,"handled_by": string | null,"id": string,"message": string,"name": string,"reference": string,"resolved_at": string | null,"status": string,"subject": string,"updated_at": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email": string,"id"?: string,"message": string,"name": string,"status"?: string,"subject": string,"updated_at"?: string,"user_id"?: string | null
+                    "admin_note"?: string | null,"category"?: string,"created_at"?: string,"email": string,"handled_by"?: string | null,"id"?: string,"message": string,"name": string,"reference"?: string,"resolved_at"?: string | null,"status"?: string,"subject": string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"message"?: string,"name"?: string,"status"?: string,"subject"?: string,"updated_at"?: string,"user_id"?: string | null
+                    "admin_note"?: string | null,"category"?: string,"created_at"?: string,"email"?: string,"handled_by"?: string | null,"id"?: string,"message"?: string,"name"?: string,"reference"?: string,"resolved_at"?: string | null,"status"?: string,"subject"?: string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "grievances_handled_by_fkey"
+      columns: ["handled_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "grievances_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
@@ -171,6 +177,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"outcome_translations": {
+                  Row: {
+                    "created_at": string,"id": string,"label": string,"locale": string,"outcome_id": string,"source_hash": string,"status": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"label": string,"locale": string,"outcome_id": string,"source_hash": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"label"?: string,"locale"?: string,"outcome_id"?: string,"source_hash"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "outcome_translations_outcome_id_fkey"
+      columns: ["outcome_id"]
+isOneToOne: false
+      referencedRelation: "outcomes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"outcomes": {
                   Row: {
                     "created_at": string,"id": string,"label": string,"legacy_key": string | null,"market_id": string,"price": number,"shares_outstanding": number,"sort_order": number,"updated_at": string
@@ -251,14 +277,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "age_confirmed_at": string | null,"created_at": string,"daily_trade_limit": number | null,"display_name": string | null,"handle": string,"id": string,"language": string,"role": string,"status": string,"terms_version": string | null,"updated_at": string
+                    "age_confirmed_at": string | null,"created_at": string,"daily_trade_limit": number | null,"display_name": string | null,"handle": string,"id": string,"language": string,"role": string,"status": string,"suspended_at": string | null,"suspended_reason": string | null,"terms_version": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "age_confirmed_at"?: string | null,"created_at"?: string,"daily_trade_limit"?: number | null,"display_name"?: string | null,"handle": string,"id": string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
+                    "age_confirmed_at"?: string | null,"created_at"?: string,"daily_trade_limit"?: number | null,"display_name"?: string | null,"handle": string,"id": string,"language"?: string,"role"?: string,"status"?: string,"suspended_at"?: string | null,"suspended_reason"?: string | null,"terms_version"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "age_confirmed_at"?: string | null,"created_at"?: string,"daily_trade_limit"?: number | null,"display_name"?: string | null,"handle"?: string,"id"?: string,"language"?: string,"role"?: string,"status"?: string,"terms_version"?: string | null,"updated_at"?: string
+                    "age_confirmed_at"?: string | null,"created_at"?: string,"daily_trade_limit"?: number | null,"display_name"?: string | null,"handle"?: string,"id"?: string,"language"?: string,"role"?: string,"status"?: string,"suspended_at"?: string | null,"suspended_reason"?: string | null,"terms_version"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -276,6 +302,50 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"resolution_proposals": {
+                  Row: {
+                    "approved_at": string | null,"approved_by": string | null,"created_at": string,"decided_at": string | null,"decided_by": string | null,"decided_reason": string | null,"dispute_ends_at": string | null,"evidence_url": string,"finalized_at": string | null,"id": string,"kind": string,"market_id": string,"note": string,"outcome_id": string | null,"proposed_at": string,"proposed_by": string | null,"self_approved": boolean,"status": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "approved_at"?: string | null,"approved_by"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"decided_reason"?: string | null,"dispute_ends_at"?: string | null,"evidence_url": string,"finalized_at"?: string | null,"id"?: string,"kind": string,"market_id": string,"note": string,"outcome_id"?: string | null,"proposed_at"?: string,"proposed_by"?: string | null,"self_approved"?: boolean,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "approved_at"?: string | null,"approved_by"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"decided_reason"?: string | null,"dispute_ends_at"?: string | null,"evidence_url"?: string,"finalized_at"?: string | null,"id"?: string,"kind"?: string,"market_id"?: string,"note"?: string,"outcome_id"?: string | null,"proposed_at"?: string,"proposed_by"?: string | null,"self_approved"?: boolean,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "resolution_outcome_in_market"
+      columns: ["outcome_id","market_id"]
+isOneToOne: false
+      referencedRelation: "outcomes"
+      referencedColumns: ["id","market_id"]
+    },{
+      foreignKeyName: "resolution_proposals_approved_by_fkey"
+      columns: ["approved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "resolution_proposals_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "resolution_proposals_market_id_fkey"
+      columns: ["market_id"]
+isOneToOne: false
+      referencedRelation: "markets"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "resolution_proposals_proposed_by_fkey"
+      columns: ["proposed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"wallets": {
                   Row: {
@@ -303,8 +373,87 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "confirm_age":
+            "_audit":
+{ Args: { "p_action": string,"p_actor": string,"p_after": Json,"p_before": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
+                           },
+"_confirm":
+{ Args: { "p_slug": string,"p_typed": string }; Returns: undefined
+                           },
+"_market_json":
+{ Args: { "p_id": string }; Returns: Json
+                           },
+"_outcome_labels":
+{ Args: { "p": Json,"p_is_binary": boolean }; Returns: (string)[]
+                           },
+"_replace_outcomes":
+{ Args: { "p_labels": (string)[],"p_market": string }; Returns: undefined
+                           },
+"_setting":
+{ Args: { "p_key": string }; Returns: Json
+                           },
+"_settle":
+{ Args: { "p_actor": string,"p_proposal_id": string }; Returns: Json
+                           },
+"_staff":
+{ Args: { "p_min_role": string }; Returns: {
+              "age_confirmed_at": string | null,
+"created_at": string,
+"daily_trade_limit": number | null,
+"display_name": string | null,
+"handle": string,
+"id": string,
+"language": string,
+"role": string,
+"status": string,
+"suspended_at": string | null,
+"suspended_reason": string | null,
+"terms_version": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"admin_adjust_credits":
+{ Args: { "p_amount": number,"p_reason": string,"p_user_id": string }; Returns: number
+                           },
+"admin_close_market":
+{ Args: { "p_confirm_slug": string,"p_market_id": string }; Returns: undefined
+                           },
+"admin_create_market":
+{ Args: { "p": Json }; Returns: string
+                           },
+"admin_grant_by_email":
+{ Args: { "p_email": string }; Returns: string
+                           },
+"admin_publish_market":
+{ Args: { "p_confirm_slug": string,"p_market_id": string }; Returns: undefined
+                           },
+"admin_set_role":
+{ Args: { "p_role": string,"p_user_id": string }; Returns: undefined
+                           },
+"admin_set_user_status":
+{ Args: { "p_reason": string,"p_status": string,"p_user_id": string }; Returns: undefined
+                           },
+"admin_update_grievance":
+{ Args: { "p_id": string,"p_note": string,"p_status": string }; Returns: undefined
+                           },
+"admin_update_market":
+{ Args: { "p": Json,"p_market_id": string }; Returns: undefined
+                           },
+"admin_update_setting":
+{ Args: { "p_key": string,"p_value": Json }; Returns: undefined
+                           },
+"approve_resolution":
+{ Args: { "p_confirm_slug": string,"p_proposal_id": string }; Returns: string
+                           },
+"confirm_age":
 { Args: { "p_terms_version": string }; Returns: string
+                           },
+"finalize_resolution":
+{ Args: { "p_confirm_slug": string,"p_proposal_id": string }; Returns: Json
                            },
 "hit_rate_limit":
 { Args: { "p_bucket": string,"p_key_hash": string,"p_limit": number,"p_window_seconds": number }; Returns: boolean
@@ -330,6 +479,15 @@ isOneToOne: true
                            },
 "place_order":
 { Args: { "p_amount": number,"p_idempotency_key": string,"p_market_id": string,"p_outcome_id": string }; Returns: Json
+                           },
+"propose_resolution":
+{ Args: { "p_evidence_url": string,"p_market_id": string,"p_note": string,"p_outcome_id": string }; Returns: string
+                           },
+"reject_resolution":
+{ Args: { "p_proposal_id": string,"p_reason": string }; Returns: undefined
+                           },
+"run_scheduled_jobs":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "unique_handle":
 { Args: { "p_email": string }; Returns: string

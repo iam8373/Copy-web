@@ -213,6 +213,7 @@ export const en = {
     orderInsufficientFunds: "Not enough credits for this order.",
     orderRateLimited: "Too many orders in a minute. Please wait a moment.",
     orderDailyLimit: "This would go over your daily trading limit.",
+    orderStaffCannotTrade: "Staff accounts cannot trade.",
     orderFailedBody: "Something went wrong. Nothing was charged; please try again.",
   },
 

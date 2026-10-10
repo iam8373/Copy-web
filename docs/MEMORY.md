@@ -227,3 +227,11 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - After a container restart `npx playwright install-deps chromium` can fail silently;
   check with `ldd …/chrome-headless-shell | grep "not found"` and re-run it in the
   foreground. Symptom: every browser test fails in ~2 ms.
+
+- **Admin functions run as the caller** (D-027): call them with the user's session
+  client (`getServerSupabase`), never `getAdminSupabase()`; they need JWT `aal = aal2`.
+  In pgTAP set `request.jwt.claims` with `"aal":"aal2"`; temp helpers that read drafts
+  or pending proposals must be `security definer` (RLS hides them from `authenticated`).
+- The local stand-in runs pg_cron: `run_scheduled_jobs()` closes expired open markets
+  every minute, so tests must not rely on an "open but expired" committed row.
+- plpgsql: don't name variables `binary` or `next` (reserved / keyword).

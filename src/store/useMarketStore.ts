@@ -94,6 +94,7 @@ const ORDER_ERROR_BODY: Record<string, string> = {
   insufficient_funds: "orderInsufficientFunds",
   rate_limited: "orderRateLimited",
   daily_limit: "orderDailyLimit",
+  staff: "orderStaffCannotTrade",
   conflict: "orderFailedBody",
   failed: "orderFailedBody",
 };

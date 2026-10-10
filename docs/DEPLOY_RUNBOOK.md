@@ -56,6 +56,7 @@ Migrations, in order (each file starts with its rollback notes):
 | `20261008000100_auth_hardening.sql` | sign-in rate limiter, owner settings (b = 20,000, max_trade 1,00,000) |
 | `20261008000200_read_path.sql` | tags/region, 24 h price/volume functions, Realtime for outcomes |
 | `20261008000300_trading.sql` | LMSR functions and `place_order()` |
+| `20261010000100_admin.sql` | admin/resolution functions, `resolving` status, settings, scheduled job (pg_cron if available) |
 
 `--include-seed` runs `supabase/seed.sql` (app settings only; `on conflict do nothing`).
 
@@ -65,8 +66,16 @@ URL, providers, CAPTCHA, templates) with the local `supabase/config.toml` values
 Without the CLI: Dashboard → SQL Editor → run each migration file's contents in the
 order above, then `supabase/seed.sql`.
 
-Check: Dashboard → Table Editor shows `markets`, `wallets`, `ledger_entries`…; Database →
-Functions shows `place_order`, `confirm_age`, `handle_new_user`.
+Check: Dashboard → Table Editor shows `markets`, `wallets`, `ledger_entries`,
+`resolution_proposals`…; Database → Functions shows `place_order`, `confirm_age`,
+`handle_new_user`, `run_scheduled_jobs`.
+
+**Scheduled job (closes expired markets, finalizes resolutions).** The admin migration
+enables `pg_cron` and schedules `bp-scheduled-jobs` every minute if the project allows it.
+Check: Integrations → Cron → Jobs lists `bp-scheduled-jobs`. If it is missing, either
+enable Cron there and re-run the migration's last block, or set `CRON_SECRET` in Railway
+and call `POST /api/cron` every minute from a Railway cron service:
+`curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://<railway-domain>/api/cron`.
 
 ## 2. Seed the markets (once)
 
@@ -77,8 +86,19 @@ npm run db:seed -- --remote
 
 It refuses a non-local URL without `--remote`, and `NODE_ENV=production` without
 `--yes-production`. It is insert-if-missing: re-running never changes prices, volumes or
-edits. Expect `+91 markets, +227 outcomes, +40 translations`. Markets whose catalogue end
-date has passed are seeded **closed** (they cannot be traded).
+edits. Expect `+91 markets, +227 outcomes, +40 translations`. End dates are relative to the
+day you seed (3–180 days ahead); four markets are seeded **closed** on purpose (D-026).
+
+### First admin (after Google sign-in works, step 4)
+
+```bash
+# Sign in once on the site with the admin's Google account, then:
+npm run admin:grant -- you@example.com --remote
+```
+
+Then sign in again, enrol an authenticator app at `/admin/mfa` (MFA is required for
+every staff action, enforced in the database), and open `/admin`. See
+`docs/ADMIN_RUNBOOK.md`.
 
 ## 3. Supabase Auth URL configuration
 
@@ -177,7 +197,8 @@ Dockerfile build:
 | `EMAIL_OTP_ENABLED` | same value as above (the server re-checks it at runtime) |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | only if you run translations from this service (not needed) |
 
-Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and 5 per 10 min).
+Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and 5 per 10 min);
+`CRON_SECRET` (32+ chars, `openssl rand -hex 32`) only if the project has no pg_cron.
 
 ## 6. First-deploy QA checklist
 

@@ -2,6 +2,37 @@
 
 Architecture and product decisions, newest first.
 
+## D-027 — Admin R1: staff actions are database functions checked against the caller
+
+**Date:** Admin phase R1
+**Status:** Accepted
+
+- **Where the checks live.** Every staff write is a `SECURITY DEFINER` function granted to
+  `authenticated` that checks, inside the database, the caller's role, active status and
+  **MFA** (`auth.jwt() ->> 'aal' = 'aal2'`). The server calls them with the admin's own
+  session, never with the secret key, so a bug in a page cannot skip a check. Secret-key
+  only: `run_scheduled_jobs()` and `admin_grant_by_email()` (bootstrap script).
+- **Roles.** Moderator: drafts, wording, proposals, grievances. Admin: the rest.
+- **Single admin (owner).** `require_two_person_resolution = false`: the proposer may
+  approve; the proposal stores `self_approved` and the audit action is
+  `resolution.approve_self`, and the public history shows it. Flip the setting when a
+  second admin exists; the database then refuses self-approval.
+- **Resolution.** propose → `resolving` → approve (typed slug) → dispute window
+  (`dispute_window_hours` = 24) → finalize (job or admin). Payout 1 credit per winning
+  share, truncated to 2 dp; void refunds every order at cost. A partial unique index on
+  the ledger makes double payment impossible. Reject (pending) / cancel (approved, during
+  the window) send the market back to `closed`.
+- **Typed-slug confirmation** is checked in the database (`BP_CONFIRM_MISMATCH`) for
+  publish, close, approve and finalize.
+- **Open markets** may change wording, flags and end date, never outcomes, type or
+  liquidity (they would move prices).
+- **Scheduler.** pg_cron (Supabase Cron) every minute when the project allows it; the
+  migration skips it gracefully otherwise and `POST /api/cron` (`CRON_SECRET`, constant-time
+  compare) is the fallback.
+- **Staff do not trade** while `staff_can_trade` is false (`BP_STAFF_CANNOT_TRADE`).
+- **R7 regional restriction is skipped** for now (owner). Sign-in stays Google only and
+  translation Gemini only.
+
 ## D-026 — Seed end dates roll with the seed date
 
 **Date:** After B6

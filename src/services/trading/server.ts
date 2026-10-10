@@ -20,6 +20,7 @@ export type OrderReason =
   | "insufficient_funds"
   | "rate_limited"
   | "daily_limit"
+  | "staff"
   | "conflict"
   | "failed";
 
@@ -49,6 +50,7 @@ const REASONS: Record<string, OrderReason> = {
   BP_INSUFFICIENT_FUNDS: "insufficient_funds",
   BP_RATE_LIMITED: "rate_limited",
   BP_DAILY_LIMIT: "daily_limit",
+  BP_STAFF_CANNOT_TRADE: "staff",
   BP_IDEMPOTENCY_CONFLICT: "conflict",
 };
 

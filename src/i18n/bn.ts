@@ -216,6 +216,7 @@ export const bn: Dictionary = {
     orderInsufficientFunds: "এই অর্ডারের জন্য যথেষ্ট ক্রেডিট নেই।",
     orderRateLimited: "এক মিনিটে অনেক বেশি অর্ডার। একটু অপেক্ষা করুন।",
     orderDailyLimit: "এতে আপনার দৈনিক ট্রেডিং সীমা ছাড়িয়ে যাবে।",
+    orderStaffCannotTrade: "স্টাফ অ্যাকাউন্ট ট্রেড করতে পারে না।",
     orderFailedBody: "কিছু ভুল হয়েছে। কিছুই কাটা হয়নি; আবার চেষ্টা করুন।",
   },
 

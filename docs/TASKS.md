@@ -654,3 +654,25 @@ runbook).
 
 - [x] Rolling seed end dates; four markets closed on purpose (D-026).
 - [x] `docs/DEPLOY_RUNBOOK.md`: steps to raise Supabase's per-IP auth limits.
+
+## Admin R1 — database layer (done)
+
+- [x] `resolving` status; `resolution_proposals` (self_approved, dispute window, history);
+      `outcome_translations`; grievance reference/category/notes; suspension reason/time.
+- [x] Settings: `dispute_window_hours` 24, `require_two_person_resolution` false,
+      `staff_can_trade` false, `daily_translation_cap` 50.
+- [x] Functions: create/update/publish/close market; propose/approve/reject(cancel)/finalize
+      resolution; adjust credits (capped); user status; roles (self and last-admin
+      protection); settings (whitelist); grievances; `place_order` staff block.
+- [x] Scheduled job: pg_cron every minute, `POST /api/cron` fallback.
+- [x] `npm run admin:grant -- <email>`; `docs/ADMIN_RUNBOOK.md`.
+- [x] pgTAP `005_admin` (92 checks); e2e `admin-jobs.spec.ts`.
+
+## Admin R2–R6 (next)
+
+- [ ] R2 /admin shell: middleware + `requireRole`, MFA enrol/verify (`/admin/mfa`),
+      noindex, role-aware menu, dashboard, rate limits.
+- [ ] R3 markets management. R4 resolution queue + `docs/RESOLUTION_POLICY.md` + public
+      status badges (6 locales). R5 translations admin (Gemini, daily cap).
+      R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.
+- [ ] R7 regional restriction: **skipped** by the owner for now.
