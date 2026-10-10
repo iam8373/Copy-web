@@ -588,3 +588,37 @@ touching the hosted database (schema not applied yet: `public.markets` does not 
   via the poll, `/api/prices`, `/api/session` signed out); chart test now asserts real
   history and no demo badge.
 
+## B4 — trading engine and wallet (done)
+
+- Migration `20261008000300_trading.sql`: `lmsr_lse`, `lmsr_prices`,
+  `lmsr_shares_for_amount`, `place_order()` (D-023), `profiles.daily_trade_limit`.
+- `src/services/trading/server.ts` (`server-only`, maps `BP_*` errors, revalidates
+  caches), Server Action `src/app/actions/trade.ts` with the pure zod schema
+  `src/lib/order-schema.ts`. Store `placeOrder` calls it (one idempotency key per click,
+  double-submit guard) and shows the server's fill; client-side order logic removed.
+  `TradeForm` shows the LMSR estimate (same model as SQL), the real balance, and is
+  disabled on closed/expired markets. Order book uses each market's b.
+- Tests: pgTAP `004_trading.test.sql` (46 checks: price-impact table, prices sum to 1,
+  idempotent replay and conflict, weighted average, balance never negative, ledger =
+  wallet, closed/expired/suspended/no-consent/kill-switch/daily-limit/rate-limit refusals,
+  no direct writes); `tests/e2e/db-concurrency.spec.ts` (20 parallel orders from 4 users
+  on one market, the same key fired 6× in parallel, parallel overspend); trading e2e use
+  `openMarket()` (catalogue markets dated before October 2026 are closed by the seed).
+
+## B5 — portfolio from the database (done)
+
+- `src/services/portfolio/server.ts`, `GET /api/portfolio` (own data via RLS, paginated
+  orders and ledger, 401 signed out). Dashboard: wallet, positions, order and credit
+  history with pagination and empty states; header menu shows the balance. localStorage
+  positions and demo seeding removed.
+- Tests: `tests/e2e/positions.spec.ts` (DB write + reload, merge into one position, two
+  accounts isolated, signed-out 401, old localStorage ignored).
+
+**Results (B4 + B5):** typecheck, lint, check:tokens, check:secrets clean; normal build +
+verify-build pass; pgTAP 115/115; e2e 579 + 5 re-run (the 5 failures were fixed: two
+tests targeted closed markets, one asserted a ₹1,00,000 fill above the 10,000 balance;
+one reduced-motion check was a flake, 2/2 on re-run).
+
+**Not verified against the hosted project:** none of B3–B5 (its schema is not applied
+yet). Everything ran on the local stand-in.
+

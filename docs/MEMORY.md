@@ -219,3 +219,11 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   (`outcomes!outcomes_market_id_fkey(...)`): there are two relationships.
 - After moving/removing app routes, delete `.next/types` and restart the dev server, or
   the e2e build fails type-checking stale generated types.
+- **Trading tests must use open markets:** today is after many catalogue end dates, so
+  the seed closes those markets and `place_order` refuses them (correct). Use
+  `openMarket()` from `tests/e2e/helpers.ts` instead of fixed slugs.
+- Node-level tests cannot import modules that import `server-only` (it throws outside
+  React Server). Keep testable logic in pure modules (e.g. `src/lib/order-schema.ts`).
+- After a container restart `npx playwright install-deps chromium` can fail silently;
+  check with `ldd …/chrome-headless-shell | grep "not found"` and re-run it in the
+  foreground. Symptom: every browser test fails in ~2 ms.
