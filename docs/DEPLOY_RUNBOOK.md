@@ -92,10 +92,46 @@ Dashboard → Authentication → Emails → Templates: paste `supabase/templates
 into *Magic Link* and `supabase/templates/confirmation.html` into *Confirm signup*
 (subject: "Your BharatPredict sign-in code"). Not needed while `EMAIL_OTP_ENABLED=false`.
 
-Rate limits (Authentication → Rate Limits): the server calls Supabase Auth, so
-Supabase's **per-IP** limits see Railway's address for every user. Raise "sign-ups and
-sign-ins" and "token verifications" per IP accordingly; the app enforces its own per-IP and
-per-email limits (D-021).
+### Rate limits: raise the per-IP auth limits
+
+Why: sign-in, the Google code exchange and session refreshes are made by the **server**
+(Server Actions, `/auth/callback`, the middleware). Supabase therefore sees Railway's
+address for every user, and its per-IP limits — shared by all users — would throttle the
+whole site. The app enforces its own per-IP and per-email sign-in limits (D-021).
+
+Dashboard steps (checked against the current Supabase rate-limit docs):
+
+1. Supabase Dashboard → your project → **Authentication** → **Rate Limits**.
+2. Raise these per-IP limits (the docs' operation names; defaults in brackets) to cover
+   all users at peak, e.g. 10×. Labels on the page may be worded slightly differently:
+   - **Sign-ups and sign-ins** (30 per 5 min) — `/auth/v1/otp`, `/signup`, `/user`…
+   - **Verification requests** (30 per 5 min) — `/auth/v1/verify`
+   - **Token endpoint requests** (150 per 5 min) — `/auth/v1/token`: this covers the
+     Google PKCE exchange **and every session refresh by the middleware**, so it matters
+     most with Google-only sign-in.
+3. Leave **Emails sent** alone until custom SMTP exists (the built-in sender is fixed at 2
+   per hour). The per-user OTP resend window (60 s) stays as it is.
+4. Click **Save**.
+
+Equivalent Management API calls (your access token is typed in your shell, never
+stored). Read the current values first and confirm which `rate_limit_*` field matches
+each row above before changing it:
+
+```bash
+export SUPABASE_ACCESS_TOKEN=...   # https://supabase.com/dashboard/account/tokens
+curl -s "https://api.supabase.com/v1/projects/joritvxmhiwtrnatfphw/config/auth" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  | jq 'to_entries | map(select(.key | startswith("rate_limit_"))) | from_entries'
+curl -X PATCH "https://api.supabase.com/v1/projects/joritvxmhiwtrnatfphw/config/auth" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
+  -d '{"rate_limit_otp": 300, "rate_limit_verify": 300, "rate_limit_token_refresh": 1500}'
+```
+
+**Better long-term (backlog, not built):** Supabase supports *IP address forwarding*
+(Authentication → Rate Limits → **IP Address Forwarding**): server requests made with a
+**secret** key and an `Sb-Forwarded-For` header are rate-limited by the end user's IP.
+That needs the auth calls to use a secret-key server client; until then, raise the limits
+as above.
 
 ## 4. Google OAuth
 

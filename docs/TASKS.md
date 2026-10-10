@@ -318,7 +318,12 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 ## Backlog
 
 - **Sell-back** in the trading engine (LMSR sell), then a Sell tab in the trade panel.
-  The panel is buy-only until then.
+  The panel is buy-only until then. (Owner: backlog, not now.)
+- **Per-request store** so market lists render in the first HTML instead of after
+  hydration (owner: backlog, not now).
+- **Supabase IP forwarding** (`Sb-Forwarded-For` with a secret-key client) so Supabase's
+  per-IP auth limits see the user's IP, not Railway's. Until then raise the limits
+  (DEPLOY_RUNBOOK §3).
 - "New" sort chip once the backend exposes `created_at`.
 - **Demo fills ignore price impact.** The order book quotes LMSR costs, but the demo store
   still fills at the displayed price (`shares = amount / price`). The backend
@@ -644,3 +649,8 @@ Google-only build 6/6, pgTAP 115/115, secret scan, tokens.
 **Not verified:** the Railway deployment itself and the hosted database (owner steps in the
 runbook).
 
+
+## Seed dates and rate-limit runbook (done)
+
+- [x] Rolling seed end dates; four markets closed on purpose (D-026).
+- [x] `docs/DEPLOY_RUNBOOK.md`: steps to raise Supabase's per-IP auth limits.

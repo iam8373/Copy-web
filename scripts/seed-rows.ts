@@ -50,6 +50,54 @@ export interface SeedTranslationRow {
 
 const round = (n: number, dp: number) => Number(n.toFixed(dp));
 
+/**
+ * Markets seeded CLOSED on purpose, so the closed state (badge, disabled trade
+ * panel, place_order refusal) is always testable. Everything else gets a
+ * rolling end date relative to the seed date.
+ */
+export const CLOSED_FOR_TESTING = [
+  "will-india-win-the-2026-t20-world-cup",
+  "ipl-2026-winner",
+  "ranji-trophy-2026-winner",
+  "will-bjp-win-the-2026-west-bengal-assembly-elections",
+] as const;
+
+const DAY = 24 * 3600 * 1000;
+/** Rolling window for open (non-live) markets: 3 to 180 days after the seed. */
+const OPEN_FROM_DAYS = 3;
+const OPEN_TO_DAYS = 180;
+
+/**
+ * End dates relative to the seed date, so seeding never produces a catalogue
+ * of mostly expired markets:
+ * - live markets keep the catalogue's relative times (hours ahead);
+ * - CLOSED_FOR_TESTING end 7, 10, 13… days before the seed and are closed;
+ * - all others are spread evenly across the next 3–180 days, in the order of
+ *   their catalogue dates, at 18:30 UTC (midnight IST).
+ */
+export function rollingEndDates(markets: readonly Market[], now: Date): Map<string, { end: Date; closed: boolean }> {
+  const out = new Map<string, { end: Date; closed: boolean }>();
+  const closed = new Set<string>(CLOSED_FOR_TESTING);
+  let c = 0;
+  for (const m of markets) {
+    if (m.isLive) out.set(m.id, { end: new Date(m.endDate), closed: false });
+    else if (closed.has(m.slug)) out.set(m.id, { end: new Date(now.getTime() - (7 + 3 * c++) * DAY), closed: true });
+  }
+  const rest = markets
+    .filter((m) => !out.has(m.id))
+    .sort((a, b) => +new Date(a.endDate) - +new Date(b.endDate) || a.id.localeCompare(b.id));
+  const midnightIst = (d: Date) => {
+    const x = new Date(d);
+    x.setUTCHours(18, 30, 0, 0);
+    return x;
+  };
+  rest.forEach((m, i) => {
+    const days = rest.length === 1 ? OPEN_FROM_DAYS : OPEN_FROM_DAYS + Math.round((i * (OPEN_TO_DAYS - OPEN_FROM_DAYS)) / (rest.length - 1));
+    out.set(m.id, { end: midnightIst(new Date(now.getTime() + days * DAY)), closed: false });
+  });
+  return out;
+}
+
 export function buildSeedRows(
   markets: readonly Market[],
   translations: TranslationFile,
@@ -63,6 +111,7 @@ export function buildSeedRows(
       .map((m) => m.id)
   );
 
+  const dates = rollingEndDates(markets, opts.now);
   const marketRows: SeedMarketRow[] = [];
   const outcomeRows: SeedOutcomeRow[] = [];
   const translationRows: SeedTranslationRow[] = [];
@@ -75,13 +124,12 @@ export function buildSeedRows(
       description: m.description,
       category: m.category,
       subcategory: m.subcategory,
-      end_date: new Date(m.endDate).toISOString(),
+      end_date: dates.get(m.id)!.end.toISOString(),
       is_live: m.isLive,
       is_featured: featured.has(m.id),
       resolution_source: m.resolutionSource,
-      // Markets whose end date has passed are seeded closed, so place_order
-      // (which requires status 'open' and a future end_date) refuses them.
-      status: new Date(m.endDate) > opts.now ? "open" : "closed",
+      // Only the markets closed on purpose (CLOSED_FOR_TESTING) start closed.
+      status: dates.get(m.id)!.closed ? "closed" : "open",
       is_binary: m.isBinary,
       liquidity_b: opts.liquidityB,
       total_volume: round(m.totalVolume, 2),

@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { MARKETS } from "../../src/data/markets";
 import { STORAGE_KEY } from "../../src/i18n";
 import { hi } from "../../src/i18n/hi";
-import { resetState, signInWithEmail } from "./helpers";
+import { localRest, resetState, signInWithEmail } from "./helpers";
 
 /** Work order 4, Phase 3: home and navigation polish. */
 
@@ -46,7 +46,9 @@ test.describe("category sort", () => {
     await page.locator('[data-testid="sort-option"][data-sort="Starting Soon"]').click();
     const titles = await gridTitles(page);
     const now = Date.now();
-    const ends = titles.map((t) => +new Date(MARKETS.find((m) => m.title === t)!.endDate));
+    // End dates come from the database (rolling seed dates), not the catalogue.
+    const rows = await localRest<Array<{ title: string; end_date: string }>>("markets?category=eq.cricket&select=title,end_date");
+    const ends = titles.map((t) => +new Date(rows.find((r) => r.title === t)!.end_date));
     const open = ends.filter((e) => e >= now);
     // Every open market comes before every ended one, ascending among open.
     expect(ends.slice(0, open.length)).toEqual([...open].sort((a, b) => a - b));

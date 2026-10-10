@@ -2,6 +2,21 @@
 
 Architecture and product decisions, newest first.
 
+## D-026 — Seed end dates roll with the seed date
+
+**Date:** After B6
+**Status:** Accepted
+
+- The catalogue's calendar dates had mostly passed, so a fresh seed produced a site of
+  closed markets. `rollingEndDates()` in `scripts/seed-rows.ts` now computes end dates
+  from the seed date: Live markets keep their hours-ahead times; all other open markets
+  are spread evenly 3–180 days ahead (midnight IST), keeping the catalogue's order.
+- Four markets (`CLOSED_FOR_TESTING`: T20 World Cup, IPL 2026 winner, Ranji Trophy,
+  West Bengal elections) are seeded closed with end dates 7–16 days in the past, so the
+  closed state stays testable.
+- The seed is insert-if-missing, so this only affects new databases (or a reset). Tests
+  read end dates from the database, never from `src/data/markets.ts`.
+
 ## D-025 — Phase B6: Railway with a Dockerfile (standalone output)
 
 **Date:** Backend Phase B6

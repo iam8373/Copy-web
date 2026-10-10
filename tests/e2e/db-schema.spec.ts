@@ -5,7 +5,7 @@ import { CATEGORIES } from "../../src/lib/types";
 import { MARKETS } from "../../src/data/markets";
 import translations from "../../src/data/market-translations.json";
 import { cost, costToBuy, prices, quantitiesForPrices, sharesForAmount } from "../../src/lib/lmsr";
-import { buildSeedRows } from "../../scripts/seed-rows";
+import { CLOSED_FOR_TESTING, buildSeedRows } from "../../scripts/seed-rows";
 import type { TranslationFile } from "../../src/services/translation/types";
 
 /**
@@ -114,11 +114,27 @@ test.describe("seed rows", () => {
     }
   });
 
-  test("past end dates seed as closed; Live flags are preserved", () => {
-    for (const r of rows.marketRows) {
-      expect(r.status).toBe(new Date(r.end_date) > now ? "open" : "closed");
+  test("end dates roll with the seed date: most open, a few closed on purpose", () => {
+    const DAY = 24 * 3600 * 1000;
+    const closed = rows.marketRows.filter((r) => r.status === "closed");
+    expect(closed.map((r) => r.slug).sort()).toEqual([...CLOSED_FOR_TESTING].sort());
+    for (const r of closed) expect(+new Date(r.end_date)).toBeLessThan(+now);
+    for (const r of rows.marketRows.filter((x) => x.status === "open" && !x.is_live)) {
+      const d = (+new Date(r.end_date) - +now) / DAY;
+      expect(d, r.slug).toBeGreaterThan(2);
+      expect(d, r.slug).toBeLessThan(181);
     }
+    expect(rows.marketRows.filter((r) => r.status === "open").length).toBe(MARKETS.length - CLOSED_FOR_TESTING.length);
     expect(rows.marketRows.filter((r) => r.is_live).length).toBe(MARKETS.filter((m) => m.isLive).length);
+  });
+
+  test("rolling dates keep the catalogue's order and are deterministic for a seed date", () => {
+    const again = buildSeedRows(MARKETS, translations as TranslationFile, { liquidityB: 1000, now });
+    expect(again.marketRows.map((r) => r.end_date)).toEqual(rows.marketRows.map((r) => r.end_date));
+    const open = MARKETS.filter((m) => !m.isLive && !(CLOSED_FOR_TESTING as readonly string[]).includes(m.slug));
+    const byCatalogue = [...open].sort((a, b) => +new Date(a.endDate) - +new Date(b.endDate) || a.id.localeCompare(b.id));
+    const seeded = byCatalogue.map((m) => +new Date(rows.marketRows.find((r) => r.legacy_id === m.id)!.end_date));
+    expect(seeded).toEqual([...seeded].sort((a, b) => a - b));
   });
 
   test("exactly the top-5-by-volume markets are featured", () => {
