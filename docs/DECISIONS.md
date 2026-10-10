@@ -2,6 +2,38 @@
 
 Architecture and product decisions, newest first.
 
+## D-025 — Phase B6: Railway with a Dockerfile (standalone output)
+
+**Date:** Backend Phase B6
+**Status:** Accepted
+
+- **Dockerfile, not Railpack/Nixpacks.** Railway always builds with a `Dockerfile` when it
+  finds one (current docs); new services otherwise default to Railpack, and Nixpacks is the
+  older builder. A Dockerfile pins Node 22 and the build steps, runs as a non-root user,
+  ships only `.next/standalone` + static assets, and behaves the same in CI and locally
+  (`docker build`), independent of builder changes. Railway's "config as code" files are
+  deprecated (until 2026-12-01), so service settings (healthcheck path) are set in the
+  dashboard and listed in `docs/DEPLOY_RUNBOOK.md`.
+- **Standalone output only for the image** (`NEXT_OUTPUT_STANDALONE=1` set in the
+  Dockerfile), so `next start` and the e2e builds stay unchanged. `server.js` listens on
+  `PORT` (Railway injects it; the healthcheck uses it) and `HOSTNAME=0.0.0.0`.
+- **Variables:** Railway passes variables to a Dockerfile build only through declared
+  `ARG`s. The Dockerfile declares only public values (`NEXT_PUBLIC_*`,
+  `EMAIL_OTP_ENABLED`, `ALLOW_INDEXING`); server secrets are runtime variables only and
+  never enter the image. `.dockerignore` excludes every `.env*` except the example.
+- **Healthcheck:** `GET /api/health` → `{"ok":true}`, no data, no DB call, excluded from
+  the session middleware.
+- **Security headers** (`src/lib/security-headers.js`, applied in `next.config.js`): CSP
+  with `default-src 'self'`, the Supabase origin (https + wss), Turnstile script/frame from
+  `challenges.cloudflare.com`, self-hosted fonts, `frame-ancestors 'none'`,
+  `object-src 'none'`; `'unsafe-inline'` scripts (Next's inline bootstrap, no nonce yet)
+  and `'unsafe-eval'` only in development. Plus nosniff, `X-Frame-Options: DENY`,
+  `Referrer-Policy`, `Permissions-Policy`, COOP, HSTS. `/dashboard`, `/profit` and
+  `/admin` are `private, no-store` and `noindex`; robots always disallows `/admin`.
+- **Known limitation:** zustand's server snapshot is its initial state, so market lists
+  render after hydration rather than in the first HTML (they appear immediately on load;
+  noindex for now). A per-request store provider would fix it (backlog).
+
 ## D-024 — Phase B5: the portfolio is read from the database
 
 **Date:** Backend Phase B5

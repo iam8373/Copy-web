@@ -24,5 +24,6 @@ export function MarketsHydrator({ markets, ok }: { markets: Market[]; ok: boolea
   useEffect(() => {
     if (ok) useMarketStore.setState({ markets, marketsStatus: "ready" });
   }, [markets, ok]);
-  return null;
+  // Machine-readable status for health checks and tests (no data in it).
+  return <span hidden data-testid="markets-status" data-status={ok ? "ready" : "error"} data-count={markets.length} />;
 }

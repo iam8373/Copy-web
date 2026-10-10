@@ -67,7 +67,7 @@ test.describe("route handlers with ALLOW_INDEXING", () => {
     expect(r.rules).toEqual({
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/profit"],
+      disallow: ["/dashboard", "/profit", "/admin"],
     });
     expect(r.sitemap).toBe("https://example.in/sitemap.xml");
 

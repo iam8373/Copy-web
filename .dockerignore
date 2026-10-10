@@ -1,0 +1,14 @@
+# Never send secrets or local state into the image build context.
+.env*
+!.env.example
+.git
+node_modules
+.next
+.next-e2e
+.next-auth
+.scratch
+.playwright-browsers
+playwright-report
+test-results
+tmp
+*.log

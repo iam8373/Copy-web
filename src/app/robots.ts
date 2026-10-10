@@ -13,7 +13,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/profit"],
+      // Per-user pages and the admin area stay out even when indexing is on.
+      disallow: ["/dashboard", "/profit", "/admin"],
     },
     sitemap: `${siteUrl()}/sitemap.xml`,
   };

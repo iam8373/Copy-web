@@ -61,6 +61,19 @@ jobs:
       - name: Verify build output
         run: bash scripts/verify-build.sh .next
 
+      # The Railway image (D-025): builds with placeholder public values only,
+      # starts as non-root on $PORT, and must answer the healthcheck.
+      - name: Docker image builds and passes the healthcheck
+        run: |
+          docker build -t bharatpredict-ci \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_ci_placeholder .
+          docker run -d --name bp -p 3300:3300 -e PORT=3300 bharatpredict-ci
+          for i in $(seq 1 30); do curl -sf http://localhost:3300/api/health && break; sleep 2; done
+          curl -sf http://localhost:3300/api/health | grep -q '"ok":true'
+          test "$(docker exec bp id -u)" != "0"
+          docker rm -f bp
+
   supabase:
     name: Database (pgTAP) and end-to-end tests on a local Supabase
     runs-on: ubuntu-24.04

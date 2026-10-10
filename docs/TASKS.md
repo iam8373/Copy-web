@@ -622,3 +622,25 @@ one reduced-motion check was a flake, 2/2 on re-run).
 **Not verified against the hosted project:** none of B3–B5 (its schema is not applied
 yet). Everything ran on the local stand-in.
 
+## B6 — Railway deployment readiness (done)
+
+- `Dockerfile` (Node 22, standalone, non-root, public ARGs only), `.dockerignore`,
+  `public/.gitkeep` (git drops empty dirs; the image copies `public/`).
+- `GET /api/health` (no DB, excluded from the middleware); security headers + CSP
+  (`src/lib/security-headers.js`); private/no-store/noindex for personal and admin
+  paths; robots always disallows `/admin`.
+- `docs/DEPLOY_RUNBOOK.md`: key rotation first, migrations (`supabase link` +
+  `db push --include-seed`, password/token typed by the owner), seed, Supabase URL config,
+  Google redirect, Railway service and variables (names only, build-time vs runtime), QA
+  checklist, rollback, key rotation, incident steps.
+- CI: Docker image build + healthcheck + non-root check; pgTAP, secret scan and bundle
+  scan already run.
+- Tests: `tests/e2e/deploy.spec.ts` (health, headers, CSP, private pages, robots /admin).
+
+**Verified here:** `docker build` of the image (placeholder public values) and a run on
+PORT 3300: `/api/health` 200 `{"ok":true}`, user `nextjs`, no `.env*` in the image; with
+an unreachable Supabase URL the pages show "Markets are unavailable right now". e2e 596/596,
+Google-only build 6/6, pgTAP 115/115, secret scan, tokens.
+**Not verified:** the Railway deployment itself and the hosted database (owner steps in the
+runbook).
+
