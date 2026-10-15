@@ -670,8 +670,8 @@ runbook).
 
 ## Admin R2–R6 (next)
 
-- [ ] R2 /admin shell: middleware + `requireRole`, MFA enrol/verify (`/admin/mfa`),
-      noindex, role-aware menu, dashboard, rate limits.
+- [x] R2 /admin shell: middleware + `requireStaff`, MFA enrol/challenge (`/admin/mfa`),
+      noindex/no-store, role-aware menu, dashboard, rate limits, Admin link (D-028).
 - [ ] R3 markets management. R4 resolution queue + `docs/RESOLUTION_POLICY.md` + public
       status badges (6 locales). R5 translations admin (Gemini, daily cap).
       R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.

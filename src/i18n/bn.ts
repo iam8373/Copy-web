@@ -33,6 +33,7 @@ export const bn: Dictionary = {
     signInShort: "লগ ইন",
     accountMenu: "অ্যাকাউন্ট মেনু",
     dashboard: "ড্যাশবোর্ড",
+    admin: "অ্যাডমিন",
     signOut: "সাইন আউট",
     toggleTheme: "থিম বদলান",
     language: "ভাষা",

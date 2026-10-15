@@ -33,6 +33,7 @@ export const en = {
     signInShort: "Log in",
     accountMenu: "Account menu",
     dashboard: "Dashboard",
+    admin: "Admin",
     signOut: "Sign out",
     toggleTheme: "Toggle theme",
     language: "Language",

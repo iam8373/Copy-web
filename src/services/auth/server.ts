@@ -27,6 +27,8 @@ export interface SessionProfile {
   provider: "email" | "google";
   ageConfirmedAt: string | null;
   status: "active" | "suspended";
+  /** Moderator or admin: the account menu links to /admin. */
+  staff: boolean;
 }
 
 const CONSENT_COOKIE = "bp_age_consent";
@@ -155,7 +157,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
   if (error || !sub) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("handle, age_confirmed_at, status")
+    .select("handle, age_confirmed_at, status, role")
     .eq("id", sub)
     .maybeSingle();
   if (!data) return null;
@@ -166,6 +168,7 @@ export async function getSessionProfile(): Promise<SessionProfile | null> {
     provider: provider === "google" ? "google" : "email",
     ageConfirmedAt: data.age_confirmed_at,
     status: data.status === "suspended" ? "suspended" : "active",
+    staff: data.role === "admin" || data.role === "moderator",
   };
 }
 

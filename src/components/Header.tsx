@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { LogOut, Moon, Search, Sun, User } from "lucide-react";
+import { LogOut, Moon, Search, Sun, User, Shield } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
@@ -106,6 +106,16 @@ export function Header() {
                       <User className="h-4 w-4" aria-hidden />
                       {t("header", "dashboard")}
                     </Link>
+                    {session.staff && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className={cn(MENU_ITEM, "text-primary")}
+                      >
+                        <Shield className="h-4 w-4" aria-hidden />
+                        {t("header", "admin")}
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={() => {

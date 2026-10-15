@@ -33,6 +33,7 @@ export const te: Dictionary = {
     signInShort: "లాగిన్",
     accountMenu: "ఖాతా మెను",
     dashboard: "డాష్‌బోర్డ్",
+    admin: "అడ్మిన్",
     signOut: "సైన్ అవుట్",
     toggleTheme: "థీమ్ మార్చండి",
     language: "భాష",

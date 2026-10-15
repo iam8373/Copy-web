@@ -2,6 +2,28 @@
 
 Architecture and product decisions, newest first.
 
+## D-028 — Admin R2: the /admin shell
+
+**Date:** Admin phase R2
+**Status:** Accepted
+
+- **Three layers.** Middleware: signed-out → `/`, and every `/admin` response gets
+  `Cache-Control: private, no-store` and `X-Robots-Tag: noindex, nofollow` (plus page
+  metadata and robots.txt). Layout/pages: non-staff get a plain **404** (the panel does
+  not advertise itself); staff below the page's role get 404; staff without MFA in this
+  session go to `/admin/mfa`. Database: every write re-checks role + `aal2` (D-027).
+- **MFA (TOTP)** through Supabase Auth: enrol once (QR + setup key), then a challenge on
+  each new session. Abandoned unverified factors are removed before a new enrolment. No
+  in-app reset (it would bypass MFA): the owner removes factors in Supabase.
+- **Rate limits:** 60 admin writes a minute and 10 code attempts per 10 minutes per staff
+  member (`hit_rate_limit`, fails closed).
+- **Reads** use the secret key on the server after `requireStaff()`; functions take the
+  verified `Staff` so a call site cannot skip the check. **Writes** use the staff
+  member's own session so the database checks apply (`adminAction`).
+- **Chrome:** the category bar, footer and bottom nav are hidden on `/admin`; the header
+  stays (account menu, theme). Staff see an **Admin** link in the account menu (6 locales).
+  Admin copy is English only (`src/app/admin/_copy.ts`).
+
 ## D-027 — Admin R1: staff actions are database functions checked against the caller
 
 **Date:** Admin phase R1

@@ -33,6 +33,7 @@ export const mr: Dictionary = {
     signInShort: "लॉग इन",
     accountMenu: "खाते मेनू",
     dashboard: "डॅशबोर्ड",
+    admin: "ॲडमिन",
     signOut: "साइन आउट",
     toggleTheme: "थीम बदला",
     language: "भाषा",

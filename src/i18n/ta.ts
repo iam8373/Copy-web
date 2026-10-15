@@ -33,6 +33,7 @@ export const ta: Dictionary = {
     signInShort: "உள்நுழை",
     accountMenu: "கணக்கு மெனு",
     dashboard: "டாஷ்போர்டு",
+    admin: "நிர்வாகம்",
     signOut: "வெளியேறு",
     toggleTheme: "தீமை மாற்று",
     language: "மொழி",

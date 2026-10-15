@@ -29,6 +29,7 @@ export const hi: Dictionary = {
     signInShort: "लॉग इन",
     accountMenu: "खाता मेनू",
     dashboard: "डैशबोर्ड",
+    admin: "एडमिन",
     signOut: "साइन आउट",
     toggleTheme: "थीम बदलें",
     language: "भाषा",

@@ -19,6 +19,7 @@ import { getMarkets } from "@/services/markets/read";
 import { AuthSync } from "@/components/AuthSync";
 import { AgeConfirmDialog } from "@/components/AgeConfirmDialog";
 import { emailOtpEnabled } from "@/lib/server/env";
+import { HideOnAdmin } from "@/components/HideOnAdmin";
 
 export const metadata: Metadata = {
   // noindex/nofollow on every page unless ALLOW_INDEXING === "true". Covers
@@ -44,12 +45,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <LivePrices />
           <AuthSync />
           <Header />
-          <CategoryNav />
+          <HideOnAdmin>
+            <CategoryNav />
+          </HideOnAdmin>
           <main className="mx-auto max-w-content px-gutter pb-24 pt-4 sm:pb-12 sm:pt-6">
             {children}
           </main>
-          <Footer />
-          <BottomNav />
+          <HideOnAdmin>
+            <Footer />
+            <BottomNav />
+          </HideOnAdmin>
           <SearchModal />
           <AuthModal emailOtpEnabled={emailOtpEnabled()} />
           <AgeConfirmDialog />

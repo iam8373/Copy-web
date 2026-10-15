@@ -122,3 +122,36 @@ export async function openMarket(binary = true, skip = 0): Promise<OpenMarket> {
   if (!rows[skip]) throw new Error("no open market in the local database");
   return rows[skip];
 }
+
+/**
+ * Admin tests (R2+): a fresh account signed in through the real sheet, then
+ * given a staff role with the secret key (what `npm run admin:grant` does).
+ */
+export async function becomeStaff(page: Page, role: "moderator" | "admin", email = uniqueEmail(role)) {
+  await signInWithEmail(page, email);
+  const uid = await localUserId(email);
+  await localRest(`profiles?id=eq.${uid}`, { method: "PATCH", body: JSON.stringify({ role }) });
+  return { email, uid };
+}
+
+/** Enrols TOTP through /admin/mfa and lands on the dashboard. Returns the secret. */
+export async function enrollMfa(page: Page): Promise<string> {
+  const { totp } = await import("../support/totp");
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/admin\/mfa$/);
+  await page.getByRole("button", { name: "Start setup" }).click();
+  const secret = (await page.getByTestId("mfa-secret").innerText()).trim();
+  await page.getByLabel("6-digit code").fill(totp(secret));
+  await page.getByRole("button", { name: "Verify" }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible();
+  return secret;
+}
+
+/** Signed-in staff with MFA done, on /admin. */
+export async function staffSession(page: Page, role: "moderator" | "admin") {
+  await resetState(page);
+  const who = await becomeStaff(page, role);
+  const secret = await enrollMfa(page);
+  return { ...who, secret };
+}

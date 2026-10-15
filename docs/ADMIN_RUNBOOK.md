@@ -1,9 +1,8 @@
 # ADMIN RUNBOOK
 
 How BharatPredict is run day to day. Play credits only: no real money anywhere.
-Status: the database layer (R1) is done; the `/admin` screens arrive in R2–R6. Until
-then every action below exists as a database function and is fully tested, but has no
-button yet.
+Open `/admin` (account menu → Admin). Every action below is a database function that
+checks role and MFA itself; the screens only call it.
 
 ## Roles
 
@@ -29,6 +28,13 @@ Rules enforced in the database, not just the UI:
 3. Sign in again and enrol an authenticator app at `/admin/mfa`.
 
 Later admins and moderators are promoted by an admin (`admin_set_role`).
+
+### Lost authenticator
+
+There is no in-app reset on purpose (it would be a way around MFA). The project owner:
+Supabase Dashboard → Authentication → Users → the user → **Remove MFA factors** (or SQL:
+`delete from auth.mfa_factors where user_id = '<id>';`). The user then signs in again and
+enrols a new authenticator at `/admin/mfa`. Note the reset in the incident log.
 
 ## Market lifecycle
 

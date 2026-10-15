@@ -68,6 +68,7 @@ export function AuthSync() {
           handle,
           initial: handle.charAt(0).toUpperCase(),
           ageConfirmedAt: profile.ageConfirmedAt ?? undefined,
+          staff: profile.staff === true,
         },
         { announce: fresh && !known }
       );

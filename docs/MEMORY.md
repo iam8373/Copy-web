@@ -235,3 +235,9 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - The local stand-in runs pg_cron: `run_scheduled_jobs()` closes expired open markets
   every minute, so tests must not rely on an "open but expired" committed row.
 - plpgsql: don't name variables `binary` or `next` (reserved / keyword).
+- Admin e2e: `staffSession(page, role)` in `tests/e2e/helpers.ts` signs in, sets the role
+  with the secret key and enrols TOTP (`tests/support/totp.ts`). Use
+  `{ exact: true }` for the "Admin" link ("Badminton" matches otherwise).
+- Server components cannot call `buttonClasses` (it lives in a client module): use
+  `btn()` from `src/app/admin/_components/styles.ts`.
+- `scripts/check-tokens.sh` scans tracked files only: `git add -N` new files first.

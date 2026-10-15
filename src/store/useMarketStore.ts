@@ -36,6 +36,8 @@ export interface Session {
    * re-confirmation before the next order.
    */
   ageConfirmedAt?: string;
+  /** Staff accounts see an Admin link (the server decides access). */
+  staff?: boolean;
 }
 
 /** Emitted after a successful order so the success animation can outlive the modal. */
