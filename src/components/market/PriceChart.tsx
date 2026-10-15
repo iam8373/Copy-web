@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import type { Market } from "@/lib/types";
 import { useT } from "@/i18n/LanguageProvider";
+import { useOutcomeLabel } from "@/lib/market-text";
 import { AnimatedNumber, Badge, Card, Segmented, Tooltip } from "@/components/ui";
 import { FlashValue } from "@/components/FlashValue";
 import { chartColor, color, motion, size, tooltipStyle } from "@/lib/tokens";
@@ -106,6 +107,7 @@ function recordedSeries(points: RecordedPoint[], range: ChartRange, now: number,
 
 export function PriceChart({ market, recorded = [] }: { market: Market; recorded?: RecordedPoint[] }) {
   const { t } = useT();
+  const ol = useOutcomeLabel();
   const reduced = useReducedMotion();
   const [range, setRange] = useState<ChartRange>("1W");
   // Both series depend on "now", so they are built after mount: server and
@@ -149,7 +151,7 @@ export function PriceChart({ market, recorded = [] }: { market: Market; recorded
   const summary = lines
     .map((o) =>
       t("market", "chartSummary", {
-        outcome: o.label,
+        outcome: ol(o),
         from: first ? `${first[o.id]}%` : "",
         to: formatPercent(o.price, 1),
         range: rangeLabel(range),
@@ -195,7 +197,7 @@ export function PriceChart({ market, recorded = [] }: { market: Market; recorded
                       className="h-2 w-2 shrink-0 rounded-full"
                       style={{ background: chartColor(i) }}
                     />
-                    <span className="max-w-40 truncate text-secondary">{o.label}</span>
+                    <span className="max-w-40 truncate text-secondary">{ol(o)}</span>
                     <FlashValue value={o.price} className="font-semibold text-primary">
                       {formatPercent(o.price, 1)}
                     </FlashValue>

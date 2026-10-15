@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CircleCheck, Clock, Gavel, Undo2 } from "lucide-react";
 import type { Market } from "@/lib/types";
 import { useT } from "@/i18n/LanguageProvider";
+import { useOutcomeLabel } from "@/lib/market-text";
 import { Badge } from "@/components/ui";
 import type { BadgeTone } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -42,14 +43,21 @@ const TONE: Record<PublicState, BadgeTone> = {
   voided: "danger",
 };
 
-const outcomeLabel = (m: Market, id: string | null | undefined) => m.outcomes.find((o) => o.id === id)?.label ?? "";
+function useLabelOf(m: Market) {
+  const ol = useOutcomeLabel();
+  return (id: string | null | undefined) => {
+    const o = m.outcomes.find((x) => x.id === id);
+    return o ? ol(o) : "";
+  };
+}
 
 export function MarketStatusBadge({ market, className }: { market: Market; className?: string }) {
   const { t } = useT();
+  const outcomeLabel = useLabelOf(market);
   const state = publicState(market);
   const text =
     state === "resolved"
-      ? t("resolution", "resolved", { outcome: outcomeLabel(market, market.resolvedOutcomeId) })
+      ? t("resolution", "resolved", { outcome: outcomeLabel(market.resolvedOutcomeId) })
       : t("resolution", state);
   return (
     <Badge tone={TONE[state]} data-testid="market-status" data-state={state} className={cn("max-w-full truncate", className)}>
@@ -60,6 +68,7 @@ export function MarketStatusBadge({ market, className }: { market: Market; class
 
 export function ResolutionNotice({ market }: { market: Market }) {
   const { t } = useT();
+  const outcomeLabel = useLabelOf(market);
   const state = publicState(market);
   if (state === "open") return null;
   const r = market.resolution;
@@ -68,7 +77,7 @@ export function ResolutionNotice({ market }: { market: Market }) {
   if (state === "resolved") {
     Icon = CircleCheck;
     body = t("resolution", "noticeResolved", {
-      outcome: outcomeLabel(market, market.resolvedOutcomeId),
+      outcome: outcomeLabel(market.resolvedOutcomeId),
       date: ist(market.resolvedAt),
     });
   } else if (state === "voided") {
@@ -79,7 +88,7 @@ export function ResolutionNotice({ market }: { market: Market }) {
     body =
       r.kind === "void"
         ? t("resolution", "noticeProposedVoid", { date: ist(r.disputeEndsAt) })
-        : t("resolution", "noticeProposed", { outcome: outcomeLabel(market, r.outcomeId), date: ist(r.disputeEndsAt) });
+        : t("resolution", "noticeProposed", { outcome: outcomeLabel(r.outcomeId), date: ist(r.disputeEndsAt) });
   } else {
     body = t("resolution", state === "resolving" ? "noticeReviewing" : "noticeClosed");
   }

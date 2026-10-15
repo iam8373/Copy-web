@@ -434,6 +434,12 @@ isOneToOne: true
 "admin_resolution_preview":
 { Args: { "p_market_id": string }; Returns: Json
                            },
+"admin_save_market_translation":
+{ Args: { "p_description": string,"p_locale": string,"p_market_id": string,"p_status": string,"p_title": string }; Returns: boolean
+                           },
+"admin_save_outcome_translation":
+{ Args: { "p_label": string,"p_locale": string,"p_outcome_id": string,"p_status": string }; Returns: boolean
+                           },
 "admin_set_market_tags":
 { Args: { "p_market_id": string,"p_region": string,"p_tags": (string)[] }; Returns: undefined
                            },
@@ -442,6 +448,12 @@ isOneToOne: true
                            },
 "admin_set_user_status":
 { Args: { "p_reason": string,"p_status": string,"p_user_id": string }; Returns: undefined
+                           },
+"admin_take_translation_quota":
+{ Args: { "p_market_id": string }; Returns: number
+                           },
+"admin_translation_source":
+{ Args: { "p_market_id": string }; Returns: Json
                            },
 "admin_update_grievance":
 { Args: { "p_id": string,"p_note": string,"p_status": string }; Returns: undefined
@@ -473,6 +485,9 @@ isOneToOne: true
 "lmsr_shares_for_amount":
 { Args: { "amount": number,"b": number,"i": number,"q": (number)[] }; Returns: number
                            },
+"market_source_hash":
+{ Args: { "p_market_id": string }; Returns: string
+                           },
 "market_volume_24h":
 { Args: Record<PropertyKey, never>; Returns: {
               "market_id": string,"volume": number
@@ -482,6 +497,9 @@ isOneToOne: true
 { Args: Record<PropertyKey, never>; Returns: {
               "outcome_id": string,"price": number
             }[]
+                           },
+"outcome_source_hash":
+{ Args: { "p_label": string }; Returns: string
                            },
 "place_order":
 { Args: { "p_amount": number,"p_idempotency_key": string,"p_market_id": string,"p_outcome_id": string }; Returns: Json
@@ -494,6 +512,9 @@ isOneToOne: true
                            },
 "run_scheduled_jobs":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"translation_quota_used":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "unique_handle":
 { Args: { "p_email": string }; Returns: string

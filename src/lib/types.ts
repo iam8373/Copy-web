@@ -21,6 +21,15 @@ export interface Outcome {
   volume: number;
   /** Price 24 h ago (from price_history), so live updates can recompute change24h. */
   refPrice?: number;
+  /** Saved label translations by locale (outcome_translations, R5). */
+  translations?: Partial<Record<string, SavedOutcomeLabel>>;
+}
+
+/** A saved outcome label for one locale. Shown only while sourceHash is current. */
+export interface SavedOutcomeLabel {
+  label: string;
+  sourceHash: string;
+  status: "machine-drafted" | "reviewed";
 }
 
 /** A saved translation for one locale (market_translations). */

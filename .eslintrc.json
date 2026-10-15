@@ -32,7 +32,7 @@
                   "**/services/translation/run",
                   "**/services/translation/store"
                 ],
-                "message": "The translation service is script/server-only (it handles the OpenAI key and the filesystem). App code may only import services/translation/{types,hash} and lib/market-text."
+                "message": "The translation service is script/server-only (it handles the Gemini key and the filesystem). App code may only import services/translation/{types,hash,validate}, lib/market-text, and call Gemini through services/admin/translate.ts."
               }
             ]
           }

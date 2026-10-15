@@ -112,6 +112,19 @@ when the project has it, otherwise through `POST /api/cron` with `CRON_SECRET` (
 `DEPLOY_RUNBOOK.md` §1). A finalize that fails is logged as
 `resolution.finalize_failed` in the audit log and retried next minute.
 
+## Translations
+
+Screen: **Admin → Translations**. Users only ever see saved translations, and only while
+the English they were made from is unchanged.
+
+- **Translate with Gemini** drafts all five languages (text and outcome labels) for one
+  market. Each click uses one unit of `daily_translation_cap` (50 a day, IST), even if
+  Gemini fails. Drafts show to users with a "Translated automatically" note.
+- Review: open the market, correct a language, **Save as reviewed**. Gemini never
+  overwrites a reviewed language while the English is unchanged.
+- Editing a market's English title, description or sub-category makes every language
+  *stale* (users see English again) until it is redrafted or reviewed.
+
 ## Grievances
 
 Each grievance gets a reference like `BP-1A2B3C4D`. Statuses: open → in progress →

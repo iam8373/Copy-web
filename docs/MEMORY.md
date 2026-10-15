@@ -241,3 +241,8 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - Server components cannot call `buttonClasses` (it lives in a client module): use
   `btn()` from `src/app/admin/_components/styles.ts`.
 - `scripts/check-tokens.sh` scans tracked files only: `git add -N` new files first.
+- Admin e2e: never call `resetState` on a second page of the admin's context (it clears
+  the shared cookies and signs the admin out); use `browser.newContext()`.
+- R5 tests start a mock Gemini on port 3998 (`tests/support/gemini-mock.ts`); the test
+  build points `GEMINI_BASE_URL` at it (`testAppEnv`).
+- Global counts in tests (markets, audit rows) must be scoped: admin tests add rows.

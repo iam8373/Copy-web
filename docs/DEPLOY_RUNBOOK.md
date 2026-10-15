@@ -59,6 +59,7 @@ Migrations, in order (each file starts with its rollback notes):
 | `20261010000100_admin.sql` | admin/resolution functions, `resolving` status, settings, scheduled job (pg_cron if available) |
 | `20261011000100_admin_markets.sql` | `admin_set_market_tags()` (tags and region) |
 | `20261012000100_admin_resolution.sql` | `admin_resolution_preview()` (payout preview) |
+| `20261013000100_admin_translations.sql` | translation saves (database-computed hashes), daily Gemini cap |
 
 `--include-seed` runs `supabase/seed.sql` (app settings only; `on conflict do nothing`).
 
@@ -197,7 +198,7 @@ Dockerfile build:
 | `SUPABASE_SECRET_KEY` | the new `sb_secret_…` key (step 0) |
 | `AUTH_COOKIE_SECRET` | 64 hex characters: `openssl rand -hex 32` |
 | `EMAIL_OTP_ENABLED` | same value as above (the server re-checks it at runtime) |
-| `GEMINI_API_KEY`, `GEMINI_MODEL` | only if you run translations from this service (not needed) |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | needed for **Admin → Translations → Translate with Gemini** (R5); without them the button reports "not configured" and the site stays fully usable. Never set `GEMINI_BASE_URL` (tests only). |
 
 Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and 5 per 10 min);
 `CRON_SECRET` (32+ chars, `openssl rand -hex 32`) only if the project has no pg_cron.

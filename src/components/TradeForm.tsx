@@ -4,6 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import type { Market } from "@/lib/types";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
+import { useOutcomeLabel } from "@/lib/market-text";
 import { AmountField } from "@/components/AmountField";
 import { AnimatedNumber, Button, FOCUS_RING } from "@/components/ui";
 import { validateAmount } from "@/lib/trade-limits";
@@ -42,6 +43,7 @@ export function TradeForm({
   const pending = useMarketStore((s) => s.orderPending);
   const wallet = useMarketStore((s) => s.wallet);
   const { t } = useT();
+  const ol = useOutcomeLabel();
 
   const selected = market.outcomes.find((o) => o.id === outcomeId) ?? market.outcomes[0];
   const check = validateAmount(amount);
@@ -83,7 +85,7 @@ export function TradeForm({
                 !active && "border-subtle bg-surface-3 text-secondary hover:border-strong hover:text-primary"
               )}
             >
-              <span className="truncate">{t("trade", "buy", { outcome: o.label })}</span>
+              <span className="truncate">{t("trade", "buy", { outcome: ol(o) })}</span>
               <span className="tnum shrink-0">{formatPercent(o.price, 1)}</span>
             </button>
           );

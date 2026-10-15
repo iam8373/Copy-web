@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import type { Category, Market, MarketResolution, NavSlug, SavedMarketText } from "@/lib/types";
+import type { Category, Market, MarketResolution, NavSlug, Outcome, SavedMarketText } from "@/lib/types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 
 /**
@@ -34,10 +34,16 @@ function publicClient() {
 
 const MARKET_COLUMNS =
   "id, slug, title, description, category, subcategory, end_date, is_live, is_featured, resolution_source, status, is_binary, liquidity_b, total_volume, volume_change_24h, region, tags, resolved_outcome_id, resolved_at, " +
-  "outcomes!outcomes_market_id_fkey(id, label, price, sort_order), market_translations(locale, title, description, status, source_hash)";
+  "outcomes!outcomes_market_id_fkey(id, label, price, sort_order, outcome_translations(locale, label, source_hash, status)), market_translations(locale, title, description, status, source_hash)";
 
 type Row = Database["public"]["Tables"]["markets"]["Row"] & {
-  outcomes: Array<{ id: string; label: string; price: number; sort_order: number }>;
+  outcomes: Array<{
+    id: string;
+    label: string;
+    price: number;
+    sort_order: number;
+    outcome_translations?: Array<{ locale: string; label: string; source_hash: string; status: string }>;
+  }>;
   market_translations: Array<{ locale: string; title: string; description: string; status: string; source_hash: string }>;
 };
 
@@ -77,7 +83,11 @@ function toMarket(r: Row, ref: Map<string, number>, vol24: Map<string, number>, 
     .map((o) => {
       const price = Number(o.price);
       const refPrice = ref.get(o.id) ?? price;
-      return { id: o.id, label: o.label, price, refPrice, change24h: round4(price - refPrice), volume: 0 };
+      const translations: Outcome["translations"] = {};
+      for (const t of o.outcome_translations ?? []) {
+        translations[t.locale] = { label: t.label, sourceHash: t.source_hash, status: t.status === "reviewed" ? "reviewed" : "machine-drafted" };
+      }
+      return { id: o.id, label: o.label, price, refPrice, change24h: round4(price - refPrice), volume: 0, translations };
     });
   const translations: Record<string, SavedMarketText> = {};
   for (const t of r.market_translations ?? []) {
@@ -133,7 +143,7 @@ async function loadMarkets(): Promise<Market[]> {
   return (markets.data as unknown as Row[]).map((r) => toMarket(r, refMap, volMap, resMap.get(r.id)));
 }
 
-const cachedMarkets = unstable_cache(loadMarkets, ["markets:all:v2"], { revalidate: 30, tags: [MARKETS_TAG] });
+const cachedMarkets = unstable_cache(loadMarkets, ["markets:all:v3"], { revalidate: 30, tags: [MARKETS_TAG] });
 
 async function safe<T>(fn: () => Promise<T>): Promise<Result<T>> {
   if (!supabaseConfigured) return { ok: false };

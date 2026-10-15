@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { Market } from "@/lib/types";
 import { useT } from "@/i18n/LanguageProvider";
+import { useOutcomeLabel } from "@/lib/market-text";
 import { Card, Segmented, Tooltip } from "@/components/ui";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 import { DEFAULT_LIQUIDITY_B, getOrderBook } from "@/services/markets/market-data";
@@ -26,13 +27,14 @@ export function OrderBook({
   onOutcomeChange: (id: string) => void;
 }) {
   const { t } = useT();
+  const ol = useOutcomeLabel();
   const book = useMemo(
     () => getOrderBook(market, outcomeId, market.liquidityB ?? DEFAULT_LIQUIDITY_B),
     [market, outcomeId]
   );
   const outcome = market.outcomes.find((o) => o.id === book.outcomeId) ?? market.outcomes[0];
   const yesNo = market.isBinary
-    ? market.outcomes.map((o, i) => ({ value: o.id, label: o.label, tone: i === 0 ? ("yes" as const) : ("no" as const) }))
+    ? market.outcomes.map((o, i) => ({ value: o.id, label: ol(o), tone: i === 0 ? ("yes" as const) : ("no" as const) }))
     : null;
   const captionId = "order-book-caption";
 
@@ -53,14 +55,14 @@ export function OrderBook({
           />
         ) : (
           <span className="ml-auto max-w-full truncate text-13 font-semibold text-brand">
-            {outcome.label}
+            {ol(outcome)}
           </span>
         )}
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-12 sm:text-13" aria-describedby={captionId}>
-          <caption className="sr-only">{t("market", "orderBookFor", { outcome: outcome.label })}</caption>
+          <caption className="sr-only">{t("market", "orderBookFor", { outcome: ol(outcome) })}</caption>
           <thead>
             <tr className="border-y border-subtle text-12 text-muted">
               <th scope="col" className="whitespace-nowrap px-3 py-2 text-left font-medium sm:px-5">

@@ -1,4 +1,11 @@
-import { responseSchema, systemPrompt, userPrompt } from "./prompt";
+import {
+  outcomesResponseSchema,
+  outcomesSystemPrompt,
+  outcomesUserPrompt,
+  responseSchema,
+  systemPrompt,
+  userPrompt,
+} from "./prompt";
 import type { MarketSource } from "./types";
 
 /**
@@ -19,7 +26,19 @@ export const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta
 /** Model ids go into the URL path, so only allow plain id characters. */
 const MODEL_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
-export const geminiUrl = (model: string) => `${GEMINI_BASE_URL}/${model}:generateContent`;
+export const geminiUrl = (model: string, base = GEMINI_BASE_URL) => `${base}/${model}:generateContent`;
+
+/**
+ * Optional GEMINI_BASE_URL override, for the e2e mock server only. Accepted
+ * only for Google's endpoint or a loopback http URL, so a misconfiguration
+ * can never send the API key anywhere else.
+ */
+export function resolveBaseUrl(raw: string | undefined): string {
+  const v = raw?.trim().replace(/\/+$/, "");
+  if (!v) return GEMINI_BASE_URL;
+  if (v === GEMINI_BASE_URL || /^http:\/\/(127\.0\.0\.1|localhost):\d{2,5}\/[A-Za-z0-9/_-]*$/.test(v)) return v;
+  return GEMINI_BASE_URL;
+}
 
 /** Per request. Reasoning models can take well over a minute for five locales. */
 export const DEFAULT_TIMEOUT_MS = 120_000;
@@ -29,6 +48,8 @@ export interface TranslateOptions {
   model: string;
   /** Injectable for tests; defaults to the global fetch. */
   fetchImpl?: typeof fetch;
+  /** See resolveBaseUrl(). Defaults to Google's endpoint. */
+  baseUrl?: string;
   timeoutMs?: number;
 }
 
@@ -79,9 +100,21 @@ function parseJson(text: string): unknown {
  * Returns the parsed, *unvalidated* object; the caller must run validate.ts.
  */
 export async function translateMarket(source: MarketSource, opts: TranslateOptions): Promise<unknown> {
+  return generate(systemPrompt(), userPrompt(source), responseSchema(), opts);
+}
+
+/**
+ * Outcome labels of one market, all five locales in one request:
+ * { hi: [label…], mr: […], … } in the same order. Unvalidated.
+ */
+export async function translateOutcomes(labels: string[], opts: TranslateOptions): Promise<unknown> {
+  return generate(outcomesSystemPrompt(), outcomesUserPrompt(labels), outcomesResponseSchema(labels.length), opts);
+}
+
+async function generate(system: string, user: string, schema: unknown, opts: TranslateOptions): Promise<unknown> {
   if (!MODEL_ID.test(opts.model)) throw new TranslationRequestError("invalid model id");
   const doFetch = opts.fetchImpl ?? fetch;
-  const res = await doFetch(geminiUrl(opts.model), {
+  const res = await doFetch(geminiUrl(opts.model, opts.baseUrl ?? GEMINI_BASE_URL), {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -89,13 +122,13 @@ export async function translateMarket(source: MarketSource, opts: TranslateOptio
       "x-goog-api-key": opts.apiKey,
     },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemPrompt() }] },
-      contents: [{ role: "user", parts: [{ text: userPrompt(source) }] }],
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: "user", parts: [{ text: user }] }],
       generationConfig: {
         temperature: 0,
         responseMimeType: "application/json",
         // Full JSON Schema, including additionalProperties: false.
-        responseJsonSchema: responseSchema(),
+        responseJsonSchema: schema,
       },
     }),
     signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),

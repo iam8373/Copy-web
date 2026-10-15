@@ -8,6 +8,7 @@ export const NAV: Array<{ href: string; label: string; min: StaffRole }> = [
   { href: "/admin", label: "Dashboard", min: "moderator" },
   { href: "/admin/markets", label: "Markets", min: "moderator" },
   { href: "/admin/resolutions", label: "Resolutions", min: "moderator" },
+  { href: "/admin/translations", label: "Translations", min: "moderator" },
 ];
 
 export const COPY = {
@@ -161,6 +162,30 @@ export const COPY = {
     back: "Resolutions",
     view: "Review",
   },
+  translations: {
+    title: "Translations",
+    intro: "Market text and outcome labels in Hindi, Marathi, Bengali, Tamil and Telugu. Users only ever see saved text.",
+    quota: (used: number, cap: number) => `Gemini today: ${used} of ${cap} markets`,
+    filters: { needs: "Needs work", all: "All" },
+    empty: "Every market is translated.",
+    states: { missing: "missing", stale: "stale", machine: "machine", reviewed: "reviewed" },
+    stateHelp: "missing: never translated · stale: the English changed since · machine: Gemini draft, not reviewed · reviewed: checked by a person",
+    locales: { hi: "Hindi", mr: "Marathi", bn: "Bengali", ta: "Tamil", te: "Telugu" },
+    generate: "Translate with Gemini",
+    generated: (saved: number, kept: number) =>
+      `Saved ${saved} machine draft${saved === 1 ? "" : "s"}${kept ? `; kept ${kept} reviewed` : ""}.`,
+    skipped: (what: string) => ` Gemini output for ${what} failed the checks and was not saved.`,
+    edit: "Edit",
+    back: "Translations",
+    detailTitle: "Translate market",
+    english: "English",
+    titleLabel: "Title",
+    descriptionLabel: "Description",
+    outcomesLabel: "Outcome labels",
+    saveReviewed: "Save as reviewed",
+    saved: "Saved as reviewed.",
+    keptNote: "Gemini never replaces a reviewed translation while the English is unchanged.",
+  },
   mfa: {
     title: "Two-step verification",
     intro: "Every admin action needs an authenticator app code in this session.",
@@ -205,6 +230,10 @@ export const ERRORS: Record<string, string> = {
   BP_INSUFFICIENT_FUNDS: "That would take the balance below zero.",
   BP_UNKNOWN_SETTING: "Unknown setting.",
   RATE_LIMITED: "Too many actions in a short time. Wait a minute.",
+  BP_DAILY_CAP: "Today's Gemini limit is used up (daily_translation_cap). Try tomorrow or raise it in Settings.",
+  TRANSLATION_NOT_CONFIGURED: "Gemini is not configured on this server (GEMINI_API_KEY and GEMINI_MODEL).",
+  TRANSLATION_FAILED: "Gemini did not answer. Nothing was saved; the unit of today's limit is used.",
+  TRANSLATION_INVALID: "Gemini's output failed the checks (numbers, names, terms). Nothing was saved.",
   INVALID_CODE: "That code is not right. Check the time on your phone and try again.",
   FAILED: "Something went wrong. Nothing was changed.",
 };

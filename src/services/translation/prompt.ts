@@ -59,3 +59,38 @@ export function responseSchema() {
     properties: Object.fromEntries(TARGET_LOCALES.map((l) => [l, text])),
   };
 }
+
+/** Outcome labels (R5): short names, kept in order, one array per locale. */
+export function outcomesSystemPrompt(): string {
+  const yesNo = TARGET_LOCALES.map((l) => {
+    const t = termsFor(l).filter((x) => x.key === "yes" || x.key === "no");
+    return `- ${l}: ${t.map((x) => `"${x.english}" -> "${x.rendering}"`).join("; ")}`;
+  }).join("\n");
+  return [
+    "You translate the answer options (outcome labels) of a prediction market for an Indian audience.",
+    `Translate every label into: ${TARGET_LOCALES.map((l) => `${l} = ${LOCALE_NAMES[l]}`).join(", ")}.`,
+    "",
+    "Rules:",
+    "1. Return the labels in the same order and the same number as given.",
+    "2. Keep numbers, percentages, ₹ amounts and all-caps acronyms exactly as written, with Latin digits.",
+    "3. Team, party, person and place names: the common written form a native newspaper uses (transliterate into the script).",
+    "4. Keep each label short; do not explain or add words.",
+    "5. The labels Yes and No must be rendered exactly as:",
+    yesNo,
+    "6. Output only the JSON object described by the schema.",
+  ].join("\n");
+}
+
+export function outcomesUserPrompt(labels: string[]): string {
+  return JSON.stringify({ labels });
+}
+
+export function outcomesResponseSchema(n: number) {
+  const list = { type: "array", minItems: n, maxItems: n, items: { type: "string" } };
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: [...TARGET_LOCALES],
+    properties: Object.fromEntries(TARGET_LOCALES.map((l) => [l, list])),
+  };
+}

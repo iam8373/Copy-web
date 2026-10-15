@@ -9,3 +9,8 @@ import type { MarketSource } from "./types";
 export function sourceHashFor(m: Pick<MarketSource, "title" | "description" | "subcategory">) {
   return sha256Hex(`${m.title}\n${m.description}\n${m.subcategory}`);
 }
+
+/** Outcome labels: sha256 of the English label (outcome_source_hash() in SQL). */
+export function outcomeHashFor(label: string) {
+  return sha256Hex(label);
+}

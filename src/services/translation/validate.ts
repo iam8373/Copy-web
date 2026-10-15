@@ -69,6 +69,12 @@ export function checkField(
   const problems: FieldProblem[] = [];
   const p = (problem: string) => problems.push({ locale, field, problem });
 
+  // Nothing to translate (e.g. a market without a description): empty is right.
+  if (source.trim() === "") {
+    if (typeof output !== "string") p("not a string");
+    else if (output.trim() !== "") p("source is empty but the translation is not");
+    return problems;
+  }
   if (typeof output !== "string" || output.trim() === "") {
     p("empty or not a string");
     return problems;
@@ -142,5 +148,37 @@ export function validateEntry(
   if (Number.isNaN(Date.parse(entry.translatedAt))) out.push("translatedAt is not an ISO date");
   if (entry.status !== "machine-drafted" && entry.status !== "reviewed") out.push(`bad status "${entry.status}"`);
   for (const p of validateLocales(source, entry.locales)) out.push(`${p.locale}.${p.field}: ${p.problem}`);
+  return out;
+}
+
+/**
+ * Validates translated outcome labels (R5): every locale present, same count
+ * and order, non-empty, at most 200 characters, numbers and acronyms kept,
+ * and Yes/No rendered with the protected terms.
+ */
+export function validateOutcomeLabels(labels: string[], output: unknown): string[] {
+  const out: string[] = [];
+  if (typeof output !== "object" || output === null || Array.isArray(output)) return ["response is not an object"];
+  const obj = output as Record<string, unknown>;
+  for (const k of Object.keys(obj)) if (!(TARGET_LOCALES as readonly string[]).includes(k)) out.push(`unexpected locale key "${k}"`);
+  for (const locale of TARGET_LOCALES) {
+    const arr = obj[locale];
+    if (!Array.isArray(arr) || arr.length !== labels.length) {
+      out.push(`${locale}: expected ${labels.length} labels`);
+      continue;
+    }
+    const terms = termsFor(locale);
+    arr.forEach((v, i) => {
+      const src = labels[i];
+      if (typeof v !== "string" || !v.trim()) return out.push(`${locale}[${i}]: empty`);
+      if (v.length > 200) out.push(`${locale}[${i}]: too long`);
+      for (const t of tickers(src)) if (!v.includes(t)) out.push(`${locale}[${i}]: ticker "${t}" missing`);
+      for (const n of numbers(src)) if (!numbers(v).includes(n)) out.push(`${locale}[${i}]: number "${n}" missing`);
+      for (const key of ["yes", "no"] as const) {
+        const term = terms.find((x) => x.key === key)!;
+        if (src === term.english && v !== term.rendering) out.push(`${locale}[${i}]: must be "${term.rendering}"`);
+      }
+    });
+  }
   return out;
 }

@@ -676,6 +676,7 @@ runbook).
       tags/region, publish/close with typed slug, per-market history (D-029).
 - [x] R4 resolution queue, payout preview, `docs/RESOLUTION_POLICY.md`, public status
       badges and notices in 6 locales (D-030).
-- [ ] R5 translations admin (Gemini, daily cap).
+- [x] R5 translations admin: per-locale states, Gemini drafts with the daily cap,
+      reviewed editor, reviewed entries kept, translated outcome labels for users (D-031).
 - [ ] R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.
 - [ ] R7 regional restriction: **skipped** by the owner for now.

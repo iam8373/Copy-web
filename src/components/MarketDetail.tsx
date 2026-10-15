@@ -15,7 +15,7 @@ import type { Market } from "@/lib/types";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { NAV_KEY_BY_SLUG } from "@/i18n";
-import { useMarketText } from "@/lib/market-text";
+import { useMarketText, useOutcomeLabel } from "@/lib/market-text";
 import { media, chartColor } from "@/lib/tokens";
 import { Countdown } from "@/components/Countdown";
 import { FlashValue } from "@/components/FlashValue";
@@ -215,6 +215,7 @@ function OutcomeList({
   onBuy: (id: string) => void;
 }) {
   const { t } = useT();
+  const ol = useOutcomeLabel();
   const charted = chartedOutcomes(market).map((o) => o.id);
   const rows = [...market.outcomes].sort((a, b) => b.price - a.price);
   return (
@@ -239,7 +240,7 @@ function OutcomeList({
                 className={cn("h-2 w-2 shrink-0 rounded-full", colourIndex < 0 && "bg-surface-3")}
                 style={colourIndex >= 0 ? { background: chartColor(colourIndex) } : undefined}
               />
-              <span className="min-w-0 flex-1 truncate text-14 font-medium text-primary">{o.label}</span>
+              <span className="min-w-0 flex-1 truncate text-14 font-medium text-primary">{ol(o)}</span>
               <span
                 className={cn(
                   "tnum hidden w-12 text-right text-12 font-semibold sm:block",
@@ -256,7 +257,7 @@ function OutcomeList({
                 variant={active ? "primary" : "secondary"}
                 aria-pressed={active}
                 onClick={() => onBuy(o.id)}
-                aria-label={t("trade", "buy", { outcome: o.label })}
+                aria-label={t("trade", "buy", { outcome: ol(o) })}
               >
                 {t("terms", "buy")}
               </Button>
@@ -324,6 +325,7 @@ function Rules({ market, description }: { market: Market; description: string })
 
 function MobileTradeBar({ market, onBuy }: { market: Market; onBuy: (id: string) => void }) {
   const { t } = useT();
+  const ol = useOutcomeLabel();
   const [yes, no] = market.outcomes;
   return (
     <div
@@ -335,11 +337,11 @@ function MobileTradeBar({ market, onBuy }: { market: Market; onBuy: (id: string)
         {market.isBinary ? (
           <>
             <Button variant="yes" size="lg" className="flex-1" onClick={() => onBuy(yes.id)}>
-              {t("trade", "buy", { outcome: yes.label })}{" "}
+              {t("trade", "buy", { outcome: ol(yes) })}{" "}
               <span className="tnum">{formatPercent(yes.price, 1)}</span>
             </Button>
             <Button variant="no" size="lg" className="flex-1" onClick={() => onBuy(no.id)}>
-              {t("trade", "buy", { outcome: no.label })}{" "}
+              {t("trade", "buy", { outcome: ol(no) })}{" "}
               <span className="tnum">{formatPercent(no.price, 1)}</span>
             </Button>
           </>

@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { sourceHashFor } from "@/services/translation/hash";
+import { outcomeHashFor, sourceHashFor } from "@/services/translation/hash";
 import { TARGET_LOCALES } from "@/services/translation/types";
 import { useT } from "@/i18n/LanguageProvider";
 import type { Locale } from "@/i18n";
-import type { Market } from "@/lib/types";
+import type { Market, Outcome } from "@/lib/types";
 
 /**
  * READ-ONLY access to saved translations, which arrive with each market from
@@ -66,4 +66,28 @@ export function useMarketText(
 ): MarketText {
   const { locale } = useT();
   return useMemo(() => getMarketText(market, locale), [market, locale]);
+}
+
+const labelHashCache = new Map<string, string>();
+
+/**
+ * An outcome's label in `locale`: the saved translation while it still
+ * matches the English label (hash), otherwise the English label (R5).
+ */
+export function getOutcomeLabel(o: Pick<Outcome, "label" | "translations">, locale: Locale): string {
+  if (!(TARGET_LOCALES as readonly string[]).includes(locale)) return o.label;
+  const saved = o.translations?.[locale];
+  if (!saved?.label?.trim()) return o.label;
+  let h = labelHashCache.get(o.label);
+  if (!h) {
+    h = outcomeHashFor(o.label);
+    labelHashCache.set(o.label, h);
+  }
+  return saved.sourceHash === h ? saved.label : o.label;
+}
+
+/** Hook: `label(outcome)` in the active UI language. */
+export function useOutcomeLabel(): (o: Pick<Outcome, "label" | "translations">) => string {
+  const { locale } = useT();
+  return useMemo(() => (o: Pick<Outcome, "label" | "translations">) => getOutcomeLabel(o, locale), [locale]);
 }

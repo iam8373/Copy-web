@@ -16,7 +16,7 @@ import {
 } from "@/lib/utils";
 import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
-import { useMarketText } from "@/lib/market-text";
+import { useMarketText, useOutcomeLabel } from "@/lib/market-text";
 import { NAV_KEY_BY_SLUG } from "@/i18n";
 import { Badge, Button, FOCUS_RING } from "@/components/ui";
 import { MarketStatusBadge, publicState } from "@/components/market/ResolutionStatus";
@@ -40,6 +40,7 @@ function CategoryBadge({ market }: { market: Market }) {
 function BinaryOutcomes({ market }: { market: Market }) {
   const openTrade = useMarketStore((s) => s.openTrade);
   const { t } = useT();
+  const ol = useOutcomeLabel();
   const [yes, no] = market.outcomes;
 
   const cells = [
@@ -72,7 +73,7 @@ function BinaryOutcomes({ market }: { market: Market }) {
               tone === "green" ? "text-success" : "text-danger"
             )}
           >
-            {o.label}{" "}
+            {ol(o)}{" "}
             <FlashValue value={o.price}>{formatPercent(o.price)}</FlashValue>
           </span>
           <span className="tnum text-11 text-secondary">
@@ -87,6 +88,7 @@ function BinaryOutcomes({ market }: { market: Market }) {
 function MultiOutcomes({ market }: { market: Market }) {
   const openTrade = useMarketStore((s) => s.openTrade);
   const { t } = useT();
+  const ol = useOutcomeLabel();
   const top = market.outcomes.slice(0, 4);
 
   return (
@@ -112,7 +114,7 @@ function MultiOutcomes({ market }: { market: Market }) {
             style={{ width: `${Math.min(100, o.price * 100)}%` }}
           />
           <span className="relative min-w-0 flex-1 truncate text-13 font-medium text-primary">
-            {o.label}
+            {ol(o)}
           </span>
           <FlashValue
             value={o.price}

@@ -2,6 +2,35 @@
 
 Architecture and product decisions, newest first.
 
+## D-031 — Admin R5: translations admin
+
+**Date:** Admin phase R5
+**Status:** Accepted
+
+- `/admin/translations`: every unresolved market with a state per locale — *missing*,
+  *stale* (English changed since), *machine* (Gemini draft) or *reviewed* — combining the
+  market text and every outcome label (the worst wins). Search, "Needs work" filter.
+  `/admin/translations/[marketId]`: English source, one editor per locale (title,
+  description, outcome labels), **Save as reviewed**.
+- **Gemini only** (D-018), on demand from the admin, never at page view. One click =
+  one unit of `daily_translation_cap` (50 per IST day), taken in the database before the
+  call and recorded in the audit log (`translation.generate`), serialised with an
+  advisory lock. Two requests per unit: market text (existing prompt) and outcome labels
+  (new prompt; Yes/No must use the glossary terms). Output goes through the validators;
+  failing parts are not saved.
+- **Reviewed entries are kept:** a machine draft never replaces a reviewed entry while
+  the English is unchanged (the database returns "kept"). A reviewed entry for older
+  English is stale, not shown, and may be redrafted.
+- **The database computes the source hash** (`market_source_hash`, `outcome_source_hash`,
+  identical to `sourceHashFor` / `outcomeHashFor`), so a saved entry cannot claim text it
+  was not made from. All writes are staff functions with MFA, audited.
+- **Users now see translated outcome labels** (cards, market page, trade form, order
+  book, chart, resolution badge) while their hash is current; otherwise English.
+- `GEMINI_BASE_URL` exists only for the e2e mock (`tests/support/gemini-mock.ts`) and is
+  accepted only for Google's endpoint or a loopback URL. The Gemini call lives in
+  `src/services/admin/translate.ts` (server-only); ESLint still keeps
+  `services/translation/translate` out of `src/app`.
+
 ## D-030 — Admin R4: resolution queue and public status
 
 **Date:** Admin phase R4

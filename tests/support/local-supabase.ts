@@ -19,6 +19,9 @@ export const LOCAL = {
   mailUrl: env("E2E_MAILPIT_URL") || "http://127.0.0.1:54324",
 };
 
+/** Port of the mock Gemini server started by the translation admin tests. */
+export const GEMINI_MOCK_PORT = 3998;
+
 /** Test-only shared secret for POST /api/cron. */
 export const TEST_CRON_SECRET = "test-only-cron-secret-not-for-production-0001";
 
@@ -38,7 +41,11 @@ export function testAppEnv(extra: Record<string, string> = {}): string {
     NEXT_PUBLIC_SITE_URL: "placeholder",
     AUTH_COOKIE_SECRET: "test-only-cookie-secret-not-for-production-use-0001",
     CRON_SECRET: TEST_CRON_SECRET,
-    GEMINI_API_KEY: "",
+    // R5: the admin "Translate with Gemini" button talks to a local mock
+    // (tests/support/gemini-mock.ts), never to Google.
+    GEMINI_API_KEY: "test-only-gemini-key",
+    GEMINI_MODEL: "test-model",
+    GEMINI_BASE_URL: `http://127.0.0.1:${GEMINI_MOCK_PORT}/v1beta/models`,
     ...extra,
   };
   if (!vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || !vars.SUPABASE_SECRET_KEY) {
