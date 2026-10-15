@@ -19,7 +19,7 @@ test("market pages are served from the database, with database ids", async ({ pa
   // Outcome ids in the page are the database uuids, not the old static keys.
   const ids = await page.getByTestId("trade-outcome").evaluateAll((els) => els.length);
   expect(ids).toBeGreaterThan(1);
-  const [{ count }] = await localRest<Array<{ count: number }>>("markets?select=count");
+  const [{ count }] = await localRest<Array<{ count: number }>>("markets?legacy_id=not.is.null&select=count");
   expect(count).toBe(MARKETS.length);
 });
 

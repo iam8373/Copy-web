@@ -2,6 +2,25 @@
 
 Architecture and product decisions, newest first.
 
+## D-029 — Admin R3: market management
+
+**Date:** Admin phase R3
+**Status:** Accepted
+
+- `/admin/markets` (filter by status, search, 50 per page), `/admin/markets/new`,
+  `/admin/markets/[id]` (form, outcomes/prices, history from the audit log).
+- One schema for form, actions and tests: `src/lib/admin/market-schema.ts`.
+  `editableFields(status)` mirrors the database's field locks so locked inputs are
+  disabled and labelled; the database still refuses them (`BP_FIELD_LOCKED`).
+- The edit form sends **only changed fields**. End dates are entered in IST.
+- Tags and region: separate function `admin_set_market_tags` (any status before
+  resolved/voided; tags trimmed, lower-cased, de-duplicated), so the main update's lock
+  rules stay simple.
+- Publish / close use the shared typed-slug dialog (`ConfirmSlug`); admin only — the
+  page tells moderators so instead of showing a dead button.
+- Every write revalidates the `markets` and `prices` cache tags, so public pages show
+  the change at once.
+
 ## D-028 — Admin R2: the /admin shell
 
 **Date:** Admin phase R2

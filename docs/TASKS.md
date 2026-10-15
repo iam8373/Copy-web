@@ -672,7 +672,9 @@ runbook).
 
 - [x] R2 /admin shell: middleware + `requireStaff`, MFA enrol/challenge (`/admin/mfa`),
       noindex/no-store, role-aware menu, dashboard, rate limits, Admin link (D-028).
-- [ ] R3 markets management. R4 resolution queue + `docs/RESOLUTION_POLICY.md` + public
+- [x] R3 markets management: list/filter/search, create, edit with status locks,
+      tags/region, publish/close with typed slug, per-market history (D-029).
+- [ ] R4 resolution queue + `docs/RESOLUTION_POLICY.md` + public
       status badges (6 locales). R5 translations admin (Gemini, daily cap).
       R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.
 - [ ] R7 regional restriction: **skipped** by the owner for now.
