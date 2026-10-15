@@ -668,7 +668,7 @@ runbook).
 - [x] `npm run admin:grant -- <email>`; `docs/ADMIN_RUNBOOK.md`.
 - [x] pgTAP `005_admin` (92 checks); e2e `admin-jobs.spec.ts`.
 
-## Admin R2–R6 (next)
+## Admin R2–R6 (done)
 
 - [x] R2 /admin shell: middleware + `requireStaff`, MFA enrol/challenge (`/admin/mfa`),
       noindex/no-store, role-aware menu, dashboard, rate limits, Admin link (D-028).
@@ -678,5 +678,6 @@ runbook).
       badges and notices in 6 locales (D-030).
 - [x] R5 translations admin: per-locale states, Gemini drafts with the daily cap,
       reviewed editor, reviewed entries kept, translated outcome labels for users (D-031).
-- [ ] R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.
+- [x] R6 users, credits, grievance form + inbox, compliance view, settings, audit
+      viewer (D-032).
 - [ ] R7 regional restriction: **skipped** by the owner for now.

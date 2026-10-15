@@ -38,6 +38,11 @@ const int = (v: string | undefined, d: number) => {
   return Number.isInteger(n) && n > 0 ? n : d;
 };
 
+/** Grievance form limits per hour (R6). Tests raise the per-IP one via env. */
+export function grievanceLimits() {
+  return { perIp: int(process.env.GRIEVANCE_RATE_LIMIT_PER_IP, 5), perEmail: 3, windowSeconds: 3600 };
+}
+
 /** Sign-in attempt limits (per 10-minute window). Tests raise them via env. */
 export function signInLimits() {
   return {

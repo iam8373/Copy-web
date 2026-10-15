@@ -17,6 +17,7 @@ const APP_ENV = testAppEnv({
   EMAIL_OTP_ENABLED: "true",
   AUTH_RATE_LIMIT_PER_IP: "100000",
   AUTH_RATE_LIMIT_PER_EMAIL: "4",
+  GRIEVANCE_RATE_LIMIT_PER_IP: "100000",
 });
 
 export default defineConfig({

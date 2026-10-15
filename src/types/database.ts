@@ -422,11 +422,17 @@ isOneToOne: true
 "admin_close_market":
 { Args: { "p_confirm_slug": string,"p_market_id": string }; Returns: undefined
                            },
+"admin_compliance":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "admin_create_market":
 { Args: { "p": Json }; Returns: string
                            },
 "admin_grant_by_email":
 { Args: { "p_email": string }; Returns: string
+                           },
+"admin_list_users":
+{ Args: { "p_page": number,"p_search": string }; Returns: Json
                            },
 "admin_publish_market":
 { Args: { "p_confirm_slug": string,"p_market_id": string }; Returns: undefined
@@ -463,6 +469,9 @@ isOneToOne: true
                            },
 "admin_update_setting":
 { Args: { "p_key": string,"p_value": Json }; Returns: undefined
+                           },
+"admin_user_detail":
+{ Args: { "p_user_id": string }; Returns: Json
                            },
 "approve_resolution":
 { Args: { "p_confirm_slug": string,"p_proposal_id": string }; Returns: string

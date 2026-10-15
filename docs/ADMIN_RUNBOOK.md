@@ -83,6 +83,10 @@ or the resolution source no longer exists. Never void because the result is unpo
 
 ## Credits and users
 
+Screen: **Admin → Users** (admins only). Also: **Settings**, **Audit log** and
+**Compliance** (one page of counts for reviews, including which staff have an
+authenticator).
+
 - **Adjust credits**: a signed amount up to `admin_credit_cap` (10,000) per adjustment,
   with a reason (shown in the user's ledger). A debit cannot take a balance below zero.
 - **Suspend**: with a reason. A suspended user cannot trade; positions stay and are paid
@@ -126,6 +130,9 @@ the English they were made from is unchanged.
   *stale* (users see English again) until it is redrafted or reviewed.
 
 ## Grievances
+
+Screen: **Admin → Grievances** (moderators and admins). The public form is on
+`/grievance`; it allows 5 an hour per IP and 3 an hour per email address.
 
 Each grievance gets a reference like `BP-1A2B3C4D`. Statuses: open → in progress →
 resolved / closed. Staff notes are internal. Reply by email from the grievance officer's

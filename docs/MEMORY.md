@@ -246,3 +246,5 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - R5 tests start a mock Gemini on port 3998 (`tests/support/gemini-mock.ts`); the test
   build points `GEMINI_BASE_URL` at it (`testAppEnv`).
 - Global counts in tests (markets, audit rows) must be scoped: admin tests add rows.
+- Known flake: `auth.spec.ts` "code requests are rate-limited per email" failed once on
+  desktop in the R6 run and passed on rerun (timing around the 1 s resend window).

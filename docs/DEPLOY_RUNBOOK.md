@@ -60,6 +60,7 @@ Migrations, in order (each file starts with its rollback notes):
 | `20261011000100_admin_markets.sql` | `admin_set_market_tags()` (tags and region) |
 | `20261012000100_admin_resolution.sql` | `admin_resolution_preview()` (payout preview) |
 | `20261013000100_admin_translations.sql` | translation saves (database-computed hashes), daily Gemini cap |
+| `20261014000100_admin_users.sql` | admin user list/detail with emails, compliance summary |
 
 `--include-seed` runs `supabase/seed.sql` (app settings only; `on conflict do nothing`).
 
@@ -201,7 +202,8 @@ Dockerfile build:
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | needed for **Admin → Translations → Translate with Gemini** (R5); without them the button reports "not configured" and the site stays fully usable. Never set `GEMINI_BASE_URL` (tests only). |
 
 Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and 5 per 10 min);
-`CRON_SECRET` (32+ chars, `openssl rand -hex 32`) only if the project has no pg_cron.
+`CRON_SECRET` (32+ chars, `openssl rand -hex 32`) only if the project has no pg_cron;
+`GRIEVANCE_RATE_LIMIT_PER_IP` (default 5 per hour).
 
 ## 6. First-deploy QA checklist
 

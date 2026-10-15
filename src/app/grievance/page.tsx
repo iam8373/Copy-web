@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { GrievanceForm, GrievanceFormHeading } from "@/components/GrievanceForm";
 
 export const metadata: Metadata = {
   title: "Grievance Redressal — BharatPredict",
@@ -60,6 +61,11 @@ export default function GrievancePage() {
         </ul>
       </section>
 
+      <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6" aria-labelledby="grievance-form-h">
+        <GrievanceFormHeading />
+        <GrievanceForm />
+      </section>
+
       <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
         <h2 className="text-16 font-bold text-primary">Escalation</h2>
         <p className="mt-1.5 text-13 leading-relaxed text-secondary">
@@ -70,8 +76,8 @@ export default function GrievancePage() {
       </section>
 
       <p className="rounded-card border border-subtle bg-surface-2 p-4 text-12 text-secondary">
-        This application is a demonstration with simulated data. There is no live support
-        desk behind these placeholders yet.
+        This application uses play credits only. Grievances sent with the form above are
+        stored and reviewed by staff; the officer details above are still placeholders.
       </p>
 
       <nav className="flex flex-wrap gap-x-5 gap-y-2 text-13 font-semibold text-brand">

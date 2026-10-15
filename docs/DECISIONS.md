@@ -2,6 +2,33 @@
 
 Architecture and product decisions, newest first.
 
+## D-032 — Admin R6: users, grievances, settings, audit, compliance
+
+**Date:** Admin phase R6
+**Status:** Accepted
+
+- **Users (admin only):** `/admin/users` search by email, handle or id; `/admin/users/[id]`
+  facts (incl. sign-in method, 18+ time, terms version, authenticator), recent ledger,
+  open positions, grievances; actions: adjust credits (cap, reason), suspend (reason) /
+  reinstate, change role. Your own account shows no actions (the database refuses them
+  too). Emails come from `auth.users` through `admin_list_users` / `admin_user_detail`,
+  which check admin + MFA in the database; **moderators never see personal data
+  beyond grievances**.
+- **Grievances:** public form on `/grievance` (6 locales; signed-in filers linked by
+  their verified id; honeypot; 5 an hour per IP — `GRIEVANCE_RATE_LIMIT_PER_IP` — and 3 an
+  hour per email, fail closed); the reference is the only thing returned. Inbox for
+  moderators: filter by status, message, status + internal note (audited).
+- **Settings (admin):** every whitelisted key with its description, last editor and
+  time; the database validates ranges (`admin_update_setting`).
+- **Audit log (admin):** filter by action prefix, entity and entity id; before/after on
+  demand; 50 per page.
+- **Compliance (admin):** one page of counts — kill switch, two-person rule, dispute
+  window, accounts without 18+ confirmation, suspended, terms versions, grievances past
+  the 48 h / 30 day targets, finalized and self-approved resolutions and admin credit
+  adjustments in 30 days, and every staff account with its authenticator state
+  (`admin_compliance`). Legal-draft banner stays until counsel signs off.
+- R7 (regional restriction) is skipped by the owner.
+
 ## D-031 — Admin R5: translations admin
 
 **Date:** Admin phase R5

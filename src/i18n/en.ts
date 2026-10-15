@@ -111,6 +111,73 @@ export const en = {
   },
 
 
+  grievanceForm: {
+
+
+    title: "Raise a grievance",
+
+
+    intro: "About your account, a market, a resolution or your personal data. You will get a reference number.",
+
+
+    name: "Your name",
+
+
+    email: "Email",
+
+
+    category: "Topic",
+
+
+    cat_account: "My account",
+
+
+    cat_market: "A market",
+
+
+    cat_resolution: "A market result",
+
+
+    cat_privacy: "My personal data",
+
+
+    cat_other: "Something else",
+
+
+    subject: "Subject",
+
+
+    message: "What happened?",
+
+
+    messageHint: "Include the market, the time, and what you expected. At least 10 characters.",
+
+
+    submit: "Send",
+
+
+    sentTitle: "Grievance received",
+
+
+    sentBody: "Your reference is {reference}. Quote it in any reply.",
+
+
+    invalid: "Check the fields and try again.",
+
+
+    rateLimited: "Too many grievances from here. Try again in an hour.",
+
+
+    failed: "It could not be sent. Try again in a moment.",
+
+
+    privacy: "We use these details only to handle this grievance.",
+
+
+  },
+
+
+
   trade: {
     amount: "Amount (₹)",
     max: "Max",
