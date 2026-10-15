@@ -58,6 +58,7 @@ Migrations, in order (each file starts with its rollback notes):
 | `20261008000300_trading.sql` | LMSR functions and `place_order()` |
 | `20261010000100_admin.sql` | admin/resolution functions, `resolving` status, settings, scheduled job (pg_cron if available) |
 | `20261011000100_admin_markets.sql` | `admin_set_market_tags()` (tags and region) |
+| `20261012000100_admin_resolution.sql` | `admin_resolution_preview()` (payout preview) |
 
 `--include-seed` runs `supabase/seed.sql` (app settings only; `on conflict do nothing`).
 

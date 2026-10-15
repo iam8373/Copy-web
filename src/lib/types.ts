@@ -62,6 +62,24 @@ export interface Market {
   status?: "open" | "closed" | "resolving" | "resolved" | "voided";
   /** Saved translations by locale (database, B3). Users only read saved text. */
   translations?: Partial<Record<string, SavedMarketText>>;
+  /** The winning outcome once status is "resolved" (R4). */
+  resolvedOutcomeId?: string | null;
+  /** When the market was resolved or voided (R4). */
+  resolvedAt?: string | null;
+  /** The public (approved or finalized) resolution, if any (R4). */
+  resolution?: MarketResolution | null;
+}
+
+/** What the public sees of a resolution: never who proposed or approved it. */
+export interface MarketResolution {
+  state: "approved" | "finalized";
+  kind: "outcome" | "void";
+  outcomeId: string | null;
+  evidenceUrl: string;
+  note: string;
+  disputeEndsAt: string | null;
+  selfApproved: boolean;
+  finalizedAt: string | null;
 }
 
 export interface SubFilter {

@@ -2,6 +2,28 @@
 
 Architecture and product decisions, newest first.
 
+## D-030 — Admin R4: resolution queue and public status
+
+**Date:** Admin phase R4
+**Status:** Accepted
+
+- `/admin/resolutions`: tabs *Needs a proposal* (closed, or open past the end date), *To
+  approve*, *Dispute window*, *History*. `/admin/resolutions/[marketId]`: the live
+  proposal with its actions, the propose form, the full history, and a **payout
+  preview** (`admin_resolution_preview`: what each result would pay, what a void
+  refunds) so the stakes are visible before proposing.
+- Approve / finalize use the typed slug; reject / withdraw need a written reason
+  (`ReasonDialog`). Moderators propose; the page says approval is an admin action.
+- **Public status (6 locales):** cards show a status badge instead of the end date once
+  a market is not open (*Trading ended*, *Result pending*, *Resolved: X*, *Voided*); the
+  market page badge follows the real status (it said "Open" for every non-live market
+  before) and a notice shows the proposed or final result, the dispute deadline in IST,
+  the evidence link, a grievance link during the window, and *Approved by a single
+  reviewer* when self-approved. Who proposed or approved is never public (column
+  grants). Open markets past their end date read as closed until the job runs.
+- The read path loads public resolutions with the markets (cache key bumped to v2).
+- `docs/RESOLUTION_POLICY.md` is the rulebook (sources, when to void, disputes).
+
 ## D-029 — Admin R3: market management
 
 **Date:** Admin phase R3

@@ -157,7 +157,7 @@ select cmp_ok(approve_resolution(pg_temp.pid('adm-bin'), 'adm-bin'),
   '>', now() + interval '23 hours 59 minutes', 'single admin: self-approval opens a 24-hour dispute window');
 reset role;
 select ok((select self_approved from resolution_proposals where market_id = pg_temp.mid('adm-bin')), 'the proposal records self_approved');
-select is((select count(*)::int from audit_log where action = 'resolution.approve_self'), 1, 'the audit log says self-approved');
+select is((select count(*)::int from audit_log where action = 'resolution.approve_self' and entity_id = pg_temp.pid('adm-bin')::text), 1, 'the audit log says self-approved');
 set local role authenticated;
 select pg_temp.as_user('00000000-0000-0000-0000-00000000aa01', 'aal2');
 select throws_ok($$select finalize_resolution(pg_temp.pid('adm-bin'), 'adm-bin')$$,

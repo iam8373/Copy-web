@@ -431,6 +431,9 @@ isOneToOne: true
 "admin_publish_market":
 { Args: { "p_confirm_slug": string,"p_market_id": string }; Returns: undefined
                            },
+"admin_resolution_preview":
+{ Args: { "p_market_id": string }; Returns: Json
+                           },
 "admin_set_market_tags":
 { Args: { "p_market_id": string,"p_region": string,"p_tags": (string)[] }; Returns: undefined
                            },

@@ -19,6 +19,7 @@ import { useT } from "@/i18n/LanguageProvider";
 import { useMarketText } from "@/lib/market-text";
 import { NAV_KEY_BY_SLUG } from "@/i18n";
 import { Badge, Button, FOCUS_RING } from "@/components/ui";
+import { MarketStatusBadge, publicState } from "@/components/market/ResolutionStatus";
 
 /** Touch pointers get touch-size rows; mouse users keep the compact card. */
 const COARSE_ROW = "[@media(pointer:coarse)]:min-h-touch";
@@ -158,7 +159,9 @@ export function MarketCard({ market }: { market: Market }) {
       <div className="flex items-center gap-2">
         <CategoryBadge market={market} />
         <span className="ml-auto flex shrink-0 items-center gap-2 text-11 font-medium text-secondary">
-          {market.isLive ? (
+          {publicState(market) !== "open" ? (
+            <MarketStatusBadge market={market} />
+          ) : market.isLive ? (
             <>
               <Badge tone="danger" dot="pulse">
                 {t("card", "live")}

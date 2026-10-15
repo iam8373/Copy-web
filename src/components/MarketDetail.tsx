@@ -22,6 +22,7 @@ import { FlashValue } from "@/components/FlashValue";
 import { TradeForm } from "@/components/TradeForm";
 import { PriceChart, chartedOutcomes, type RecordedPoint } from "@/components/market/PriceChart";
 import { OrderBook } from "@/components/market/OrderBook";
+import { MarketStatusBadge, ResolutionNotice, publicState } from "@/components/market/ResolutionStatus";
 import {
   Badge,
   Button,
@@ -78,7 +79,7 @@ export function MarketDetail({ market: initial, history = [] }: { market: Market
           <Badge tone="brand">
             {category} • {market.subcategory}
           </Badge>
-          {market.isLive ? (
+          {market.isLive && publicState(market) === "open" ? (
             <Badge tone="danger" dot="pulse">
               {t("card", "live")}{" "}
               <span className="tnum">
@@ -86,7 +87,7 @@ export function MarketDetail({ market: initial, history = [] }: { market: Market
               </span>
             </Badge>
           ) : (
-            <Badge>{t("market", "open")}</Badge>
+            <MarketStatusBadge market={market} />
           )}
         </div>
         <h1 className="text-20 font-bold tracking-tight text-primary sm:text-24">{text.title}</h1>
@@ -110,6 +111,7 @@ export function MarketDetail({ market: initial, history = [] }: { market: Market
             <dd className="tnum font-semibold text-primary">{formatEndDate(market.endDate)}</dd>
           </div>
         </dl>
+        <ResolutionNotice market={market} />
       </header>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-market">

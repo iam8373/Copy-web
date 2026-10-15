@@ -76,6 +76,41 @@ export const en = {
     pts24h: "pts 24h",
   },
 
+  resolution: {
+
+    open: "Open",
+
+    closed: "Trading ended",
+
+    resolving: "Result pending",
+
+    resolved: "Resolved: {outcome}",
+
+    voided: "Voided",
+
+    noticeClosed: "Trading has ended. The result will be published after it is checked against the resolution source.",
+
+    noticeReviewing: "Trading has ended. A result is being reviewed.",
+
+    noticeProposed: "Proposed result: {outcome}. If you think it is wrong, raise a grievance before {date}.",
+
+    noticeProposedVoid: "Proposed: void this market and refund every order. If you think it is wrong, raise a grievance before {date}.",
+
+    noticeResolved: "Resolved: {outcome} on {date}. Each winning share paid ₹1 in play credits.",
+
+    noticeVoided: "Voided on {date}. Every order was refunded in play credits.",
+
+    evidence: "Evidence",
+
+    selfApproved: "Approved by a single reviewer.",
+
+    grievance: "Raise a grievance",
+
+    title: "Resolution",
+
+  },
+
+
   trade: {
     amount: "Amount (₹)",
     max: "Max",

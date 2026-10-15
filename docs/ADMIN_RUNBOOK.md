@@ -53,6 +53,9 @@ draft ──publish──▶ open ──end date / close──▶ closed ──p
 
 ## Resolving a market
 
+Screen: **Admin → Resolutions**. Rules: `docs/RESOLUTION_POLICY.md`. The review page shows
+what each result would pay before you propose.
+
 Write the decision so a stranger could check it: what happened, and a link to the source
 named in the market's resolution source.
 

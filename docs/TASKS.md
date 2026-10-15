@@ -674,7 +674,8 @@ runbook).
       noindex/no-store, role-aware menu, dashboard, rate limits, Admin link (D-028).
 - [x] R3 markets management: list/filter/search, create, edit with status locks,
       tags/region, publish/close with typed slug, per-market history (D-029).
-- [ ] R4 resolution queue + `docs/RESOLUTION_POLICY.md` + public
-      status badges (6 locales). R5 translations admin (Gemini, daily cap).
-      R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.
+- [x] R4 resolution queue, payout preview, `docs/RESOLUTION_POLICY.md`, public status
+      badges and notices in 6 locales (D-030).
+- [ ] R5 translations admin (Gemini, daily cap).
+- [ ] R6 users, credits, grievance form + inbox, compliance view, settings, audit viewer.
 - [ ] R7 regional restriction: **skipped** by the owner for now.

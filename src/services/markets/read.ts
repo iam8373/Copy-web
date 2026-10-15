@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import type { Category, Market, NavSlug, SavedMarketText } from "@/lib/types";
+import type { Category, Market, MarketResolution, NavSlug, SavedMarketText } from "@/lib/types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 
 /**
@@ -33,7 +33,7 @@ function publicClient() {
 }
 
 const MARKET_COLUMNS =
-  "id, slug, title, description, category, subcategory, end_date, is_live, is_featured, resolution_source, status, is_binary, liquidity_b, total_volume, volume_change_24h, region, tags, " +
+  "id, slug, title, description, category, subcategory, end_date, is_live, is_featured, resolution_source, status, is_binary, liquidity_b, total_volume, volume_change_24h, region, tags, resolved_outcome_id, resolved_at, " +
   "outcomes!outcomes_market_id_fkey(id, label, price, sort_order), market_translations(locale, title, description, status, source_hash)";
 
 type Row = Database["public"]["Tables"]["markets"]["Row"] & {
@@ -43,7 +43,35 @@ type Row = Database["public"]["Tables"]["markets"]["Row"] & {
 
 const round4 = (n: number) => Math.round(n * 10000) / 10000;
 
-function toMarket(r: Row, ref: Map<string, number>, vol24: Map<string, number>): Market {
+// Public columns only (column grants): never proposed_by / approved_by.
+const RESOLUTION_COLUMNS =
+  "market_id, kind, outcome_id, evidence_url, note, status, self_approved, dispute_ends_at, finalized_at, approved_at";
+
+type ResolutionRow = {
+  market_id: string;
+  kind: string;
+  outcome_id: string | null;
+  evidence_url: string;
+  note: string;
+  status: string;
+  self_approved: boolean;
+  dispute_ends_at: string | null;
+  finalized_at: string | null;
+  approved_at: string | null;
+};
+
+const toResolution = (r: ResolutionRow): MarketResolution => ({
+  state: r.status === "finalized" ? "finalized" : "approved",
+  kind: r.kind === "void" ? "void" : "outcome",
+  outcomeId: r.outcome_id,
+  evidenceUrl: r.evidence_url,
+  note: r.note,
+  disputeEndsAt: r.dispute_ends_at,
+  selfApproved: r.self_approved,
+  finalizedAt: r.finalized_at,
+});
+
+function toMarket(r: Row, ref: Map<string, number>, vol24: Map<string, number>, res?: MarketResolution): Market {
   const outcomes = [...r.outcomes]
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((o) => {
@@ -81,23 +109,31 @@ function toMarket(r: Row, ref: Map<string, number>, vol24: Map<string, number>):
     status: r.status as Market["status"],
     liquidityB: Number(r.liquidity_b),
     translations,
+    resolvedOutcomeId: r.resolved_outcome_id,
+    resolvedAt: r.resolved_at,
+    resolution: res ?? null,
   };
 }
 
 async function loadMarkets(): Promise<Market[]> {
   const db = publicClient();
-  const [markets, ref, vol] = await Promise.all([
+  const [markets, ref, vol, res] = await Promise.all([
     db.from("markets").select(MARKET_COLUMNS).neq("status", "draft").order("total_volume", { ascending: false }),
     db.rpc("outcome_prices_24h_ago"),
     db.rpc("market_volume_24h"),
+    // RLS shows only approved/finalized proposals of public markets.
+    db.from("resolution_proposals").select(RESOLUTION_COLUMNS).order("approved_at", { ascending: true }),
   ]);
   if (markets.error) throw new Error(`markets: ${markets.error.code ?? "error"}`);
   const refMap = new Map((ref.data ?? []).map((x) => [x.outcome_id, Number(x.price)]));
   const volMap = new Map((vol.data ?? []).map((x) => [x.market_id, Number(x.volume)]));
-  return (markets.data as unknown as Row[]).map((r) => toMarket(r, refMap, volMap));
+  // Latest public resolution per market (ordered by approval time).
+  const resMap = new Map<string, MarketResolution>();
+  for (const r of (res.data ?? []) as unknown as ResolutionRow[]) resMap.set(r.market_id, toResolution(r));
+  return (markets.data as unknown as Row[]).map((r) => toMarket(r, refMap, volMap, resMap.get(r.id)));
 }
 
-const cachedMarkets = unstable_cache(loadMarkets, ["markets:all:v1"], { revalidate: 30, tags: [MARKETS_TAG] });
+const cachedMarkets = unstable_cache(loadMarkets, ["markets:all:v2"], { revalidate: 30, tags: [MARKETS_TAG] });
 
 async function safe<T>(fn: () => Promise<T>): Promise<Result<T>> {
   if (!supabaseConfigured) return { ok: false };
