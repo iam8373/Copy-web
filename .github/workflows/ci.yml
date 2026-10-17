@@ -1,8 +1,11 @@
+name: CI
+
 on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: [surajsk70743/set-up-this-codebase-for-DZu725]
+    branches:
+      - surajsk70743/set-up-this-codebase-for-DZu725
 
 # Least privilege: the workflow only reads the repository.
 permissions:
