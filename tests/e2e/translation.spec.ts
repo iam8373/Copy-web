@@ -13,7 +13,7 @@ import { sourceHashFor } from "../../src/services/translation/hash";
 import { validateEntry, validateLocales } from "../../src/services/translation/validate";
 import { termsFor } from "../../src/services/translation/glossary";
 import { runTranslateMarkets, TRANSIENT_BACKOFF_MS } from "../../src/services/translation/run";
-import { geminiUrl, resolveConfig } from "../../src/services/translation/translate";
+import { geminiUrl, resolveConfig } from "../../src/services/translation/provider/gemini";
 import {
   TARGET_LOCALES,
   type MarketSource,

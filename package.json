@@ -20,7 +20,9 @@
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
     "db:types:url": "supabase gen types typescript --db-url \"$SUPABASE_DB_URL\" --schema public > src/types/database.ts",
     "db:test": "supabase test db",
-    "check:tokens": "bash scripts/check-tokens.sh"
+    "check:tokens": "bash scripts/check-tokens.sh",
+    "test:verify-build": "bash scripts/verify-build.selftest.sh",
+    "verify:build": "bash scripts/verify-build.sh .next"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

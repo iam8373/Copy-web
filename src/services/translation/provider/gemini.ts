@@ -5,20 +5,25 @@ import {
   responseSchema,
   systemPrompt,
   userPrompt,
-} from "./prompt";
-import type { MarketSource } from "./types";
+} from "../prompt";
+import type { MarketSource } from "../types";
 
 /**
- * SERVER / SCRIPT ONLY. Never import from a client component (ESLint enforces
- * this for src/app and src/components). The API key is passed in by the
- * caller, which reads it from the environment; it is never logged.
+ * PROVIDER CODE — SERVER / SCRIPT ONLY. The only module that knows Gemini's
+ * endpoint, header and environment variable names. Pure translation code
+ * (prompt, glossary, validate, hash, types) lives next door and never imports
+ * this file. App code reaches it only through the server-only wrapper
+ * src/services/admin/machine-translate.ts; ESLint forbids importing it from
+ * src/app, src/components, src/lib, src/store and src/i18n, and
+ * scripts/verify-build.sh fails if it shows up in a browser bundle or in any
+ * non-admin route. The API key is passed in by the caller; it is never logged.
  *
  * Provider: Google Gemini only (docs/DECISIONS.md D-018). The request asks for
  * strict JSON matching responseSchema(); the parsed object is returned
  * *unvalidated* and the caller must run validate.ts on it.
  */
 if (typeof window !== "undefined") {
-  throw new Error("services/translation/translate must not run in the browser");
+  throw new Error("services/translation/provider must not run in the browser");
 }
 
 export const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";

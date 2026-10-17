@@ -133,7 +133,7 @@ export async function getTranslationDetail(_staff: Staff, id: string): Promise<T
   return detailOf(data as unknown as MarketDb);
 }
 
-/** Gemini units used today (IST) and the cap. */
+/** Machine-translation units used today (IST) and the cap. */
 export async function getQuota(_staff: Staff): Promise<{ used: number; cap: number } | null> {
   const db = getAdminSupabase();
   const now = new Date();

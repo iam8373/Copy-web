@@ -4,7 +4,7 @@ import { STORAGE_KEY } from "../../src/i18n";
 import { GEMINI_MOCK_PORT } from "../support/local-supabase";
 import { startGeminiMock } from "../support/gemini-mock";
 import { validateOutcomeLabels } from "../../src/services/translation/validate";
-import { resolveBaseUrl, GEMINI_BASE_URL } from "../../src/services/translation/translate";
+import { resolveBaseUrl, GEMINI_BASE_URL } from "../../src/services/translation/provider/gemini";
 import { localRest, resetState, staffSession } from "./helpers";
 
 /** Admin R5: translations admin (Gemini mock), reviewed entries kept, daily cap. */
@@ -62,7 +62,7 @@ test.describe("admin translations", () => {
 
     await page.goto(`/admin/translations/${m.id}`);
     const quotaBefore = await page.getByTestId("translation-quota").innerText();
-    await page.getByRole("button", { name: "Translate with Gemini" }).click();
+    await page.getByRole("button", { name: "Translate automatically" }).click();
     await expect(page.getByRole("status").filter({ hasText: "Saved 20 machine drafts." })).toBeVisible();
     await expect(page.getByTestId("locale-hi").locator("[data-state]").first()).toHaveAttribute("data-state", "machine");
     await expect(page.getByTestId("translation-quota")).not.toHaveText(quotaBefore);
@@ -76,7 +76,7 @@ test.describe("admin translations", () => {
     await expect(page.getByTestId("locale-hi").locator("[data-state]").first()).toHaveAttribute("data-state", "reviewed");
 
     // Regenerating keeps the reviewed Hindi text and labels (1 + 3), redrafts the rest.
-    await page.getByRole("button", { name: "Translate with Gemini" }).click();
+    await page.getByRole("button", { name: "Translate automatically" }).click();
     await expect(page.getByRole("status").filter({ hasText: "Saved 16 machine drafts; kept 4 reviewed." })).toBeVisible();
     await expect(page.getByTestId("locale-hi").getByLabel("Title")).toHaveValue("ज़ेटा कप कौन जीतेगा?");
 
@@ -105,7 +105,7 @@ test.describe("admin translations", () => {
       await localRest("app_settings?key=eq.daily_translation_cap", { method: "PATCH", body: JSON.stringify({ value: 0 }) });
       const calls = mock.calls();
       await page.goto(`/admin/translations/${m.id}`);
-      await expect(page.getByRole("button", { name: "Translate with Gemini" })).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Translate automatically" })).toBeDisabled();
       await expect(page.getByTestId("translation-quota")).toContainText("of 0 markets");
       expect(mock.calls()).toBe(calls);
     } finally {

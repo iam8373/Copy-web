@@ -248,3 +248,11 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - Global counts in tests (markets, audit rows) must be scoped: admin tests add rows.
 - Known flake: `auth.spec.ts` "code requests are rate-limited per email" failed once on
   desktop in the R6 run and passed on rerun (timing around the 1 s resend window).
+- Before committing build-affecting changes run the CI build check locally: clean copy
+  without `.env.local`, `env -i PATH=$PATH HOME=/root CI=true NEXT_TELEMETRY_DISABLED=1
+  ALLOW_INDEXING=false npm run build`, then `bash scripts/verify-build.sh .next`
+  (and `npm run test:verify-build`). The e2e build cannot catch these.
+- Test-only pages are `page.e2e-ui.tsx` / `page.e2e-error.tsx` (pageExtensions in
+  next.config.js); never name them `page.tsx`.
+- Admin copy (`src/app/admin/_copy.ts`) ships to the browser: no provider names, env var
+  names or secret names in it.

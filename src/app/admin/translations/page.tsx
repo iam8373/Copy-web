@@ -7,6 +7,7 @@ import { btn, input, td, th } from "../_components/styles";
 import { StatusBadge } from "../_components/StatusBadge";
 import { StateChip } from "./StateChip";
 import { GenerateButton } from "./GenerateButton";
+import { machineTranslationConfigured } from "@/services/admin/machine-translate";
 
 const C = COPY.translations;
 
@@ -17,6 +18,7 @@ export default async function Translations({ searchParams }: { searchParams: { f
   const q = (searchParams.q ?? "").slice(0, 80);
   const [data, quota] = await Promise.all([listTranslations(staff, { filter, page, q }), getQuota(staff)]);
   const full = quota ? quota.used >= quota.cap : false;
+  const configured = machineTranslationConfigured();
   const pages = data ? Math.max(1, Math.ceil(data.total / 50)) : 1;
 
   return (
@@ -30,6 +32,7 @@ export default async function Translations({ searchParams }: { searchParams: { f
           </p>
         )}
         <p className="text-12 text-secondary">{C.stateHelp}</p>
+        {!configured && <p data-testid="translation-not-configured" className="text-13 text-warning">{C.notConfigured}</p>}
       </header>
       <nav aria-label={C.title} className="flex gap-1">
         {(["needs", "all"] as const).map((f) => (
@@ -73,7 +76,7 @@ export default async function Translations({ searchParams }: { searchParams: { f
                   {TARGET_LOCALES.map((l) => (
                     <td key={l} className={td} data-locale={l}><StateChip state={r.states[l]} /></td>
                   ))}
-                  <td className={td}><GenerateButton marketId={r.id} disabled={full} size="sm" /></td>
+                  <td className={td}><GenerateButton marketId={r.id} configured={configured} disabled={full} size="sm" /></td>
                 </tr>
               ))}
             </tbody>

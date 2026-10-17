@@ -25,14 +25,14 @@
             "patterns": [
               {
                 "group": [
-                  "@/services/translation/translate",
+                  "@/services/translation/provider/*",
                   "@/services/translation/run",
                   "@/services/translation/store",
-                  "**/services/translation/translate",
+                  "**/services/translation/provider/*",
                   "**/services/translation/run",
                   "**/services/translation/store"
                 ],
-                "message": "The translation service is script/server-only (it handles the Gemini key and the filesystem). App code may only import services/translation/{types,hash,validate}, lib/market-text, and call Gemini through services/admin/translate.ts."
+                "message": "The translation service is script/server-only (provider code handles the API key, run/store use the filesystem). App code may import the pure modules services/translation/{types,hash,validate,glossary,prompt} and lib/market-text, and reaches the provider only through the server-only services/admin/machine-translate.ts."
               }
             ]
           }

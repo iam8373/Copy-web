@@ -2,6 +2,54 @@
 
 Architecture and product decisions, newest first.
 
+## D-033 — CI build verification: test-only routes, provider containment, masked output
+
+**Date:** After CI run #1 (commit c1abd72)
+**Status:** Accepted
+
+CI run #1 failed "Verify build output". Reproduced with a clean checkout, no
+`.env.local`, and only the Build step's env (`NEXT_TELEMETRY_DISABLED=1`,
+`ALLOW_INDEXING=false`, `CI=true`). The sandbox never ran `verify-build.sh` during
+R1–R6 (the e2e build uses its own flags and `.env.local`), so the gap was not seen.
+
+Findings and fixes:
+
+1. **Gallery check:** the only match was "About the order book" — since 5d2c1b7 a real
+   string (i18n `market.aboutOrderBook`, the order book tooltip), so a **false
+   positive**; the gallery itself was compiled out. The marker list now uses the
+   gallery's own test ids (`ui-gallery`, `captcha-pass`). Separately, the `/e2e-ui` and
+   `/e2e-error` **routes** still existed (404 stubs in the route manifests). Their files
+   are now `page.e2e-ui.tsx` / `page.e2e-error.tsx` and are pages only when
+   `next.config.js` adds that extension (`NEXT_PUBLIC_E2E_UI_GALLERY=1` or `next dev`;
+   `NEXT_PUBLIC_E2E_ERROR_TRIGGER=1`). A normal build has no such route anywhere; the
+   check now also fails on `/e2e-ui` or `/e2e-error` in any output file.
+2. **AI references:** (a) **real leak** of variable names into the browser: the admin
+   error copy (`src/app/admin/_copy.ts`, shared by client components) named the Gemini
+   env vars and the provider. The admin UI now gets `configured` (a boolean) from the
+   server and shows "Machine translation is not set up on this server"; no provider or
+   variable names remain in admin copy. (b) The Gemini client in a server chunk is
+   **intended** (D-031: admin-triggered translation). The rule is now containment, not
+   absence: OpenAI never; Gemini endpoint/header/env names never in browser bundles,
+   and in server output only in admin route bundles or in server chunks loaded by admin
+   pages/routes alone (read from each page's chunk list).
+3. **Secret names in browser bundles:** the same `_copy.ts` string (a NAME, no value).
+   Fixed by 2(a).
+4. **Pure vs provider code:** the provider moved to
+   `src/services/translation/provider/gemini.ts` (the only module with the endpoint, auth
+   header and env names); prompt, glossary, validate, hash and types stay pure. App code
+   reaches the provider only through the server-only
+   `src/services/admin/machine-translate.ts`; ESLint forbids `translation/provider/*` in
+   `src/app`, `src/components`, `src/lib`, `src/store`, `src/i18n`.
+5. **The script** is now `scripts/verify-build.py` (the `.sh` wrapper is unchanged for
+   CI). Each finding prints `file :: pattern name :: …context…`; secret-shaped values
+   (and any in the context) print as `<masked:NAME len=N>`. Market content words
+   ("OpenAI", "Google Gemini" chips) are deliberately not patterns.
+   `scripts/verify-build.selftest.sh` (CI step "Build-check self-tests",
+   `npm run test:verify-build`) runs 13 fixtures: a clean build passes; each planted leak
+   fails with its pattern name, and planted secrets never appear in the output.
+6. **Actions** pinned by SHA to Node 24 releases: checkout v7.0.1, setup-node v7.1.0,
+   upload-artifact v7.0.2 (inputs unchanged; `cache: npm` stays explicit).
+
 ## D-032 — Admin R6: users, grievances, settings, audit, compliance
 
 **Date:** Admin phase R6
@@ -55,8 +103,8 @@ Architecture and product decisions, newest first.
   book, chart, resolution badge) while their hash is current; otherwise English.
 - `GEMINI_BASE_URL` exists only for the e2e mock (`tests/support/gemini-mock.ts`) and is
   accepted only for Google's endpoint or a loopback URL. The Gemini call lives in
-  `src/services/admin/translate.ts` (server-only); ESLint still keeps
-  `services/translation/translate` out of `src/app`.
+  `src/services/admin/machine-translate.ts` (server-only); ESLint keeps
+  `services/translation/provider/*` out of `src/app` (see D-033).
 
 ## D-030 — Admin R4: resolution queue and public status
 
@@ -420,7 +468,7 @@ Backlog: sell-back in the engine, then a Sell tab.
 **Date:** Work order 4 (after the UI phases); narrowed to Gemini-only by the owner
 **Status:** Accepted
 
-`src/services/translation/translate.ts` sends one Gemini `generateContent` request per
+`src/services/translation/provider/gemini.ts` (was `translate.ts`, D-033) sends one Gemini `generateContent` request per
 market with the system prompt, the user payload and the strict JSON schema
 (`generationConfig.responseJsonSchema`). The output goes through `validate.ts` and a single
 retry exactly as before. The OpenAI request path, `OPENAI_*` variables and

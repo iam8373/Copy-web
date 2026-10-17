@@ -5,9 +5,27 @@ const HEADERS = securityHeaders({
   dev: process.env.NODE_ENV !== "production",
 });
 
+// Test-only routes (src/app/e2e-ui, src/app/e2e-error) are named
+// page.e2e-ui.tsx / page.e2e-error.tsx. Next only treats them as pages when
+// their extension is listed here, so a normal production build has no such
+// route at all: nothing in the route manifests, no chunk, no 404 stub.
+// The e2e build sets the flags (playwright.config.ts); `next dev` keeps the
+// gallery for visual checks.
+const E2E_UI_GALLERY = process.env.NEXT_PUBLIC_E2E_UI_GALLERY === "1" || process.env.NODE_ENV !== "production";
+const E2E_ERROR_TRIGGER = process.env.NEXT_PUBLIC_E2E_ERROR_TRIGGER === "1";
+const PAGE_EXTENSIONS = [
+  ...(E2E_UI_GALLERY ? ["e2e-ui.tsx"] : []),
+  ...(E2E_ERROR_TRIGGER ? ["e2e-error.tsx"] : []),
+  "tsx",
+  "ts",
+  "jsx",
+  "js",
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  pageExtensions: PAGE_EXTENSIONS,
   // The Docker image (Railway, D-025) runs the self-contained server from
   // `.next/standalone`; local `next start` and the e2e builds do not need it.
   ...(process.env.NEXT_OUTPUT_STANDALONE === "1" ? { output: "standalone" } : {}),

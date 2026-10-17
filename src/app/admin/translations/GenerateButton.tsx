@@ -8,7 +8,18 @@ import { generateTranslations } from "./actions";
 
 const C = COPY.translations;
 
-export function GenerateButton({ marketId, disabled, size = "md" }: { marketId: string; disabled?: boolean; size?: "sm" | "md" }) {
+/** `configured` comes from the server (machineTranslationConfigured()). */
+export function GenerateButton({
+  marketId,
+  configured,
+  disabled,
+  size = "md",
+}: {
+  marketId: string;
+  configured: boolean;
+  disabled?: boolean;
+  size?: "sm" | "md";
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -24,9 +35,10 @@ export function GenerateButton({ marketId, disabled, size = "md" }: { marketId: 
   };
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button size={size} variant="outline" onClick={go} loading={busy} disabled={disabled}>
+      <Button size={size} variant="outline" onClick={go} loading={busy} disabled={disabled || !configured}>
         {C.generate}
       </Button>
+      {!configured && size === "md" && <span className="text-12 text-secondary">{C.notConfigured}</span>}
       <span role="status" aria-live="polite" className={msg?.ok ? "text-12 text-success" : "text-12 text-danger"}>
         {msg?.text}
       </span>

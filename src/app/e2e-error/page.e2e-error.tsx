@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 /**
  * TEST-ONLY route for the error-boundary e2e test.
  *
- * NEXT_PUBLIC_E2E_ERROR_TRIGGER is inlined at build time via next.config.js
- * `env` as the literal "1" or "0". In a normal build the condition folds to
- * `"0" === "1"`, webpack drops the require, and E2EThrower is not bundled at
- * all — the route just renders the 404 page.
+ * The file is a route only in builds with NEXT_PUBLIC_E2E_ERROR_TRIGGER=1 (its
+ * extension is added to pageExtensions in next.config.js); a normal build has
+ * no /e2e-error route at all. As a second layer the flag is inlined as "1" or
+ * "0" and the require below is dead code otherwise.
  */
 const Thrower: React.ComponentType | null =
   process.env.NEXT_PUBLIC_E2E_ERROR_TRIGGER === "1"

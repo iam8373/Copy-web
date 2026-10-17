@@ -4,19 +4,19 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { adminAction, bpCode, type ActionResult } from "@/services/admin/action";
 import { MARKETS_TAG } from "@/services/markets/read";
-import { generateForMarket, type GenerateSummary } from "@/services/admin/translate";
+import { generateForMarket, type GenerateSummary } from "@/services/admin/machine-translate";
 import { TARGET_LOCALES } from "@/services/translation/types";
 
 /**
- * Translation admin actions (R5). Gemini only (D-018), on demand, capped per
- * IST day. Machine drafts never replace a current reviewed entry (the
+ * Translation admin actions (R5). Machine translation on demand (provider:
+ * D-018), capped per IST day. Machine drafts never replace a current reviewed entry (the
  * database decides, see 20261013000100_admin_translations.sql).
  */
 
 const Id = z.string().uuid();
 const Locale = z.enum(TARGET_LOCALES);
 
-export type { GenerateSummary } from "@/services/admin/translate";
+export type { GenerateSummary } from "@/services/admin/machine-translate";
 
 export async function generateTranslations(marketId: unknown): Promise<ActionResult<GenerateSummary>> {
   const id = Id.safeParse(marketId);

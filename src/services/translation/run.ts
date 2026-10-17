@@ -1,5 +1,5 @@
 import { planWork, readTranslations, writeTranslations, type WorkItem } from "./store";
-import { isTransient, resolveConfig, translateMarket, TranslationRequestError } from "./translate";
+import { isTransient, resolveConfig, translateMarket, TranslationRequestError } from "./provider/gemini";
 import { validateLocales, type FieldProblem } from "./validate";
 import type { MarketSource, TranslationEntry, TranslationFile } from "./types";
 

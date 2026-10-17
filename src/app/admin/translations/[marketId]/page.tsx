@@ -9,6 +9,7 @@ import { StatusBadge } from "../../_components/StatusBadge";
 import { StateChip } from "../StateChip";
 import { GenerateButton } from "../GenerateButton";
 import { LocaleEditor } from "../LocaleEditor";
+import { machineTranslationConfigured } from "@/services/admin/machine-translate";
 
 const C = COPY.translations;
 
@@ -28,7 +29,7 @@ export default async function TranslateMarket({ params }: { params: { marketId: 
           <span className="font-mono">{d.slug}</span>
         </p>
         {quota && <p data-testid="translation-quota" className="text-13 text-primary">{C.quota(quota.used, quota.cap)}</p>}
-        <GenerateButton marketId={d.id} disabled={full} />
+        <GenerateButton marketId={d.id} configured={machineTranslationConfigured()} disabled={full} />
         <p className="text-12 text-secondary">{C.keptNote}</p>
       </header>
       <section className={card} aria-labelledby="en-h" lang="en">

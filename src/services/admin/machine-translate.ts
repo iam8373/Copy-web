@@ -1,12 +1,18 @@
 import "server-only";
-import { resolveBaseUrl, resolveConfig, translateMarket, translateOutcomes } from "@/services/translation/translate";
+import { resolveBaseUrl, resolveConfig, translateMarket, translateOutcomes } from "@/services/translation/provider/gemini";
 import { validateLocales, validateOutcomeLabels } from "@/services/translation/validate";
 import { TARGET_LOCALES } from "@/services/translation/types";
 import { bpCode, type ActionResult } from "./action";
 import type { getServerSupabase } from "@/lib/supabase/server";
 
+/** Whether machine translation is configured on this server (no names leak). */
+export function machineTranslationConfigured(): boolean {
+  return resolveConfig(process.env).ok;
+}
+
 /**
- * On-demand Gemini translation of one market (R5), run inside adminAction
+ * On-demand machine translation of one market (R5, provider: see
+ * services/translation/provider), run inside adminAction
  * with the staff member's session `db`. Order: read the English source, take
  * one unit of today's cap, call Gemini (text + outcome labels), validate,
  * save as machine drafts. A current reviewed entry is never replaced (the
