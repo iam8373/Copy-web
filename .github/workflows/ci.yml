@@ -33,10 +33,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Node (LTS) with npm cache
+      # Node 22 = the Railway image (Dockerfile: node:22-bookworm-slim), so CI
+      # builds and tests the runtime that ships. (The action itself runs on
+      # its own Node 24; this only selects the job's Node.)
+      - name: Set up Node 22 with npm cache
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0 (node24)
         with:
-          node-version: lts/*
+          node-version: "22"
           cache: npm
 
       - name: Install dependencies
@@ -97,10 +100,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Node (LTS) with npm cache
+      # Node 22 = the Railway image (Dockerfile: node:22-bookworm-slim), so CI
+      # builds and tests the runtime that ships. (The action itself runs on
+      # its own Node 24; this only selects the job's Node.)
+      - name: Set up Node 22 with npm cache
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0 (node24)
         with:
-          node-version: lts/*
+          node-version: "22"
           cache: npm
 
       - name: Install dependencies

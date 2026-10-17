@@ -47,7 +47,9 @@ Findings and fixes:
    `scripts/verify-build.selftest.sh` (CI step "Build-check self-tests",
    `npm run test:verify-build`) runs 13 fixtures: a clean build passes; each planted leak
    fails with its pattern name, and planted secrets never appear in the output.
-6. **Actions** pinned by SHA to Node 24 releases: checkout v7.0.1, setup-node v7.1.0,
+6. **Job Node = 22** in both CI jobs (follow-up): the same major as the Railway image
+   (`node:22-bookworm-slim`); `lts/*` had moved CI to Node 24.
+7. **Actions** pinned by SHA to Node 24 releases: checkout v7.0.1, setup-node v7.1.0,
    upload-artifact v7.0.2 (inputs unchanged; `cache: npm` stays explicit).
 
 ## D-032 — Admin R6: users, grievances, settings, audit, compliance
