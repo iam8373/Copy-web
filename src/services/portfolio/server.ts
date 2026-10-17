@@ -1,5 +1,6 @@
 import "server-only";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { unverifiedSessionClaims } from "@/lib/supabase/session";
 import { supabaseConfigured } from "@/lib/supabase/config";
 
 /**
@@ -50,8 +51,8 @@ export interface Portfolio {
 export async function getPortfolio(ordersPage = 1, ledgerPage = 1): Promise<Portfolio | null> {
   if (!supabaseConfigured) return null;
   const supabase = getServerSupabase({ readOnly: true });
-  const { data: claims } = await supabase.auth.getClaims();
-  const uid = claims?.claims?.sub;
+  // Local decode (S3): every query below is verified by the database (RLS).
+  const uid = (await unverifiedSessionClaims(supabase))?.sub;
   if (!uid) return null;
 
   const op = Math.max(1, ordersPage);

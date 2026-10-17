@@ -3,9 +3,8 @@ import { createServerClient } from "@supabase/ssr";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 
 /**
- * Refreshes the Supabase session cookie on each request,
- * per the @supabase/ssr Next.js guide: getClaims() validates and refreshes the
- * token, setAll writes the new cookies to both the request (for Server
+ * Refreshes the Supabase session cookie when needed (getSession refreshes a
+ * token that is about to expire), setAll writes the new cookies to both the request (for Server
  * Components) and the response (for the browser), with the no-store cache
  * headers so a CDN never serves one user's cookie to another.
  * Without Supabase configuration it is a pass-through.
@@ -39,12 +38,17 @@ export async function middleware(request: NextRequest) {
   });
 
   // Must run before anything else reads the session. Do not remove.
-  const { data } = await supabase.auth.getClaims();
+  // getSession() reads the cookie locally and calls the Auth server only to
+  // refresh a token that is about to expire (S3: all users reach Supabase from
+  // Railway's single address, so per-IP Auth limits are shared). The
+  // middleware only refreshes cookies and redirects signed-out visitors; it
+  // authorizes nothing (pages verify claims, the database verifies the JWT).
+  const { data } = await supabase.auth.getSession();
 
   // Admin (R2): signed-out visitors go home; role and MFA are checked by the
   // admin layout/pages and again by the database on every write.
   if (admin) {
-    if (!data?.claims?.sub) {
+    if (!data?.session?.access_token) {
       const home = request.nextUrl.clone();
       home.pathname = "/";
       home.search = "";

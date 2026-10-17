@@ -1,5 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
+import { clientIpFrom } from "@/lib/client-ip";
 
 /**
  * The origin the browser used. `request.url` carries the bind address
@@ -16,11 +17,12 @@ export function publicOrigin(fallbackUrl?: string): string {
   return fallbackUrl ? new URL(fallbackUrl).origin : "http://localhost:3000";
 }
 
-/** Client IP for rate limiting: first X-Forwarded-For hop, else X-Real-IP. */
+/**
+ * Client IP for rate limiting: the trusted proxy header only (Railway's
+ * X-Real-IP), never client-supplied X-Forwarded-For. See src/lib/client-ip.ts.
+ */
 export function clientIp(): string {
-  const h = headers();
-  const xff = h.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return xff || h.get("x-real-ip")?.trim() || "unknown";
+  return clientIpFrom(headers());
 }
 
 /** Same-site path only: "/x?y" yes; "//evil", "https://…", "/\\evil" no. */

@@ -1,6 +1,7 @@
 import "server-only";
 import { revalidateTag } from "next/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { unverifiedSessionClaims } from "@/lib/supabase/session";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { MARKETS_TAG, PRICES_TAG, historyTag } from "@/services/markets/read";
 
@@ -67,8 +68,9 @@ export async function placeOrder(
 ): Promise<OrderResult> {
   if (!supabaseConfigured) return { ok: false, reason: "failed" };
   const supabase = getServerSupabase({ readOnly: true });
-  const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims?.sub) return { ok: false, reason: "not_signed_in" };
+  // Local decode only to skip the call when signed out (S3); place_order /
+  // sell_shares use auth.uid() from the token the database verifies.
+  if (!(await unverifiedSessionClaims(supabase))?.sub) return { ok: false, reason: "not_signed_in" };
 
   const { data, error } = await supabase.rpc("place_order", {
     p_market_id: marketId,
@@ -129,8 +131,9 @@ export async function sellShares(
 ): Promise<SaleResult> {
   if (!supabaseConfigured) return { ok: false, reason: "failed" };
   const supabase = getServerSupabase({ readOnly: true });
-  const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims?.sub) return { ok: false, reason: "not_signed_in" };
+  // Local decode only to skip the call when signed out (S3); place_order /
+  // sell_shares use auth.uid() from the token the database verifies.
+  if (!(await unverifiedSessionClaims(supabase))?.sub) return { ok: false, reason: "not_signed_in" };
 
   const { data, error } = await supabase.rpc("sell_shares", {
     p_market_id: marketId,

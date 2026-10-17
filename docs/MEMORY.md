@@ -268,3 +268,9 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - Language: `bp-lang` cookie mirrors localStorage; tests that set localStorage still work
   (the provider adopts it after mount).
 - Market outcomes from a PostgREST embed are unordered: pick by label or sort_order.
+- Auth calls (S3): `getClaims()` only where the server alone decides (admin, grievance
+  linking, callbacks); `unverifiedSessionClaims()` where the DB verifies the token next.
+  Never use the unverified claims to drive a secret-key (service role) write.
+- Client IP: `clientIpFrom()` (X-Real-IP only). Never parse X-Forwarded-For.
+- In node-level tests, load app modules that use "@/…" with `require()` (Playwright maps
+  paths for require, not for dynamic `import()`).

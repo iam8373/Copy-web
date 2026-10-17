@@ -319,7 +319,7 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 
 - **Supabase IP forwarding** (`Sb-Forwarded-For` with a secret-key client) so Supabase's
   per-IP auth limits see the user's IP, not Railway's. Until then raise the limits
-  (DEPLOY_RUNBOOK §3).
+  (DEPLOY_RUNBOOK §3). Less urgent since S3 (refresh-only Auth traffic).
 - "New" sort chip once the backend exposes `created_at`.
 - **Demo fills ignore price impact.** The order book quotes LMSR costs, but the demo store
   still fills at the displayed price (`shares = amount / price`). The backend
@@ -686,4 +686,6 @@ runbook).
 - [x] Trade panel / sheet Buy-Sell tabs, dashboard Sell action, P&L with sales, translated
       success overlay and toasts, admin user orders with side.
 - [x] S2 markets and language in the first HTML; one store per request (D-035).
-- [ ] S3 auth load and trusted client IP. S4 branding. S5 backups. S6 launch QA.
+- [x] S3 fewer Auth-server calls (local session in middleware and routine reads), trusted
+      client IP from X-Real-IP, runbook limits + signing-key steps (D-036).
+- [ ] S4 branding. S5 backups. S6 launch QA.

@@ -2,6 +2,36 @@
 
 Architecture and product decisions, newest first.
 
+## D-036 — Phase S3: fewer Auth-server calls, trusted client IP
+
+**Date:** Phase S3
+**Status:** Accepted
+
+- **Why:** every user reaches Supabase Auth from Railway's single address, so its per-IP
+  limits are shared by all users. With the legacy (HS256) JWT secret, `getClaims()` asks
+  the Auth server on every call (checked in auth-js: no signing key → `getUser`).
+- **Middleware** now uses `getSession()`: the session is read from the cookie locally and
+  the Auth server is called only to refresh a token within the SDK's expiry margin
+  (once). It authorizes nothing; it refreshes cookies and redirects signed-out `/admin`
+  visitors.
+- **Routine reads** (`/api/session`, portfolio, the trading pre-check) use
+  `unverifiedSessionClaims()` (local decode) because the very next step sends the same
+  token to the database, which verifies the signature (PostgREST) and applies RLS
+  (`auth.uid()`): a forged token gets nothing. **`getClaims()` stays** where the server
+  decides alone: admin pages (`getStaff`), grievance linking (service-role insert), auth
+  callbacks. After the switch to asymmetric signing keys (runbook §3) these verify
+  locally too.
+- **Client IP:** `clientIpFrom()` uses only `X-Real-IP`, which Railway's edge sets to the
+  client's address (Railway docs, Public networking → Specs & Limits → Request Headers).
+  `X-Forwarded-For` is never read (clients control its leftmost entries). Lists and
+  malformed values become "unknown". `TRUSTED_CLIENT_IP_HEADER` can name another header
+  (e.g. Cloudflare's) or `none`; it can never be `x-forwarded-for`. Assumption: the
+  service is reachable only through Railway's edge.
+- Tests (`auth-load.spec.ts`): spoofed X-Forwarded-For never changes the rate-limit key;
+  only single well-formed addresses count; the real middleware makes **no** Auth call for
+  a signed-out request or a valid session (also on `/admin`) and **exactly one** refresh
+  call for an expired one.
+
 ## D-035 — Phase S2: markets and language in the first HTML, one store per request
 
 **Date:** Phase S2

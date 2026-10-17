@@ -124,11 +124,19 @@ Why: sign-in, the Google code exchange and session refreshes are made by the **s
 address for every user, and its per-IP limits — shared by all users — would throttle the
 whole site. The app enforces its own per-IP and per-email sign-in limits (D-021).
 
+Since S3 (D-036) the app calls the Auth server far less: the middleware and routine reads
+decode the session locally and call Auth only to **refresh a token about to expire**
+(about once an hour per active user) and for sign-in, sign-out, admin checks and
+grievance linking. Until the project uses asymmetric JWT signing keys (next section),
+`getClaims()` on admin pages still asks the Auth server.
+
 Dashboard steps (checked against the current Supabase rate-limit docs):
 
 1. Supabase Dashboard → your project → **Authentication** → **Rate Limits**.
-2. Raise these per-IP limits (the docs' operation names; defaults in brackets) to cover
-   all users at peak, e.g. 10×. Labels on the page may be worded slightly differently:
+2. Raise these per-IP limits (the docs' operation names; defaults in brackets).
+   Suggested starting values for launch (a few hundred active users), all per 5 minutes:
+   **sign-ups and sign-ins 300, verification requests 300, token endpoint 1,500**. Labels
+   on the page may be worded slightly differently:
    - **Sign-ups and sign-ins** (30 per 5 min) — `/auth/v1/otp`, `/signup`, `/user`…
    - **Verification requests** (30 per 5 min) — `/auth/v1/verify`
    - **Token endpoint requests** (150 per 5 min) — `/auth/v1/token`: this covers the
@@ -151,6 +159,29 @@ curl -X PATCH "https://api.supabase.com/v1/projects/joritvxmhiwtrnatfphw/config/
   -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
   -d '{"rate_limit_otp": 300, "rate_limit_verify": 300, "rate_limit_token_refresh": 1500}'
 ```
+
+**Confirm it worked:** reload the Rate Limits page (the new values stay); then, after
+deploying, Dashboard → Logs → Auth: filter `status:429` over a busy hour — there should be
+none. Also Railway → service → Logs: no `rate_limited` sign-in errors from many users.
+
+### JWT signing keys (do this after the S3 deploy)
+
+With the legacy JWT secret every `getClaims()` is checked by the Auth server. With an
+asymmetric key it is verified locally against the public JWKS (no Auth call).
+
+1. Dashboard → **Project Settings → JWT Keys** → **Migrate JWT secret**. This imports the
+   legacy secret and creates a new **ES256** standby key. No downtime.
+2. Wait ~20 minutes (key caches), then click **Rotate keys**: new tokens are signed with
+   ES256; existing tokens stay valid until they expire. Nobody is signed out.
+3. After at least 1 h 15 min (token lifetime + margin), revoke the legacy secret
+   (**Previously used → Revoke**). The legacy `anon` / `service_role` keys stop working
+   then; the app uses only `sb_publishable_…` / `sb_secret_…`, so nothing breaks.
+4. **Confirm:** `curl https://joritvxmhiwtrnatfphw.supabase.co/auth/v1/.well-known/jwks.json`
+   lists an `ES256` key; sign in, then Dashboard → Logs → Auth shows no `/user` request
+   when you open `/admin` (it did before).
+
+If anything misbehaves, move the legacy key back to standby and rotate again (every step
+is reversible).
 
 **Better long-term (backlog, not built):** Supabase supports *IP address forwarding*
 (Authentication → Rate Limits → **IP Address Forwarding**): server requests made with a
@@ -201,6 +232,14 @@ Dockerfile build:
 | `AUTH_COOKIE_SECRET` | 64 hex characters: `openssl rand -hex 32` |
 | `EMAIL_OTP_ENABLED` | same value as above (the server re-checks it at runtime) |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | needed for **Admin → Translations → Translate with Gemini** (R5); without them the button reports "not configured" and the site stays fully usable. Never set `GEMINI_BASE_URL` (tests only). |
+
+**Client IP (our own rate limits, S3).** The app keys per-IP limits on `X-Real-IP`, which
+Railway's edge sets to the client's address
+([Railway: Public networking specs, "Request Headers"](https://docs.railway.com/networking/public-networking/specs-and-limits)).
+`X-Forwarded-For` is never trusted (clients can write its leftmost entries). Assumption:
+the service is reachable only through Railway's edge (no TCP proxy for it). If the domain
+is ever proxied by Cloudflare, set `TRUSTED_CLIENT_IP_HEADER=cf-connecting-ip` (X-Real-IP
+would then be Cloudflare's address).
 
 Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and 5 per 10 min);
 `CRON_SECRET` (32+ chars, `openssl rand -hex 32`) only if the project has no pg_cron;
@@ -256,3 +295,4 @@ Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and
 2. Check Railway logs and Supabase logs (Auth, Postgres) for the time window.
 3. Rotate any key that may have leaked (section 8).
 4. Write what happened and what changed in `docs/DECISIONS.md`.
+

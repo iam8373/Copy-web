@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import type { TargetLocale } from "@/services/translation/types";
@@ -29,6 +29,14 @@ export function LocaleEditor({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const id = (k: string) => `${locale}-${k}`;
+  // Take new server values (after a save or a machine draft) without
+  // remounting, so the confirmation message stays visible.
+  const serverLabels = outcomes.map((o) => o.label).join("\u0000");
+  useEffect(() => {
+    setTitle(initial.title);
+    setDescription(initial.description);
+    setLabels(serverLabels.split("\u0000"));
+  }, [initial.title, initial.description, serverLabels]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();

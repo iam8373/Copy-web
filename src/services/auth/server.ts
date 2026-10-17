@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { unverifiedSessionClaims } from "@/lib/supabase/session";
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { emailOtpEnabled, hashKey, sign, signInLimits, verify } from "@/lib/server/env";
@@ -148,22 +149,27 @@ export async function confirmAgeNow(): Promise<string | null> {
   return error ? null : (data as string);
 }
 
-/** The signed-in user (verified with getClaims) and their own profile. */
+/**
+ * The signed-in user and their own profile. The token is decoded locally and
+ * verified by the database on the profile read (no profile = not signed in).
+ */
 export async function getSessionProfile(): Promise<SessionProfile | null> {
   if (!supabaseConfigured) return null;
   const supabase = getServerSupabase({ readOnly: true });
-  const { data: claims, error } = await supabase.auth.getClaims();
-  const sub = claims?.claims?.sub;
-  if (error || !sub) return null;
+  // Local decode (S3); the profile read below sends the same token to the
+  // database, which verifies it: a bad token returns no profile.
+  const claims = await unverifiedSessionClaims(supabase);
+  const sub = claims?.sub;
+  if (!sub) return null;
   const { data } = await supabase
     .from("profiles")
     .select("handle, age_confirmed_at, status, role")
     .eq("id", sub)
     .maybeSingle();
   if (!data) return null;
-  const provider = (claims.claims.app_metadata as { provider?: string } | undefined)?.provider;
+  const provider = claims.app_metadata?.provider;
   return {
-    email: String(claims.claims.email ?? ""),
+    email: String(claims.email ?? ""),
     handle: data.handle,
     provider: provider === "google" ? "google" : "email",
     ageConfirmedAt: data.age_confirmed_at,

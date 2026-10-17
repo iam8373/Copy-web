@@ -45,7 +45,7 @@ export default async function TranslateMarket({ params }: { params: { marketId: 
             <StateChip state={d.locales[l].state} />
           </div>
           <LocaleEditor
-            key={`${d.locales[l].title}|${d.outcomes.map((o) => o.locales[l].label).join("|")}`}
+            key={l}
             marketId={d.id}
             locale={l}
             initial={{ title: d.locales[l].title, description: d.locales[l].description }}

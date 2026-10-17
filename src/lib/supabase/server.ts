@@ -10,7 +10,10 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./config";
  * request. Server Components cannot write cookies, so setAll is best-effort
  * there; src/middleware.ts refreshes the session on every request.
  *
- * Verify identity with `supabase.auth.getClaims()`, never getSession().
+ * Verify identity with `supabase.auth.getClaims()` for decisions made on the
+ * server alone. Where the database verifies the token anyway (RLS reads,
+ * trading RPCs) use `unverifiedSessionClaims()` (src/lib/supabase/session.ts)
+ * to avoid an Auth-server call per request (S3).
  * Pass { readOnly: true } for reads (see setAll).
  */
 export function getServerSupabase(opts: { readOnly?: boolean } = {}) {
