@@ -9,7 +9,7 @@
  * Pure and synchronous for now; they become async when they hit the network.
  */
 import type { Market } from "@/lib/types";
-import { costToBuy, prices, quantitiesForPrices, sharesForAmount } from "@/lib/lmsr";
+import { costToBuy, floorPaise, prices, proceedsForShares, quantitiesForPrices, sharesForAmount } from "@/lib/lmsr";
 
 // ---------------------------------------------------------------------------
 // Price history
@@ -185,4 +185,34 @@ export function estimateShares(market: Market, outcomeId: string, amount: number
   const modelled = total < 0.999 ? [...shown, 1 - total] : shown;
   const { q } = quantitiesForPrices(modelled, b);
   return Math.floor(sharesForAmount(q, b, idx, amount) * 1e8) / 1e8;
+}
+
+export interface SaleEstimate {
+  /** Credits received, rounded down to the paisa. */
+  proceeds: number;
+  avgPrice: number;
+  /** Price of the outcome after the sale. */
+  priceAfter: number;
+  /** priceAfter - current price (negative: selling lowers the price). */
+  impact: number;
+}
+
+/**
+ * What selling `shares` of an outcome would pay now, from the same LMSR model
+ * as sell_shares() in the database. An estimate: the server's fill counts.
+ */
+export function estimateSale(market: Market, outcomeId: string, shares: number): SaleEstimate {
+  const idx = Math.max(0, market.outcomes.findIndex((o) => o.id === outcomeId));
+  const current = market.outcomes[idx]?.price ?? 0;
+  if (!(shares > 0)) return { proceeds: 0, avgPrice: current, priceAfter: current, impact: 0 };
+  const b = market.liquidityB ?? DEFAULT_LIQUIDITY_B;
+  const shown = market.outcomes.map((o) => Math.max(o.price, 0.001));
+  const total = shown.reduce((s, p) => s + p, 0);
+  const modelled = total < 0.999 ? [...shown, 1 - total] : shown;
+  const { q } = quantitiesForPrices(modelled, b);
+  const proceeds = Math.max(0, floorPaise(proceedsForShares(q, b, idx, shares)));
+  const next = q.slice();
+  next[idx] -= shares;
+  const priceAfter = prices(next, b)[idx];
+  return { proceeds, avgPrice: proceeds / shares, priceAfter, impact: priceAfter - current };
 }

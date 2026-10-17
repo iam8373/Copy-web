@@ -5,6 +5,7 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import type { Dictionary } from "@/i18n";
+import { useOutcomeLabel } from "@/lib/market-text";
 
 const ICONS = {
   success: CheckCircle2,
@@ -15,7 +16,15 @@ const ICONS = {
 export function Toaster() {
   const toasts = useMarketStore((s) => s.toasts);
   const dismiss = useMarketStore((s) => s.dismissToast);
+  const markets = useMarketStore((s) => s.markets);
   const { t } = useT();
+  const ol = useOutcomeLabel();
+  // Outcome names follow the active language at display time.
+  const varsOf = (toast: (typeof toasts)[number]) => {
+    if (!toast.outcomeRef) return toast.vars;
+    const o = markets.find((m) => m.id === toast.outcomeRef!.marketId)?.outcomes.find((x) => x.id === toast.outcomeRef!.outcomeId);
+    return o ? { ...toast.vars, outcome: ol(o) } : toast.vars;
+  };
 
   if (toasts.length === 0) return null;
 
@@ -38,11 +47,11 @@ export function Toaster() {
             />
             <div className="min-w-0 flex-1">
               <p className="text-13 font-semibold text-primary">
-                {t("toast", toast.titleKey as keyof Dictionary["toast"], toast.vars)}
+                {t("toast", toast.titleKey as keyof Dictionary["toast"], varsOf(toast))}
               </p>
               {toast.bodyKey && (
                 <p className="mt-1 text-12 text-secondary">
-                  {t("toast", toast.bodyKey as keyof Dictionary["toast"], toast.vars)}
+                  {t("toast", toast.bodyKey as keyof Dictionary["toast"], varsOf(toast))}
                 </p>
               )}
             </div>

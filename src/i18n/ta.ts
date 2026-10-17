@@ -98,11 +98,11 @@ export const ta: Dictionary = {
 
     noticeProposed: "முன்மொழியப்பட்ட முடிவு: {outcome}. தவறு என நினைத்தால் {date}க்கு முன் புகார் அளிக்கவும்.",
 
-    noticeProposedVoid: "முன்மொழிவு: இந்த சந்தையை ரத்து செய்து ஒவ்வொரு ஆர்டரையும் திருப்பித் தருவது. தவறு என நினைத்தால் {date}க்கு முன் புகார் அளிக்கவும்.",
+    noticeProposedVoid: "முன்மொழிவு: இந்த சந்தையை ரத்து செய்து ஒவ்வொரு வர்த்தகரின் நிகர செலவையும் (வாங்கியது கழித்தல் விற்றது) திருப்பித் தருவது. தவறு என நினைத்தால் {date}க்கு முன் புகார் அளிக்கவும்.",
 
     noticeResolved: "{date} அன்று முடிவு: {outcome}. வென்ற ஒவ்வொரு பங்குக்கும் ப்ளே கிரெடிட்டில் ₹1 வழங்கப்பட்டது.",
 
-    noticeVoided: "{date} அன்று ரத்து செய்யப்பட்டது. ஒவ்வொரு ஆர்டரும் ப்ளே கிரெடிட்டில் திருப்பித் தரப்பட்டது.",
+    noticeVoided: "{date} அன்று ரத்து செய்யப்பட்டது. ஒவ்வொரு வர்த்தகரின் நிகர செலவும் (வாங்கியது கழித்தல் விற்றது) ப்ளே கிரெடிட்டில் திருப்பித் தரப்பட்டது.",
 
     evidence: "சான்று",
 
@@ -183,6 +183,74 @@ export const ta: Dictionary = {
 
 
   trade: {
+
+
+
+    buyTab: "வாங்கு",
+
+
+
+    sellTab: "விற்பனை",
+
+
+
+    sideLabel: "வாங்கு அல்லது விற்பனை",
+
+
+
+    sell: "{outcome} விற்பனை",
+
+
+
+    youHold: "உங்களிடம் {count}",
+
+
+
+    sharesToSell: "விற்க வேண்டிய பங்குகள்",
+
+
+
+    sellPercent: "உங்கள் பங்குகளில் {pct}% விற்கவும்",
+
+
+
+    priceImpact: "விலை தாக்கம்",
+
+
+
+    realizedPnl: "பெற்ற லாபம்/நஷ்டம்",
+
+
+
+    sellShares: "பங்குகளை விற்கவும்",
+
+
+
+    sellNothing: "இந்த சந்தையில் விற்க உங்களிடம் பங்குகள் இல்லை.",
+
+
+
+    sellInvalid: "பங்குகளின் எண்ணிக்கையை உள்ளிடவும் (அதிகபட்சம் 8 தசம இடங்கள்).",
+
+
+
+    sellTooMany: "உங்களிடம் {count} பங்குகள் உள்ளன.",
+
+
+
+    saleConfirmed: "விற்பனை உறுதியானது",
+
+
+
+    srBought: "ஆர்டர் உறுதியானது: {outcome} பங்குகள் {shares}, விலை {price}",
+
+
+
+    srSold: "விற்பனை உறுதியானது: {outcome} பங்குகள் {shares}, தொகை {amount}",
+
+
+
+    srOnMarket: "{summary}, {title}",
     amount: "தொகை (₹)",
     max: "அதிகபட்சம்",
     buy: "{outcome} வாங்கு",
@@ -237,6 +305,26 @@ export const ta: Dictionary = {
   },
 
   dashboard: {
+
+    ledgerSale: "விற்பனை",
+
+    sell: "விற்பனை",
+
+    sellPosition: "{outcome} விற்பனை",
+
+    actions: "செயல்கள்",
+
+    sideBuy: "வாங்கு",
+
+    sideSell: "விற்பனை",
+
+    resultWon: "வென்றது",
+
+    resultLost: "தோற்றது",
+
+    resultVoid: "திருப்பித் தரப்பட்டது",
+
+    sharesHeld: "{count} பங்குகள்",
     title: "டாஷ்போர்டு",
     signedInAs: "{handle} ஆக உள்நுழைந்துள்ளீர்கள்",
     pnlBreakdown: "லாப-நஷ்ட விவரம்",
@@ -281,6 +369,18 @@ export const ta: Dictionary = {
   },
 
   profit: {
+
+    stateOpen: "திறந்துள்ளது",
+
+    stateClosed: "விற்கப்பட்டது",
+
+    stateWon: "வென்றது",
+
+    stateLost: "தோற்றது",
+
+    stateVoid: "திருப்பித் தரப்பட்டது",
+
+    costIn: "{amount} முதலீடு",
     title: "லாபம் & நஷ்டம்",
     subtitle: "நீங்கள் வைத்திருக்கும் அனைத்துச் சந்தைகளின் உணரப்பட்ட மற்றும் உணரப்படாத செயல்திறன்.",
     backToDashboard: "டாஷ்போர்டுக்குத் திரும்பு",
@@ -294,6 +394,16 @@ export const ta: Dictionary = {
   },
 
   toast: {
+
+    saleDone: "விற்கப்பட்டது",
+
+    saleFilled: "{outcome} பங்குகள் {shares} ₹{amount}க்கு விற்கப்பட்டன.",
+
+    saleRejected: "விற்பனை நடக்கவில்லை",
+
+    orderInsufficientShares: "உங்களிடம் அத்தனை பங்குகள் இல்லை.",
+
+    orderSellTooSmall: "இந்த விற்பனை ₹1க்கும் குறைவு. அதிக பங்குகள் அல்லது முழு நிலையையும் விற்கவும்.",
     welcome: "வரவேற்கிறோம், {handle}",
     signedInGoogle: "கூகுள் மூலம் உள்நுழைந்தீர்கள்.",
     signedOut: "வெளியேறினீர்கள்",

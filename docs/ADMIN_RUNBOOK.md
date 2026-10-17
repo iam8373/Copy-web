@@ -72,7 +72,9 @@ named in the market's resolution source.
    market goes back to *Closed* and can be proposed again.
 4. **Finalize**: after the window, the scheduled job finalizes automatically; an admin can
    also do it (type the slug). Payout: **1 credit per winning share**, rounded down to the
-   paisa. **Void**: every order on the market is refunded at cost. The database allows one
+   paisa, on the shares still held (sold shares are not paid). **Void**: each trader gets
+   back their net cost on the market (buys minus sale proceeds); someone who sold for more
+   than they paid gets nothing back and is not clawed back. The database allows one
    payout and one refund per user per market, so finalizing twice is impossible.
 
 Reject a *pending* proposal (with a reason) when it is wrong; the market returns to

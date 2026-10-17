@@ -13,11 +13,19 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { usePortfolio } from "@/lib/usePortfolio";
+import { usePortfolio, type EnrichedPosition } from "@/lib/usePortfolio";
 import { cn, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
-import { getMarketText } from "@/lib/market-text";
+import { getMarketText, useOutcomeLabel } from "@/lib/market-text";
 import { color, size, tooltipStyle } from "@/lib/tokens";
+
+const STATE_KEY = { won: "stateWon", lost: "stateLost", void: "stateVoid" } as const;
+
+function RowOutcome({ row }: { row: EnrichedPosition }) {
+  const ol = useOutcomeLabel();
+  const o = row.market.outcomes.find((x) => x.id === row.outcomeId);
+  return <>{o ? ol(o) : row.outcomeLabel}</>;
+}
 
 export function ProfitView() {
   const { t, locale } = useT();
@@ -26,14 +34,14 @@ export function ProfitView() {
   const chartData = useMemo(
     () =>
       [...rows]
-        .sort((a, b) => b.pnl - a.pnl)
+        .sort((a, b) => b.totalPnl - a.totalPnl)
         .slice(0, 8)
         .map((r) => ({
           name: (() => {
             const title = getMarketText(r.market, locale).title;
             return title.length > 22 ? `${title.slice(0, 22)}…` : title;
           })(),
-          pnl: Math.round(r.pnl),
+          pnl: Math.round(r.totalPnl),
         })),
     [rows, locale]
   );
@@ -163,7 +171,7 @@ export function ProfitView() {
         <div className="flex flex-col gap-2">
           {rows
             .slice()
-            .sort((a, b) => b.pnl - a.pnl)
+            .sort((a, b) => b.totalPnl - a.totalPnl)
             .map((row) => (
               <div
                 key={row.key}
@@ -172,14 +180,14 @@ export function ProfitView() {
                 <span
                   className={cn(
                     "shrink-0 rounded-chip px-1.5 py-1 text-11 font-bold uppercase",
-                    row.resolved
-                      ? row.resolved === "won"
-                        ? "bg-success/15 text-success"
-                        : "bg-danger/15 text-danger"
-                      : "bg-surface-3 text-secondary"
+                    row.resolved === "won"
+                      ? "bg-success/15 text-success"
+                      : row.resolved === "lost"
+                        ? "bg-danger/15 text-danger"
+                        : "bg-surface-3 text-secondary"
                   )}
                 >
-                  {row.resolved ?? "open"}
+                  {t("profit", row.resolved ? STATE_KEY[row.resolved] : row.shares > 0 ? "stateOpen" : "stateClosed")}
                 </span>
                 <Link
                   href={`/market/${row.market.slug}`}
@@ -188,17 +196,17 @@ export function ProfitView() {
                   {getMarketText(row.market, locale).title}
                 </Link>
                 <span className="tnum shrink-0 text-12 text-secondary">
-                  {row.outcomeLabel} · {Math.round(row.shares).toLocaleString("en-IN")} sh ·{" "}
-                  {formatRupees(row.cost, 0)} in
+                  <RowOutcome row={row} /> · {t("dashboard", "sharesHeld", { count: row.shares.toFixed(1) })} ·{" "}
+                  {t("profit", "costIn", { amount: formatRupees(row.cost, 0) })}
                 </span>
                 <span
                   className={cn(
                     "tnum w-24 shrink-0 text-right text-13 font-bold",
-                    row.pnl >= 0 ? "text-success" : "text-danger"
+                    row.totalPnl >= 0 ? "text-success" : "text-danger"
                   )}
                 >
-                  {row.pnl >= 0 ? "+" : "-"}
-                  {formatRupees(Math.abs(row.pnl), 0)}
+                  {row.totalPnl >= 0 ? "+" : "-"}
+                  {formatRupees(Math.abs(row.totalPnl), 0)}
                 </span>
               </div>
             ))}

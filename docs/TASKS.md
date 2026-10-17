@@ -317,8 +317,6 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 
 ## Backlog
 
-- **Sell-back** in the trading engine (LMSR sell), then a Sell tab in the trade panel.
-  The panel is buy-only until then. (Owner: backlog, not now.)
 - **Per-request store** so market lists render in the first HTML instead of after
   hydration (owner: backlog, not now).
 - **Supabase IP forwarding** (`Sb-Forwarded-For` with a secret-key client) so Supabase's
@@ -681,3 +679,13 @@ runbook).
 - [x] R6 users, credits, grievance form + inbox, compliance view, settings, audit
       viewer (D-032).
 - [ ] R7 regional restriction: **skipped** by the owner for now.
+
+## Phase S1 — sell-back (done)
+
+- [x] Migration `20261017000100_sell.sql`: `sell_shares()`, `sale` ledger type, sell orders,
+      net-cost void refunds, settlement sets resolved / realized P&L, idempotent backfill.
+- [x] pgTAP `010_sell` (59 checks); e2e `sell.spec.ts`, concurrent sells in `db-concurrency`.
+- [x] Trade panel / sheet Buy-Sell tabs, dashboard Sell action, P&L with sales, translated
+      success overlay and toasts, admin user orders with side.
+- [ ] S2 markets in the first HTML (per-request store, language cookie).
+- [ ] S3 auth load and trusted client IP. S4 branding. S5 backups. S6 launch QA.

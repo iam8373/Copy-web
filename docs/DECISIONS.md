@@ -2,6 +2,44 @@
 
 Architecture and product decisions, newest first.
 
+## D-034 — Phase S1: sell-back, and settlement records P&L
+
+**Date:** Phase S1
+**Status:** Accepted
+
+- **Engine:** `sell_shares(market, outcome, shares, key)` — SECURITY DEFINER, one
+  transaction, granted to `authenticated` only. Same gates as buying (signed in, active,
+  18+, trading on, staff blocked unless `staff_can_trade`, market open and before its end
+  date). Locks the profile (idempotency, rate limit), the market (pricing order) and the
+  position (never oversell). Proceeds `C(q) − C(q − s·e_i)` with the same log-sum-exp
+  (`lmsr_proceeds_for_shares`), **rounded down to the paisa**. At least ₹1 unless the
+  whole position is closed; a whole **dust** position may close for ₹0.00 (order row, no
+  ledger row). Average price is unchanged on the remainder; `realized_pnl = proceeds −
+  avg_price × shares` on the order and accumulated on the position.
+- **Ledger:** new type `sale` (positive, `ref_id` = order). Still append-only.
+- **Orders:** `side in (buy, sell)`; for a sell `amount` = proceeds (≥ 0), `avg_price` =
+  proceeds/shares, `realized_pnl` set (null for buys).
+- **Limits:** the 10-a-minute limit counts buys and sells together; the self-set daily
+  limit counts **buys only** (selling is never blocked by it). Suspended accounts cannot
+  sell (they cannot trade; positions still pay out at resolution).
+- **Idempotency:** a key is bound to its side; reusing a buy key for a sell (or the other
+  way round) is `BP_IDEMPOTENCY_CONFLICT`.
+- **Settlement (bug fixed):** `_settle` never set `positions.resolved` /
+  `realized_pnl`, so settled markets looked open. `_finalize_positions()` now sets them
+  from what actually moved: `sales − buys + payout` (resolved) or `sales − buys +
+  refund share` (void). Payouts use the shares still held. **Void refunds net cost per
+  user** (buys − sale proceeds); users who sold for more than they paid get no refund and
+  are not clawed back. An idempotent backfill corrects markets already settled.
+- **UI:** Buy/Sell tabs in the panel and the sheet; the Sell tab lists held outcomes only,
+  with 25/50/75/100% chips, proceeds, average price, price impact and realized P&L before
+  confirming (estimate from the same LMSR model). Dashboard rows have a Sell action
+  (`/market/<slug>?side=sell&outcome=<id>`). Realized P&L includes sales; orders show their
+  side; `sale` ledger rows, result labels (won/lost/refunded) and the success overlay and
+  toasts are translated, with market titles and outcome labels in the active language.
+  Note: with average-cost accounting a *partial* sale right after a buy can show a small
+  positive realized P&L (the most recent shares were bought at the highest prices); the
+  remainder's unrealized P&L falls by the same amount, and a full round trip never gains.
+
 ## D-033 — CI build verification: test-only routes, provider containment, masked output
 
 **Date:** After CI run #1 (commit c1abd72)

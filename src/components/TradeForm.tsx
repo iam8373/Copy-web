@@ -6,7 +6,9 @@ import { useMarketStore } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { useOutcomeLabel } from "@/lib/market-text";
 import { AmountField } from "@/components/AmountField";
-import { AnimatedNumber, Button, FOCUS_RING } from "@/components/ui";
+import { AnimatedNumber, Button, FOCUS_RING, Segmented } from "@/components/ui";
+import { SellForm } from "@/components/SellForm";
+import type { TradeSide } from "@/store/useMarketStore";
 import { validateAmount } from "@/lib/trade-limits";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 import { estimateShares } from "@/services/markets/market-data";
@@ -21,11 +23,17 @@ export interface TradeFormProps {
   amountId: string;
   /** Price when the form was opened; shows a warning if it has since moved. */
   openedPrice?: number;
+  /** Buy or Sell tab (S1). */
+  side: TradeSide;
+  onSideChange: (side: TradeSide) => void;
+  /** Raw text of the Sell tab's shares field. */
+  shares: string;
+  onSharesChange: (raw: string) => void;
 }
 
 /**
- * Buy form shared by the market page's sticky panel (lg+) and the trade sheet
- * (TradeModal). Buy-only: selling needs the engine's sell path (backlog).
+ * Trade form shared by the market page's sticky panel (lg+) and the trade
+ * sheet (TradeModal): Buy and Sell tabs (S1; selling: SellForm).
  *
  * Yes is success and No is danger for binary markets; multi-outcome markets
  * use the brand colour for the selected outcome.
@@ -38,6 +46,10 @@ export function TradeForm({
   onAmountChange,
   amountId,
   openedPrice,
+  side,
+  onSideChange,
+  shares: sellShares,
+  onSharesChange,
 }: TradeFormProps) {
   const placeOrder = useMarketStore((s) => s.placeOrder);
   const pending = useMarketStore((s) => s.orderPending);
@@ -56,8 +68,57 @@ export function TradeForm({
   // Only open markets before their end date take orders (the server checks too).
   const tradable = (market.status === undefined || market.status === "open") && new Date(market.endDate) > new Date();
 
+  const footer = (
+    <>
+      {!tradable && (
+        <p className="text-center text-12 font-semibold text-warning" data-testid="market-closed-note">
+          {t("toast", "orderMarketClosed")}
+        </p>
+      )}
+      {wallet !== null && (
+        <p className="tnum text-center text-12 text-secondary" data-testid="trade-balance">
+          {t("trade", "balance", { amount: formatRupees(wallet) })}
+        </p>
+      )}
+    </>
+  );
+
+  const tabs = (
+    <Segmented<TradeSide>
+      label={t("trade", "sideLabel")}
+      value={side}
+      onValueChange={onSideChange}
+      size="md"
+      className="w-full [&>button]:flex-1"
+      options={[
+        { value: "buy", label: t("trade", "buyTab") },
+        { value: "sell", label: t("trade", "sellTab") },
+      ]}
+      optionProps={(v) => ({ "data-testid": `trade-side-${v}` })}
+    />
+  );
+
+  if (side === "sell") {
+    return (
+      <div className="flex flex-col gap-4" data-testid="trade-form">
+        {tabs}
+        <SellForm
+          market={market}
+          outcomeId={outcomeId}
+          onOutcomeChange={onOutcomeChange}
+          shares={sellShares}
+          onSharesChange={onSharesChange}
+          sharesId={`${amountId}-shares`}
+          tradable={tradable}
+        />
+        <div className="flex flex-col gap-2">{footer}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4" data-testid="trade-form">
+      {tabs}
       <div
         role="group"
         aria-label={t("market", "pickOutcome")}
@@ -146,16 +207,7 @@ export function TradeForm({
         >
           {t("trade", "placeOrder")}
         </Button>
-        {!tradable && (
-          <p className="text-center text-12 font-semibold text-warning" data-testid="market-closed-note">
-            {t("toast", "orderMarketClosed")}
-          </p>
-        )}
-        {wallet !== null && (
-          <p className="tnum text-center text-12 text-secondary" data-testid="trade-balance">
-            {t("trade", "balance", { amount: formatRupees(wallet) })}
-          </p>
-        )}
+        {footer}
         <p className="text-center text-11 text-secondary">{t("trade", "settlementNote")}</p>
       </div>
     </div>

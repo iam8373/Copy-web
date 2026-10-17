@@ -94,11 +94,11 @@ export const en = {
 
     noticeProposed: "Proposed result: {outcome}. If you think it is wrong, raise a grievance before {date}.",
 
-    noticeProposedVoid: "Proposed: void this market and refund every order. If you think it is wrong, raise a grievance before {date}.",
+    noticeProposedVoid: "Proposed: void this market and refund each trader's net cost (buys minus sales). If you think it is wrong, raise a grievance before {date}.",
 
     noticeResolved: "Resolved: {outcome} on {date}. Each winning share paid ₹1 in play credits.",
 
-    noticeVoided: "Voided on {date}. Every order was refunded in play credits.",
+    noticeVoided: "Voided on {date}. Each trader's net cost (buys minus sales) was refunded in play credits.",
 
     evidence: "Evidence",
 
@@ -179,6 +179,74 @@ export const en = {
 
 
   trade: {
+
+
+
+    buyTab: "Buy",
+
+
+
+    sellTab: "Sell",
+
+
+
+    sideLabel: "Buy or sell",
+
+
+
+    sell: "Sell {outcome}",
+
+
+
+    youHold: "{count} held",
+
+
+
+    sharesToSell: "Shares to sell",
+
+
+
+    sellPercent: "Sell {pct}% of your shares",
+
+
+
+    priceImpact: "Price impact",
+
+
+
+    realizedPnl: "Realized P&L",
+
+
+
+    sellShares: "Sell shares",
+
+
+
+    sellNothing: "You hold no shares in this market to sell.",
+
+
+
+    sellInvalid: "Enter a number of shares (up to 8 decimals).",
+
+
+
+    sellTooMany: "You hold {count} shares.",
+
+
+
+    saleConfirmed: "Sale confirmed",
+
+
+
+    srBought: "Order confirmed: {shares} {outcome} shares at {price}",
+
+
+
+    srSold: "Sale confirmed: {shares} {outcome} shares for {amount}",
+
+
+
+    srOnMarket: "{summary}, {title}",
     amount: "Amount (₹)",
     max: "Max",
     buy: "Buy {outcome}",
@@ -234,6 +302,26 @@ export const en = {
   },
 
   dashboard: {
+
+    ledgerSale: "Sale",
+
+    sell: "Sell",
+
+    sellPosition: "Sell {outcome}",
+
+    actions: "Actions",
+
+    sideBuy: "Buy",
+
+    sideSell: "Sell",
+
+    resultWon: "Won",
+
+    resultLost: "Lost",
+
+    resultVoid: "Refunded",
+
+    sharesHeld: "{count} shares",
     title: "Dashboard",
     signedInAs: "Signed in as {handle}",
     pnlBreakdown: "P&L breakdown",
@@ -278,6 +366,18 @@ export const en = {
   },
 
   profit: {
+
+    stateOpen: "Open",
+
+    stateClosed: "Sold",
+
+    stateWon: "Won",
+
+    stateLost: "Lost",
+
+    stateVoid: "Refunded",
+
+    costIn: "{amount} invested",
     title: "Profit & loss",
     subtitle: "Realised and unrealised performance across every market you hold.",
     backToDashboard: "Back to dashboard",
@@ -291,6 +391,16 @@ export const en = {
   },
 
   toast: {
+
+    saleDone: "Sold",
+
+    saleFilled: "Sold {shares} {outcome} shares for ₹{amount}.",
+
+    saleRejected: "Sale not completed",
+
+    orderInsufficientShares: "You don't hold that many shares.",
+
+    orderSellTooSmall: "This sale is under ₹1. Sell more shares, or the whole position.",
     welcome: "Welcome, {handle}",
     signedInGoogle: "Signed in with Google.",
     signedOut: "Signed out",

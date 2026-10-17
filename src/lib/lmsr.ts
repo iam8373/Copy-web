@@ -42,6 +42,21 @@ export function quantitiesForPrices(p: readonly number[], b: number): { q: numbe
   return { q: raw.map((x) => x - min), normalized };
 }
 
+/**
+ * Credits received for selling `shares` of outcome `i`: C(q) - C(q - s e_i).
+ * Mirrors lmsr_proceeds_for_shares() in the S1 migration (the database rounds
+ * the result DOWN to the paisa; callers do the same with floorPaise).
+ */
+export function proceedsForShares(q: readonly number[], b: number, i: number, shares: number): number {
+  if (!(shares > 0)) return 0;
+  const next = q.slice();
+  next[i] -= shares;
+  return cost(q, b) - cost(next, b);
+}
+
+/** Rounds credits DOWN to the paisa (never in the user's favour). */
+export const floorPaise = (n: number) => Math.floor(n * 100 + 1e-9) / 100;
+
 /** Cost of buying `shares` of outcome `i`. */
 export function costToBuy(q: readonly number[], b: number, i: number, shares: number): number {
   const next = q.slice();

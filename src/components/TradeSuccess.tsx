@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useMarketStore } from "@/store/useMarketStore";
-import { formatPercent } from "@/lib/utils";
+import { formatPercent, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
+import { getMarketText, useOutcomeLabel } from "@/lib/market-text";
 import { color } from "@/lib/tokens";
 
 const VISIBLE_MS = 1160;
@@ -21,7 +22,8 @@ export function TradeSuccess() {
   const clearFill = useMarketStore((s) => s.clearFill);
   const markets = useMarketStore((s) => s.markets);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const { t } = useT();
+  const { t, locale } = useT();
+  const ol = useOutcomeLabel();
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -39,16 +41,20 @@ export function TradeSuccess() {
     return () => clearTimeout(id);
   }, [lastFill, clearFill]);
 
-  const title = useMemo(() => {
-    if (!lastFill) return "";
-    return markets.find((m) => m.id === lastFill.marketId)?.title ?? "";
-  }, [lastFill, markets]);
+  // Market title and outcome label in the active language.
+  const { title, outcome } = useMemo(() => {
+    const m = lastFill ? markets.find((x) => x.id === lastFill.marketId) : undefined;
+    const o = m?.outcomes.find((x) => x.id === lastFill?.outcomeId);
+    return { title: m ? getMarketText(m, locale).title : "", outcome: o ? ol(o) : "" };
+  }, [lastFill, markets, locale, ol]);
 
   if (!lastFill) return null;
 
-  const label = `Order confirmed: ${lastFill.shares.toFixed(1)} ${
-    lastFill.outcomeLabel
-  } shares at ${formatPercent(lastFill.price, 1)}`;
+  const sold = lastFill.side === "sell";
+  const shares = lastFill.shares.toFixed(sold ? 2 : 1);
+  const summary = sold
+    ? t("trade", "srSold", { shares, outcome, amount: formatRupees(lastFill.proceeds ?? 0) })
+    : t("trade", "srBought", { shares, outcome, price: formatPercent(lastFill.price, 1) });
 
   return (
     <div
@@ -93,19 +99,17 @@ export function TradeSuccess() {
         </span>
 
         <p className="text-13 font-bold text-primary">
-          {t("trade", "orderConfirmed")}
+          {t("trade", sold ? "saleConfirmed" : "orderConfirmed")}
         </p>
         <p className="tnum max-w-56 truncate text-center text-12 text-secondary">
-          {lastFill.shares.toFixed(1)} {lastFill.outcomeLabel} @{" "}
-          {formatPercent(lastFill.price, 1)}
+          {sold
+            ? `${shares} ${outcome} → ${formatRupees(lastFill.proceeds ?? 0)}`
+            : `${shares} ${outcome} @ ${formatPercent(lastFill.price, 1)}`}
         </p>
       </div>
 
       {/* Screen-reader text carries the market name, which is truncated visually. */}
-      <span className="sr-only">
-        {label}
-        {title ? ` on ${title}` : ""}
-      </span>
+      <span className="sr-only">{title ? t("trade", "srOnMarket", { summary, title }) : summary}</span>
     </div>
   );
 }

@@ -121,4 +121,39 @@ test.describe("place_order under concurrency (local stack)", () => {
     const [w] = await localRest<Array<{ balance: number }>>(`wallets?user_id=eq.${u.id}&select=balance`);
     expect(Number(w.balance)).toBe(1000);
   });
+
+  test("parallel sells on one market never oversell or double-credit (S1)", async () => {
+    test.setTimeout(120_000);
+    const market = await openMarket(true, 2);
+    const yes = market.outcomes[0].id;
+    const users = await Promise.all([0, 1, 2].map((i) => makeUser(`sellc${i}`)));
+    // Each user buys, then fires 4 sells of 40% in parallel: at most 2 can fit.
+    const bought = await Promise.all(
+      users.map((u) => rpc(u.token, "place_order", { p_market_id: market.id, p_outcome_id: yes, p_amount: 500, p_idempotency_key: `sc-buy-${u.id}` }))
+    );
+    const results = await Promise.all(
+      users.flatMap((u, i) => {
+        const shares = Math.floor(Number(bought[i].body.shares) * 0.4 * 1e8) / 1e8;
+        return [0, 1, 2, 3].map((k) =>
+          rpc(u.token, "sell_shares", { p_market_id: market.id, p_outcome_id: yes, p_shares: shares, p_idempotency_key: `sc-sell-${u.id}-${k}` })
+        );
+      })
+    );
+    const ok = results.filter((r) => r.status === 200).length;
+    expect(ok).toBe(users.length * 2);
+    for (const r of results.filter((x) => x.status !== 200)) expect(JSON.stringify(r.body)).toContain("BP_INSUFFICIENT_SHARES");
+    for (const u of users) {
+      const [pos] = await localRest<Array<{ shares: number }>>(`positions?user_id=eq.${u.id}&outcome_id=eq.${yes}&select=shares`);
+      expect(Number(pos.shares)).toBeGreaterThanOrEqual(0);
+      const [w] = await localRest<Array<{ balance: number }>>(`wallets?user_id=eq.${u.id}&select=balance`);
+      const ledger = await localRest<Array<{ amount: number }>>(`ledger_entries?user_id=eq.${u.id}&select=amount`);
+      expect(Number(w.balance)).toBeCloseTo(ledger.reduce((s, l) => s + Number(l.amount), 0), 2);
+      const sales = await localRest<unknown[]>(`ledger_entries?user_id=eq.${u.id}&type=eq.sale&select=id`);
+      expect(sales).toHaveLength(2);
+    }
+    const [row] = await localRest<Array<{ outcomes: Array<{ price: number }> }>>(
+      `markets?id=eq.${market.id}&select=outcomes!outcomes_market_id_fkey(price)`
+    );
+    expect(Math.abs(row.outcomes.reduce((s, o) => s + Number(o.price), 0) - 1)).toBeLessThan(1e-8);
+  });
 });

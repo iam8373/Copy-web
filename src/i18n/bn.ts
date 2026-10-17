@@ -98,11 +98,11 @@ export const bn: Dictionary = {
 
     noticeProposed: "প্রস্তাবিত ফলাফল: {outcome}। ভুল মনে হলে {date}-এর আগে অভিযোগ জানান।",
 
-    noticeProposedVoid: "প্রস্তাব: এই মার্কেট বাতিল করে প্রতিটি অর্ডারের অর্থ ফেরত দেওয়া হবে। ভুল মনে হলে {date}-এর আগে অভিযোগ জানান।",
+    noticeProposedVoid: "প্রস্তাব: এই মার্কেট বাতিল করে প্রত্যেক ট্রেডারের নিট খরচ (কেনা বাদ বিক্রি) ফেরত দেওয়া হবে। ভুল মনে হলে {date}-এর আগে অভিযোগ জানান।",
 
     noticeResolved: "{date} তারিখে ফলাফল: {outcome}। প্রতিটি জয়ী শেয়ারে প্লে ক্রেডিটে ₹1 দেওয়া হয়েছে।",
 
-    noticeVoided: "{date} তারিখে বাতিল। প্রতিটি অর্ডারের অর্থ প্লে ক্রেডিটে ফেরত দেওয়া হয়েছে।",
+    noticeVoided: "{date} তারিখে বাতিল। প্রত্যেক ট্রেডারের নিট খরচ (কেনা বাদ বিক্রি) প্লে ক্রেডিটে ফেরত দেওয়া হয়েছে।",
 
     evidence: "প্রমাণ",
 
@@ -183,6 +183,74 @@ export const bn: Dictionary = {
 
 
   trade: {
+
+
+
+    buyTab: "কিনুন",
+
+
+
+    sellTab: "বিক্রি করুন",
+
+
+
+    sideLabel: "কিনুন বা বিক্রি করুন",
+
+
+
+    sell: "{outcome} বিক্রি করুন",
+
+
+
+    youHold: "আপনার কাছে {count}",
+
+
+
+    sharesToSell: "বিক্রির শেয়ার",
+
+
+
+    sellPercent: "আপনার {pct}% শেয়ার বিক্রি করুন",
+
+
+
+    priceImpact: "দামের প্রভাব",
+
+
+
+    realizedPnl: "প্রাপ্ত লাভ/ক্ষতি",
+
+
+
+    sellShares: "শেয়ার বিক্রি করুন",
+
+
+
+    sellNothing: "এই মার্কেটে বিক্রি করার মতো আপনার কোনো শেয়ার নেই।",
+
+
+
+    sellInvalid: "শেয়ারের সংখ্যা লিখুন (সর্বোচ্চ 8 দশমিক)।",
+
+
+
+    sellTooMany: "আপনার কাছে {count}টি শেয়ার আছে।",
+
+
+
+    saleConfirmed: "বিক্রি নিশ্চিত হয়েছে",
+
+
+
+    srBought: "অর্ডার নিশ্চিত: {outcome}-এর {shares}টি শেয়ার {price} দামে",
+
+
+
+    srSold: "বিক্রি নিশ্চিত: {outcome}-এর {shares}টি শেয়ার {amount}-এ",
+
+
+
+    srOnMarket: "{summary}, {title}",
     amount: "পরিমাণ (₹)",
     max: "সর্বোচ্চ",
     buy: "{outcome} কিনুন",
@@ -237,6 +305,26 @@ export const bn: Dictionary = {
   },
 
   dashboard: {
+
+    ledgerSale: "বিক্রি",
+
+    sell: "বিক্রি করুন",
+
+    sellPosition: "{outcome} বিক্রি করুন",
+
+    actions: "পদক্ষেপ",
+
+    sideBuy: "কিনুন",
+
+    sideSell: "বিক্রি করুন",
+
+    resultWon: "জিতেছেন",
+
+    resultLost: "হেরেছেন",
+
+    resultVoid: "ফেরত দেওয়া হয়েছে",
+
+    sharesHeld: "{count}টি শেয়ার",
     title: "ড্যাশবোর্ড",
     signedInAs: "{handle} হিসেবে সাইন ইন",
     pnlBreakdown: "লাভ-ক্ষতির বিবরণ",
@@ -281,6 +369,18 @@ export const bn: Dictionary = {
   },
 
   profit: {
+
+    stateOpen: "চালু",
+
+    stateClosed: "বিক্রি হয়েছে",
+
+    stateWon: "জিতেছেন",
+
+    stateLost: "হেরেছেন",
+
+    stateVoid: "ফেরত দেওয়া হয়েছে",
+
+    costIn: "{amount} বিনিয়োগ",
     title: "লাভ ও ক্ষতি",
     subtitle: "আপনার সব পজিশনের বাস্তবায়িত ও অবাস্তবায়িত পারফরম্যান্স।",
     backToDashboard: "ড্যাশবোর্ডে ফিরুন",
@@ -294,6 +394,16 @@ export const bn: Dictionary = {
   },
 
   toast: {
+
+    saleDone: "বিক্রি হয়েছে",
+
+    saleFilled: "{outcome}-এর {shares}টি শেয়ার ₹{amount}-এ বিক্রি হয়েছে।",
+
+    saleRejected: "বিক্রি হয়নি",
+
+    orderInsufficientShares: "আপনার কাছে এত শেয়ার নেই।",
+
+    orderSellTooSmall: "এই বিক্রি ₹1-এর কম। আরও শেয়ার বা পুরো পজিশন বিক্রি করুন।",
     welcome: "স্বাগতম, {handle}",
     signedInGoogle: "গুগল দিয়ে সাইন ইন হয়েছে।",
     signedOut: "সাইন আউট হয়েছে",

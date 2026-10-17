@@ -75,6 +75,37 @@ export default async function UserPage({ params }: { params: { id: string } }) {
           </div>
         )}
       </section>
+      <section className={card} aria-labelledby="ord-h">
+        <h2 id="ord-h" className="text-16 font-bold text-primary">{C.orders}</h2>
+        {(u.recent_orders ?? []).length === 0 ? (
+          <p className="mt-2 text-13 text-secondary">{C.none}</p>
+        ) : (
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-table">
+              <thead>
+                <tr>
+                  {(["when", "side", "market", "outcome", "shares", "amount", "realized"] as const).map((k) => (
+                    <th key={k} className={th}>{C.orderCols[k]}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[rgb(var(--border-subtle))]">
+                {u.recent_orders.map((o) => (
+                  <tr key={o.id} data-testid="admin-order-row" data-side={o.side}>
+                    <td className={td + " whitespace-nowrap font-mono text-12 text-secondary"}>{fmtDate(o.created_at)}</td>
+                    <td className={td + (o.side === "sell" ? " font-semibold text-danger" : " font-semibold text-success")}>{C.sides[o.side]}</td>
+                    <td className={td}><Link className="hover:underline" href={`/market/${o.market_slug}`}>{o.market_title}</Link></td>
+                    <td className={td}>{o.outcome}</td>
+                    <td className={td + " text-right font-mono"}>{fmtNum(Number(o.shares))}</td>
+                    <td className={td + " text-right font-mono"}>{o.side === "sell" ? "+" : "-"}{fmtNum(Number(o.amount))}</td>
+                    <td className={td + " text-right font-mono"}>{o.realized_pnl === null ? "—" : fmtNum(Number(o.realized_pnl))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
       <section className={card} aria-labelledby="pos-h">
         <h2 id="pos-h" className="text-16 font-bold text-primary">{C.positions}</h2>
         {u.positions.length === 0 ? (

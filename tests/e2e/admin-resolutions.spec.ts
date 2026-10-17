@@ -125,11 +125,11 @@ test.describe("admin resolutions", () => {
     await expect(page.getByTestId("proposal").first()).toContainText("Reason: Wrong source used");
 
     await propose(page, m, "void");
-    await expect(page.getByTestId("proposal-result").first()).toHaveText("Void (refund every order)");
+    await expect(page.getByTestId("proposal-result").first()).toHaveText("Void (refund each trader's net cost)");
     await typed(page, "Approve", m.slug);
     const pub = await page.context().newPage();
     await pub.goto(`/market/${m.slug}`);
-    await expect(pub.getByTestId("resolution-notice")).toContainText("Proposed: void this market and refund every order.");
+    await expect(pub.getByTestId("resolution-notice")).toContainText("Proposed: void this market and refund each trader's net cost (buys minus sales).");
     await pub.close();
 
     await page.getByRole("button", { name: "Withdraw (dispute upheld)" }).click();

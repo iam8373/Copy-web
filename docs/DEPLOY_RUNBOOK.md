@@ -61,6 +61,7 @@ Migrations, in order (each file starts with its rollback notes):
 | `20261012000100_admin_resolution.sql` | `admin_resolution_preview()` (payout preview) |
 | `20261013000100_admin_translations.sql` | translation saves (database-computed hashes), daily Gemini cap |
 | `20261014000100_admin_users.sql` | admin user list/detail with emails, compliance summary |
+| `20261017000100_sell.sql` | sell-back (`sell_shares`, `sale` ledger type), net-cost void refunds, settlement P&L + backfill |
 
 `--include-seed` runs `supabase/seed.sql` (app settings only; `on conflict do nothing`).
 

@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import type { Market } from "@/lib/types";
 import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
-import { submitOrder } from "@/app/actions/trade";
+import { submitOrder, submitSell } from "@/app/actions/trade";
 
 /**
  * Toasts store i18n coordinates rather than resolved strings: the store has no
@@ -14,12 +14,20 @@ export interface Toast {
   titleKey: string;
   bodyKey?: string;
   vars?: Record<string, string | number>;
+  /**
+   * Outcome named in the toast. The Toaster renders its label (var
+   * `outcome`) in the active language at display time.
+   */
+  outcomeRef?: { marketId: string; outcomeId: string };
   tone: "success" | "info" | "error";
 }
+
+export type TradeSide = "buy" | "sell";
 
 interface TradeIntent {
   market: Market;
   outcomeId: string;
+  side: TradeSide;
 }
 
 export interface Session {
@@ -42,10 +50,14 @@ export interface Session {
 
 /** Emitted after a successful order so the success animation can outlive the modal. */
 export interface Fill {
+  side: TradeSide;
   marketId: string;
-  outcomeLabel: string;
+  /** Rendered as a label in the active language by TradeSuccess. */
+  outcomeId: string;
   shares: number;
   price: number;
+  /** Credits received (sells only). */
+  proceeds?: number;
   /** Timestamp, also used as the animation key so rapid fills restart cleanly. */
   at: number;
 }
@@ -56,9 +68,10 @@ export interface Position {
   outcomeId: string;
   shares: number;
   avgPrice: number;
+  /** Realized so far: sales before resolution, the lifetime total after. */
   realizedPnl?: number;
-  /** Settled at resolution. */
-  resolved?: "won" | "lost";
+  /** Settled at resolution (void: refunded). */
+  resolved?: "won" | "lost" | "void";
 }
 
 export interface PortfolioPage<T> {
@@ -69,9 +82,13 @@ export interface PortfolioPage<T> {
 
 export interface OrderRow {
   id: string;
+  side: TradeSide;
   marketId: string;
   outcomeId: string;
+  /** Cost of a buy, proceeds of a sell. */
   amount: number;
+  /** Sells only. */
+  realizedPnl?: number;
   shares: number;
   avgPrice: number;
   at: string;
@@ -97,6 +114,8 @@ const ORDER_ERROR_BODY: Record<string, string> = {
   rate_limited: "orderRateLimited",
   daily_limit: "orderDailyLimit",
   staff: "orderStaffCannotTrade",
+  insufficient_shares: "orderInsufficientShares",
+  sell_too_small: "orderSellTooSmall",
   conflict: "orderFailedBody",
   failed: "orderFailedBody",
 };
@@ -145,9 +164,11 @@ interface MarketState {
   /** Records a server-confirmed consent time on the current session. */
   setAgeConfirmed: (at: string) => void;
   setSearchOpen: (open: boolean) => void;
-  openTrade: (market: Market, outcomeId: string) => void;
+  openTrade: (market: Market, outcomeId: string, side?: TradeSide) => void;
   closeTrade: () => void;
   placeOrder: (args: { market: Market; outcomeId: string; amount: number }) => Promise<void>;
+  /** Sells shares of an outcome the user holds (S1). */
+  sellShares: (args: { market: Market; outcomeId: string; shares: number }) => Promise<void>;
   clearFill: () => void;
   pushToast: (t: Omit<Toast, "id">) => void;
   dismissToast: (id: string) => void;
@@ -242,7 +263,7 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       session: state.session ? { ...state.session, ageConfirmedAt: at } : null,
     })),
   setSearchOpen: (open) => set({ searchOpen: open }),
-  openTrade: (market, outcomeId) => set({ trade: { market, outcomeId } }),
+  openTrade: (market, outcomeId, side = "buy") => set({ trade: { market, outcomeId, side } }),
   closeTrade: () => set({ trade: null }),
 
   placeOrder: async ({ market, outcomeId, amount: rawAmount }) => {
@@ -302,13 +323,71 @@ export const useMarketStore = create<MarketState>((set, get) => ({
       trade: null,
       wallet: fill.balance,
       // The animation and toast show the fill the server actually made.
-      lastFill: { marketId: fill.marketId, outcomeLabel: outcome.label, shares: fill.shares, price: fill.avgPrice, at: Date.now() },
+      lastFill: { side: "buy", marketId: fill.marketId, outcomeId: outcome.id, shares: fill.shares, price: fill.avgPrice, at: Date.now() },
       markets: state.markets.map((m) => (m.id === fill.marketId ? { ...m, totalVolume: m.totalVolume + fill.amount } : m)),
     }));
     get().pushToast({
       titleKey: "orderPlaced",
       bodyKey: "orderFilled",
       vars: { shares: fill.shares.toFixed(1), outcome: outcome.label, price: fill.avgPrice.toFixed(2) },
+      outcomeRef: { marketId: fill.marketId, outcomeId: outcome.id },
+      tone: "success",
+    });
+    void get().loadPortfolio();
+  },
+
+  sellShares: async ({ market, outcomeId, shares }) => {
+    if (!(shares > 0)) return;
+    const current = get().session;
+    if (current && !current.ageConfirmedAt) {
+      set({ trade: null, ageConfirmOpen: true });
+      return;
+    }
+    if (get().orderPending) return;
+    set({ orderPending: true });
+    // One key per click: a retried request can never credit twice.
+    const r = await submitSell({
+      marketId: market.id,
+      outcomeId,
+      // Already at most 8 decimals (the form); round away float error only.
+      shares: Math.round(shares * 1e8) / 1e8,
+      idempotencyKey: newIdempotencyKey(),
+    }).catch(() => ({ ok: false as const, reason: "failed" as const }));
+    set({ orderPending: false });
+
+    if (!r.ok) {
+      if (r.reason === "not_signed_in") {
+        set({ trade: null, authOpen: true });
+        get().pushToast({ titleKey: "signInToOrder", bodyKey: "signInToOrderBody", tone: "info" });
+      } else if (r.reason === "age_not_confirmed") {
+        set({ trade: null, ageConfirmOpen: true });
+      } else {
+        get().pushToast({ titleKey: "saleRejected", bodyKey: ORDER_ERROR_BODY[r.reason] ?? "orderFailedBody", tone: "error" });
+      }
+      return;
+    }
+
+    const { sale } = r;
+    get().applyPrices(sale.prices);
+    set((state) => ({
+      trade: null,
+      wallet: sale.balance,
+      lastFill: {
+        side: "sell",
+        marketId: sale.marketId,
+        outcomeId: sale.outcomeId,
+        shares: sale.shares,
+        price: sale.avgPrice,
+        proceeds: sale.proceeds,
+        at: Date.now(),
+      },
+      markets: state.markets.map((m) => (m.id === sale.marketId ? { ...m, totalVolume: m.totalVolume + sale.proceeds } : m)),
+    }));
+    get().pushToast({
+      titleKey: "saleDone",
+      bodyKey: "saleFilled",
+      vars: { shares: sale.shares.toFixed(2), amount: sale.proceeds.toFixed(2) },
+      outcomeRef: { marketId: sale.marketId, outcomeId: sale.outcomeId },
       tone: "success",
     });
     void get().loadPortfolio();

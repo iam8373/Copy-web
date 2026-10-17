@@ -98,11 +98,11 @@ export const te: Dictionary = {
 
     noticeProposed: "ప్రతిపాదిత ఫలితం: {outcome}. ఇది తప్పని మీరు భావిస్తే {date} లోపు ఫిర్యాదు చేయండి.",
 
-    noticeProposedVoid: "ప్రతిపాదన: ఈ మార్కెట్‌ను రద్దు చేసి ప్రతి ఆర్డర్‌ను తిరిగి చెల్లించడం. ఇది తప్పని మీరు భావిస్తే {date} లోపు ఫిర్యాదు చేయండి.",
+    noticeProposedVoid: "ప్రతిపాదన: ఈ మార్కెట్‌ను రద్దు చేసి ప్రతి ట్రేడర్ నికర ఖర్చు (కొనుగోళ్లు మైనస్ అమ్మకాలు) తిరిగి చెల్లించడం. ఇది తప్పని మీరు భావిస్తే {date} లోపు ఫిర్యాదు చేయండి.",
 
     noticeResolved: "{date}న ఫలితం: {outcome}. గెలిచిన ప్రతి షేర్‌కు ప్లే క్రెడిట్‌లలో ₹1 చెల్లించబడింది.",
 
-    noticeVoided: "{date}న రద్దు చేయబడింది. ప్రతి ఆర్డర్ ప్లే క్రెడిట్‌లలో తిరిగి చెల్లించబడింది.",
+    noticeVoided: "{date}న రద్దు చేయబడింది. ప్రతి ట్రేడర్ నికర ఖర్చు (కొనుగోళ్లు మైనస్ అమ్మకాలు) ప్లే క్రెడిట్‌లలో తిరిగి చెల్లించబడింది.",
 
     evidence: "ఆధారం",
 
@@ -183,6 +183,74 @@ export const te: Dictionary = {
 
 
   trade: {
+
+
+
+    buyTab: "కొనండి",
+
+
+
+    sellTab: "అమ్మండి",
+
+
+
+    sideLabel: "కొనండి లేదా అమ్మండి",
+
+
+
+    sell: "{outcome} అమ్మండి",
+
+
+
+    youHold: "మీ దగ్గర {count}",
+
+
+
+    sharesToSell: "అమ్మాల్సిన షేర్లు",
+
+
+
+    sellPercent: "మీ షేర్లలో {pct}% అమ్మండి",
+
+
+
+    priceImpact: "ధరపై ప్రభావం",
+
+
+
+    realizedPnl: "పొందిన లాభం/నష్టం",
+
+
+
+    sellShares: "షేర్లు అమ్మండి",
+
+
+
+    sellNothing: "ఈ మార్కెట్‌లో అమ్మడానికి మీ దగ్గర షేర్లు లేవు.",
+
+
+
+    sellInvalid: "షేర్ల సంఖ్యను నమోదు చేయండి (గరిష్ఠంగా 8 దశాంశాలు).",
+
+
+
+    sellTooMany: "మీ దగ్గర {count} షేర్లు ఉన్నాయి.",
+
+
+
+    saleConfirmed: "అమ్మకం నిర్ధారించబడింది",
+
+
+
+    srBought: "ఆర్డర్ నిర్ధారించబడింది: {outcome} షేర్లు {shares}, ధర {price}",
+
+
+
+    srSold: "అమ్మకం నిర్ధారించబడింది: {outcome} షేర్లు {shares}, మొత్తం {amount}",
+
+
+
+    srOnMarket: "{summary}, {title}",
     amount: "మొత్తం (₹)",
     max: "గరిష్ఠం",
     buy: "{outcome} కొనండి",
@@ -237,6 +305,26 @@ export const te: Dictionary = {
   },
 
   dashboard: {
+
+    ledgerSale: "అమ్మకం",
+
+    sell: "అమ్మండి",
+
+    sellPosition: "{outcome} అమ్మండి",
+
+    actions: "చర్యలు",
+
+    sideBuy: "కొనండి",
+
+    sideSell: "అమ్మండి",
+
+    resultWon: "గెలిచారు",
+
+    resultLost: "ఓడారు",
+
+    resultVoid: "తిరిగి చెల్లించారు",
+
+    sharesHeld: "{count} షేర్లు",
     title: "డాష్‌బోర్డ్",
     signedInAs: "{handle}గా సైన్ ఇన్ అయ్యారు",
     pnlBreakdown: "లాభ-నష్టాల వివరాలు",
@@ -281,6 +369,18 @@ export const te: Dictionary = {
   },
 
   profit: {
+
+    stateOpen: "తెరిచి ఉంది",
+
+    stateClosed: "అమ్మబడింది",
+
+    stateWon: "గెలిచారు",
+
+    stateLost: "ఓడారు",
+
+    stateVoid: "తిరిగి చెల్లించారు",
+
+    costIn: "{amount} పెట్టుబడి",
     title: "లాభం & నష్టం",
     subtitle: "మీరు కలిగి ఉన్న అన్ని మార్కెట్లలో వాస్తవిక మరియు అవాస్తవిక పనితీరు.",
     backToDashboard: "డాష్‌బోర్డ్‌కు తిరిగి",
@@ -294,6 +394,16 @@ export const te: Dictionary = {
   },
 
   toast: {
+
+    saleDone: "అమ్మబడింది",
+
+    saleFilled: "{outcome} షేర్లు {shares} ₹{amount}కు అమ్మబడ్డాయి.",
+
+    saleRejected: "అమ్మకం జరగలేదు",
+
+    orderInsufficientShares: "మీ దగ్గర అన్ని షేర్లు లేవు.",
+
+    orderSellTooSmall: "ఈ అమ్మకం ₹1 కంటే తక్కువ. మరిన్ని షేర్లు లేదా మొత్తం పొజిషన్ అమ్మండి.",
     welcome: "స్వాగతం, {handle}",
     signedInGoogle: "గూగుల్‌తో సైన్ ఇన్ అయ్యారు.",
     signedOut: "సైన్ అవుట్ అయ్యారు",

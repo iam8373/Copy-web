@@ -28,6 +28,10 @@ export interface UserDetail extends UserRow {
   provider: string | null;
   mfa_factors: number;
   orders: number;
+  recent_orders: Array<{
+    id: string; side: "buy" | "sell"; amount: number; shares: number; avg_price: number;
+    realized_pnl: number | null; created_at: string; market_slug: string; market_title: string; outcome: string;
+  }>;
   ledger: Array<{ id: string; amount: number; type: string; note: string | null; created_at: string }>;
   positions: Array<{ market_slug: string; market_title: string; market_status: string; outcome: string; shares: number; avg_price: number }>;
   grievances: Array<{ id: string; reference: string; subject: string; status: string; created_at: string }>;

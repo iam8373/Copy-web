@@ -147,14 +147,14 @@ isOneToOne: false
                   ]
                 },"orders": {
                   Row: {
-                    "amount": number,"avg_price": number,"created_at": string,"id": string,"idempotency_key": string,"market_id": string,"outcome_id": string,"shares": number,"side": string,"user_id": string
+                    "amount": number,"avg_price": number,"created_at": string,"id": string,"idempotency_key": string,"market_id": string,"outcome_id": string,"realized_pnl": number | null,"shares": number,"side": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"avg_price": number,"created_at"?: string,"id"?: string,"idempotency_key": string,"market_id": string,"outcome_id": string,"shares": number,"side"?: string,"user_id": string
+                    "amount": number,"avg_price": number,"created_at"?: string,"id"?: string,"idempotency_key": string,"market_id": string,"outcome_id": string,"realized_pnl"?: number | null,"shares": number,"side"?: string,"user_id": string
                   }
                   Update: {
-                    "amount"?: number,"avg_price"?: number,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"market_id"?: string,"outcome_id"?: string,"shares"?: number,"side"?: string,"user_id"?: string
+                    "amount"?: number,"avg_price"?: number,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"market_id"?: string,"outcome_id"?: string,"realized_pnl"?: number | null,"shares"?: number,"side"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -379,6 +379,9 @@ isOneToOne: true
 "_confirm":
 { Args: { "p_slug": string,"p_typed": string }; Returns: undefined
                            },
+"_finalize_positions":
+{ Args: { "p_market_id": string }; Returns: number
+                           },
 "_market_json":
 { Args: { "p_id": string }; Returns: Json
                            },
@@ -491,8 +494,16 @@ isOneToOne: true
 "lmsr_prices":
 { Args: { "b": number,"q": (number)[] }; Returns: (number)[]
                            },
+"lmsr_proceeds_for_shares":
+{ Args: { "b": number,"i": number,"q": (number)[],"s": number }; Returns: number
+                           },
 "lmsr_shares_for_amount":
 { Args: { "amount": number,"b": number,"i": number,"q": (number)[] }; Returns: number
+                           },
+"market_net_cost":
+{ Args: { "p_market_id": string }; Returns: {
+              "net": number,"user_id": string
+            }[]
                            },
 "market_source_hash":
 { Args: { "p_market_id": string }; Returns: string
@@ -521,6 +532,9 @@ isOneToOne: true
                            },
 "run_scheduled_jobs":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"sell_shares":
+{ Args: { "p_idempotency_key": string,"p_market_id": string,"p_outcome_id": string,"p_shares": number }; Returns: Json
                            },
 "translation_quota_used":
 { Args: Record<PropertyKey, never>; Returns: number

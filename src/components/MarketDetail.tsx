@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import {
   Activity as ActivityIcon,
@@ -12,7 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import type { Market } from "@/lib/types";
-import { useMarketStore } from "@/store/useMarketStore";
+import { useMarketStore, type TradeSide } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { NAV_KEY_BY_SLUG } from "@/i18n";
 import { useMarketText, useOutcomeLabel } from "@/lib/market-text";
@@ -50,6 +50,22 @@ export function MarketDetail({ market: initial, history = [] }: { market: Market
 
   const [outcomeId, setOutcomeId] = useState(market.outcomes[0].id);
   const [amount, setAmount] = useState("500");
+  const [side, setSide] = useState<TradeSide>("buy");
+  const [shares, setShares] = useState("");
+
+  // Deep link from the dashboard's Sell action: ?side=sell&outcome=<id>.
+  // Opens the Sell tab with that outcome (in the sheet below lg).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("side") !== "sell") return;
+    const id = params.get("outcome");
+    const pick = market.outcomes.find((o) => o.id === id)?.id ?? market.outcomes[0].id;
+    setSide("sell");
+    setOutcomeId(pick);
+    if (!window.matchMedia(media.lg).matches) openTrade(market, pick, "sell");
+    // Only on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [section, setSection] = useState<Section>("activity");
 
   const category = t("nav", NAV_KEY_BY_SLUG[market.category]);
@@ -184,7 +200,7 @@ export function MarketDetail({ market: initial, history = [] }: { market: Market
         <aside className="hidden lg:block" aria-labelledby="trade-panel-heading">
           <Card radius="panel" className="sticky top-32" data-testid="trade-panel">
             <h2 id="trade-panel-heading" className="mb-4 text-16 font-bold text-primary">
-              {t("terms", "buy")}
+              {t("card", "trade")}
             </h2>
             <TradeForm
               market={market}
@@ -193,6 +209,10 @@ export function MarketDetail({ market: initial, history = [] }: { market: Market
               amount={amount}
               onAmountChange={setAmount}
               amountId="detail-amount"
+              side={side}
+              onSideChange={setSide}
+              shares={shares}
+              onSharesChange={setShares}
             />
           </Card>
         </aside>

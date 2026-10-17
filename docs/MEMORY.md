@@ -256,3 +256,9 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   next.config.js); never name them `page.tsx`.
 - Admin copy (`src/app/admin/_copy.ts`) ships to the browser: no provider names, env var
   names or secret names in it.
+- S1: positions with `shares = 0` stay (they carry realized P&L); the portfolio query keeps
+  rows with shares > 0, resolved, or realized_pnl ≠ 0. Share amounts in the UI: round to
+  8 decimals for "whole position" (float error once left 0.00000001 behind), floor for %.
+- `getByText("Order confirmed")` also matches the screen-reader sentence; use `exact: true`.
+- After a container restart re-run `npx playwright install-deps chromium` (symptom: every
+  browser test fails in ~2 ms with "browserType.launch: … has been closed").

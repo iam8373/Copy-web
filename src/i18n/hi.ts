@@ -90,11 +90,11 @@ export const hi: Dictionary = {
 
     noticeProposed: "प्रस्तावित नतीजा: {outcome}। अगर आपको यह गलत लगता है, तो {date} से पहले शिकायत दर्ज करें।",
 
-    noticeProposedVoid: "प्रस्ताव: यह मार्केट रद्द कर हर ऑर्डर की राशि लौटाई जाए। अगर आपको यह गलत लगता है, तो {date} से पहले शिकायत दर्ज करें।",
+    noticeProposedVoid: "प्रस्ताव: यह मार्केट रद्द कर हर ट्रेडर की शुद्ध लागत (खरीद घटा बिक्री) लौटाई जाए। अगर आपको यह गलत लगता है, तो {date} से पहले शिकायत दर्ज करें।",
 
     noticeResolved: "{date} को नतीजा: {outcome}। हर जीतने वाले शेयर पर प्ले क्रेडिट में ₹1 मिला।",
 
-    noticeVoided: "{date} को रद्द किया गया। हर ऑर्डर की राशि प्ले क्रेडिट में लौटा दी गई।",
+    noticeVoided: "{date} को रद्द किया गया। हर ट्रेडर की शुद्ध लागत (खरीद घटा बिक्री) प्ले क्रेडिट में लौटा दी गई।",
 
     evidence: "सबूत",
 
@@ -175,6 +175,74 @@ export const hi: Dictionary = {
 
 
   trade: {
+
+
+
+    buyTab: "खरीदें",
+
+
+
+    sellTab: "बेचें",
+
+
+
+    sideLabel: "खरीदें या बेचें",
+
+
+
+    sell: "{outcome} बेचें",
+
+
+
+    youHold: "{count} आपके पास",
+
+
+
+    sharesToSell: "बेचने वाले शेयर",
+
+
+
+    sellPercent: "अपने {pct}% शेयर बेचें",
+
+
+
+    priceImpact: "कीमत पर असर",
+
+
+
+    realizedPnl: "प्राप्त लाभ/हानि",
+
+
+
+    sellShares: "शेयर बेचें",
+
+
+
+    sellNothing: "इस मार्केट में बेचने के लिए आपके पास कोई शेयर नहीं है।",
+
+
+
+    sellInvalid: "शेयरों की संख्या लिखें (अधिकतम 8 दशमलव)।",
+
+
+
+    sellTooMany: "आपके पास {count} शेयर हैं।",
+
+
+
+    saleConfirmed: "बिक्री पूरी हुई",
+
+
+
+    srBought: "ऑर्डर पूरा हुआ: {outcome} के {shares} शेयर {price} पर",
+
+
+
+    srSold: "बिक्री पूरी हुई: {outcome} के {shares} शेयर {amount} में",
+
+
+
+    srOnMarket: "{summary}, {title}",
     amount: "राशि (₹)",
     max: "अधिकतम",
     buy: "{outcome} खरीदें",
@@ -230,6 +298,26 @@ export const hi: Dictionary = {
   },
 
   dashboard: {
+
+    ledgerSale: "बिक्री",
+
+    sell: "बेचें",
+
+    sellPosition: "{outcome} बेचें",
+
+    actions: "कार्रवाई",
+
+    sideBuy: "खरीदें",
+
+    sideSell: "बेचें",
+
+    resultWon: "जीते",
+
+    resultLost: "हारे",
+
+    resultVoid: "रिफ़ंड हुआ",
+
+    sharesHeld: "{count} शेयर",
     title: "डैशबोर्ड",
     signedInAs: "{handle} के रूप में साइन इन",
     pnlBreakdown: "लाभ-हानि विवरण",
@@ -274,6 +362,18 @@ export const hi: Dictionary = {
   },
 
   profit: {
+
+    stateOpen: "खुला",
+
+    stateClosed: "बेच दिया",
+
+    stateWon: "जीते",
+
+    stateLost: "हारे",
+
+    stateVoid: "रिफ़ंड हुआ",
+
+    costIn: "{amount} लगाए",
     title: "लाभ और हानि",
     subtitle: "आपकी सभी पोज़िशन का वास्तविक और अवास्तविक प्रदर्शन।",
     backToDashboard: "डैशबोर्ड पर वापस",
@@ -287,6 +387,16 @@ export const hi: Dictionary = {
   },
 
   toast: {
+
+    saleDone: "बिक गए",
+
+    saleFilled: "{outcome} के {shares} शेयर ₹{amount} में बिके।",
+
+    saleRejected: "बिक्री नहीं हुई",
+
+    orderInsufficientShares: "आपके पास इतने शेयर नहीं हैं।",
+
+    orderSellTooSmall: "यह बिक्री ₹1 से कम है। ज़्यादा शेयर या पूरी पोज़िशन बेचें।",
     welcome: "स्वागत है, {handle}",
     signedInGoogle: "गूगल से साइन इन किया।",
     signedOut: "साइन आउट हो गए",

@@ -6,6 +6,8 @@ import { ArrowRight, Briefcase, LineChart, LogIn, Receipt, Wallet } from "lucide
 import { Button, EmptyState } from "@/components/ui";
 import type { LedgerRow, OrderRow, PortfolioPage } from "@/store/useMarketStore";
 import { usePortfolio, type EnrichedPosition } from "@/lib/usePortfolio";
+import { useOutcomeLabel } from "@/lib/market-text";
+import { buttonClasses } from "@/components/ui";
 import { useMarketStore } from "@/store/useMarketStore";
 import { cn, formatPercent, formatRupees } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
@@ -40,8 +42,33 @@ function StatCard({
   );
 }
 
+const RESULT_KEY = { won: "resultWon", lost: "resultLost", void: "resultVoid" } as const;
+
+/** Label of a position's outcome in the active language. */
+function useRowOutcome(row: EnrichedPosition) {
+  const ol = useOutcomeLabel();
+  const o = row.market.outcomes.find((x) => x.id === row.outcomeId);
+  return o ? ol(o) : row.outcomeLabel;
+}
+
+/** Opens the market on the Sell tab with this outcome selected (S1). */
+function SellLink({ row }: { row: EnrichedPosition }) {
+  const { t } = useT();
+  return (
+    <Link
+      href={`/market/${row.market.slug}?side=sell&outcome=${row.outcomeId}`}
+      data-testid="position-sell"
+      aria-label={t("dashboard", "sellPosition", { outcome: useRowOutcome(row) })}
+      className={buttonClasses({ variant: "secondary", size: "sm" })}
+    >
+      {t("dashboard", "sell")}
+    </Link>
+  );
+}
+
 function PositionRow({ row }: { row: EnrichedPosition }) {
   const text = useMarketText(row.market);
+  const outcomeLabel = useRowOutcome(row);
   const up = row.pnl >= 0;
   return (
     <tr className="border-t border-subtle">
@@ -58,7 +85,7 @@ function PositionRow({ row }: { row: EnrichedPosition }) {
       </td>
       <td className="py-3 pr-3">
         <span className="rounded-chip bg-surface-3 px-2 py-1 text-12 font-semibold text-primary">
-          {row.outcomeLabel}
+          {outcomeLabel}
         </span>
       </td>
       <td className="tnum py-3 pr-3 text-right text-13 text-primary">
@@ -86,61 +113,43 @@ function PositionRow({ row }: { row: EnrichedPosition }) {
           {row.pnlPct.toFixed(1)}%)
         </span>
       </td>
+      <td className="py-3 pl-3 text-right">
+        <SellLink row={row} />
+      </td>
     </tr>
   );
 }
 
 function PositionCard({ row }: { row: EnrichedPosition }) {
+  const { t } = useT();
   const text = useMarketText(row.market);
+  const outcomeLabel = useRowOutcome(row);
   const up = row.pnl >= 0;
   return (
-    <Link
-      href={`/market/${row.market.slug}`}
-      className="flex flex-col gap-2 rounded-card border border-subtle bg-surface-2 p-4"
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-11 font-semibold uppercase tracking-wide text-secondary">
-          {row.market.category} • {row.market.subcategory}
-        </span>
-        {row.resolved && (
-          <span
-            className={cn(
-              "ml-auto rounded-chip px-1.5 py-1 text-11 font-bold uppercase",
-              row.resolved === "won"
-                ? "bg-success/15 text-success"
-                : "bg-danger/15 text-danger"
-            )}
-          >
-            {row.resolved}
-          </span>
-        )}
-      </div>
-      <p className="line-clamp-2 text-14 font-bold leading-snug text-primary">
+    <div className="flex flex-col gap-2 rounded-card border border-subtle bg-surface-2 p-4" data-testid="position-card">
+      <span className="text-11 font-semibold uppercase tracking-wide text-secondary">
+        {row.market.category} • {row.market.subcategory}
+      </span>
+      <Link href={`/market/${row.market.slug}`} className="line-clamp-2 text-14 font-bold leading-snug text-primary hover:text-brand">
         {text.title}
-      </p>
+      </Link>
       <div className="flex items-center gap-2">
-        <span className="rounded-chip bg-surface-3 px-2 py-1 text-12 font-semibold text-primary">
-          {row.outcomeLabel}
-        </span>
+        <span className="rounded-chip bg-surface-3 px-2 py-1 text-12 font-semibold text-primary">{outcomeLabel}</span>
         <span className="tnum text-12 text-secondary">
-          {Math.round(row.shares).toLocaleString("en-IN")} shares @ {row.avgPrice.toFixed(2)}
+          {t("dashboard", "sharesHeld", { count: row.shares.toFixed(1) })} @ {row.avgPrice.toFixed(2)}
         </span>
       </div>
-      <div className="flex items-center justify-between border-t border-subtle pt-2">
+      <div className="flex items-center justify-between gap-2 border-t border-subtle pt-2">
         <span className="tnum text-12 text-secondary">
-          Value {formatRupees(row.value, 0)}
+          {t("dashboard", "value")} {formatRupees(row.value, 0)}
         </span>
-        <span
-          className={cn(
-            "tnum text-13 font-bold",
-            up ? "text-success" : "text-danger"
-          )}
-        >
+        <span className={cn("tnum text-13 font-bold", up ? "text-success" : "text-danger")}>
           {up ? "+" : "-"}
           {formatRupees(Math.abs(row.pnl), 0)}
         </span>
+        <SellLink row={row} />
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -164,16 +173,22 @@ function Pager({ page, total, onPage, testId }: { page: number; total: number; o
   );
 }
 
-const LEDGER_LABEL: Record<string, "ledgerSignup" | "ledgerTrade" | "ledgerPayout" | "ledgerRefund" | "ledgerAdjustment"> = {
+const LEDGER_LABEL: Record<string, "ledgerSignup" | "ledgerTrade" | "ledgerSale" | "ledgerPayout" | "ledgerRefund" | "ledgerAdjustment"> = {
   signup_credit: "ledgerSignup",
   trade: "ledgerTrade",
+  sale: "ledgerSale",
   payout: "ledgerPayout",
   refund: "ledgerRefund",
   admin_adjustment: "ledgerAdjustment",
 };
 
+function SettledOutcome({ row }: { row: EnrichedPosition }) {
+  return <>{useRowOutcome(row)}</>;
+}
+
 function History({ orders, ledger }: { orders: PortfolioPage<OrderRow>; ledger: PortfolioPage<LedgerRow> }) {
   const { t, locale } = useT();
+  const ol = useOutcomeLabel();
   const markets = useMarketStore((s) => s.markets);
   const load = useMarketStore((s) => s.loadPortfolio);
   return (
@@ -186,13 +201,18 @@ function History({ orders, ledger }: { orders: PortfolioPage<OrderRow>; ledger: 
           <ul className="flex flex-col divide-y divide-subtle rounded-card border border-subtle bg-surface-2">
             {orders.rows.map((o) => {
               const m = markets.find((x) => x.id === o.marketId);
-              const label = m?.outcomes.find((x) => x.id === o.outcomeId)?.label ?? "";
+              const oc = m?.outcomes.find((x) => x.id === o.outcomeId);
+              const label = oc ? ol(oc) : "";
+              const sold = o.side === "sell";
               return (
-                <li key={o.id} className="flex flex-col gap-1 p-3 text-13" data-testid="order-row">
+                <li key={o.id} className="flex flex-col gap-1 p-3 text-13" data-testid="order-row" data-side={o.side}>
                   <span className="truncate font-semibold text-primary">{m ? getMarketText(m, locale).title : "—"}</span>
                   <span className="tnum flex flex-wrap gap-x-3 text-12 text-secondary">
+                    <span className={cn("font-semibold", sold ? "text-danger" : "text-success")}>
+                      {t("dashboard", sold ? "sideSell" : "sideBuy")}
+                    </span>
                     <span>{label}</span>
-                    <span>{formatRupees(o.amount)}</span>
+                    <span>{sold ? `+${formatRupees(o.amount)}` : formatRupees(o.amount)}</span>
                     <span>{t("trade", "shares", { count: o.shares.toFixed(1) })}</span>
                     <span>@ {o.avgPrice.toFixed(2)}</span>
                     <span className="ml-auto">{fmtWhen(o.at)}</span>
@@ -354,6 +374,9 @@ export function DashboardView() {
                         <th className="py-3 pr-3 text-right font-semibold">{t("dashboard", "last")}</th>
                         <th className="py-3 pr-3 text-right font-semibold">{t("dashboard", "value")}</th>
                         <th className="py-3 text-right font-semibold">{t("dashboard", "pnl")}</th>
+                        <th className="py-3 pl-3 text-right font-semibold">
+                          <span className="sr-only">{t("dashboard", "actions")}</span>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -394,10 +417,12 @@ export function DashboardView() {
                         "rounded-chip px-1.5 py-1 text-11 font-bold uppercase",
                         row.resolved === "won"
                           ? "bg-success/15 text-success"
-                          : "bg-danger/15 text-danger"
+                          : row.resolved === "void"
+                            ? "bg-surface-3 text-secondary"
+                            : "bg-danger/15 text-danger"
                       )}
                     >
-                      {row.resolved}
+                      {row.resolved ? t("dashboard", RESULT_KEY[row.resolved]) : null}
                     </span>
                     <Link
                       href={`/market/${row.market.slug}`}
@@ -406,7 +431,7 @@ export function DashboardView() {
                       {getMarketText(row.market, locale).title}
                     </Link>
                     <span className="tnum shrink-0 text-12 text-secondary">
-                      {row.outcomeLabel} @ {row.avgPrice.toFixed(2)} ·{" "}
+                      <SettledOutcome row={row} /> @ {row.avgPrice.toFixed(2)} ·{" "}
                       {formatPercent(row.lastPrice)}
                     </span>
                     <span

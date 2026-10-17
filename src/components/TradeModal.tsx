@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useMarketStore } from "@/store/useMarketStore";
+import { useMarketStore, type TradeSide } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { Dialog } from "@/components/ui";
 import { TradeForm } from "@/components/TradeForm";
@@ -19,6 +19,8 @@ export function TradeModal() {
 
   const [amount, setAmount] = useState("500");
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
+  const [side, setSide] = useState<TradeSide>("buy");
+  const [shares, setShares] = useState("");
   const { t, locale } = useT();
 
   // Keep the last trade so the sheet can play its exit animation after the
@@ -31,6 +33,8 @@ export function TradeModal() {
     if (trade) {
       setOutcomeId(trade.outcomeId);
       setAmount("500");
+      setSide(trade.side);
+      setShares("");
     }
   }, [trade]);
 
@@ -60,6 +64,10 @@ export function TradeModal() {
         onAmountChange={setAmount}
         amountId="amount"
         openedPrice={openedAt}
+        side={side}
+        onSideChange={setSide}
+        shares={shares}
+        onSharesChange={setShares}
       />
     </Dialog>
   );

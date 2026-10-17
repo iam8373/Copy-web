@@ -27,7 +27,8 @@ date).
 
 ## 3. Voiding
 
-Void (every order refunded at cost) only when:
+Void (each trader's net cost — buys minus sale proceeds — refunded; no claw-back of
+gains from earlier sales) only when:
 
 - the event was cancelled, abandoned or postponed beyond a reasonable time;
 - the question turned out ambiguous, or both/none of the outcomes happened in a way the
@@ -60,7 +61,8 @@ Never void because the result is unpopular, unexpected or expensive.
 
 - After the window, the scheduled job finalizes automatically; an admin may do it by
   typing the slug. Winning shares pay **1 credit each**, rounded down to the paisa; a void
-  refunds every order at cost.
+  refunds each trader's net cost (buys minus sales). Shares sold before resolution are
+  not paid; payouts use the shares still held.
 - Finalized results are not reopened. If a finalized result is later shown to be wrong,
   record it as an incident and compensate affected users with credit adjustments
   (capped, with a reason) rather than reversing payouts.

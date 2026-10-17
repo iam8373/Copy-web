@@ -17,11 +17,13 @@ export interface PortfolioPosition {
   avgPrice: number;
   realizedPnl: number;
   /** Settled at resolution: won/lost, or undefined while open. */
-  resolved?: "won" | "lost";
+  resolved?: "won" | "lost" | "void";
 }
 
 export interface PortfolioOrder {
   id: string;
+  side: "buy" | "sell";
+  realizedPnl?: number;
   marketId: string;
   outcomeId: string;
   amount: number;
@@ -60,10 +62,12 @@ export async function getPortfolio(ordersPage = 1, ledgerPage = 1): Promise<Port
       .from("positions")
       .select("market_id, outcome_id, shares, avg_price, realized_pnl, resolved, markets(status, resolved_outcome_id)")
       .eq("user_id", uid)
-      .gt("shares", 0),
+      // Open holdings, plus closed or settled positions that carry realized
+      // P&L (sold out, resolved or voided), so totals include sells (S1).
+      .or("shares.gt.0,resolved.eq.true,realized_pnl.neq.0"),
     supabase
       .from("orders")
-      .select("id, market_id, outcome_id, amount, shares, avg_price, created_at", { count: "exact" })
+      .select("id, side, market_id, outcome_id, amount, shares, avg_price, realized_pnl, created_at", { count: "exact" })
       .eq("user_id", uid)
       .order("created_at", { ascending: false })
       .range((op - 1) * PAGE_SIZE, op * PAGE_SIZE - 1),
@@ -81,9 +85,11 @@ export async function getPortfolio(ordersPage = 1, ledgerPage = 1): Promise<Port
     positions: (positions.data ?? []).map((p) => {
       const m = p.markets as unknown as { status: string; resolved_outcome_id: string | null } | null;
       const resolved = p.resolved
-        ? m?.status === "resolved" && m.resolved_outcome_id === p.outcome_id
-          ? ("won" as const)
-          : ("lost" as const)
+        ? m?.status === "voided"
+          ? ("void" as const)
+          : m?.status === "resolved" && m.resolved_outcome_id === p.outcome_id
+            ? ("won" as const)
+            : ("lost" as const)
         : undefined;
       return {
         marketId: p.market_id,
@@ -99,6 +105,8 @@ export async function getPortfolio(ordersPage = 1, ledgerPage = 1): Promise<Port
       total: orders.count ?? 0,
       rows: (orders.data ?? []).map((o) => ({
         id: o.id,
+        side: o.side === "sell" ? ("sell" as const) : ("buy" as const),
+        ...(o.realized_pnl !== null ? { realizedPnl: Number(o.realized_pnl) } : {}),
         marketId: o.market_id,
         outcomeId: o.outcome_id,
         amount: Number(o.amount),
