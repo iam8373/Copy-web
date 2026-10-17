@@ -1,4 +1,4 @@
-# BharatPredict
+# BharatPredict - not ready 
 
 India's prediction market — trade the outcome of Indian and global events, priced in ₹.
 
