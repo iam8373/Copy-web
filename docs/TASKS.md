@@ -317,8 +317,6 @@ back to backend Phase 2. Data behind `getPriceHistory`, `getOrderBook`,
 
 ## Backlog
 
-- **Per-request store** so market lists render in the first HTML instead of after
-  hydration (owner: backlog, not now).
 - **Supabase IP forwarding** (`Sb-Forwarded-For` with a secret-key client) so Supabase's
   per-IP auth limits see the user's IP, not Railway's. Until then raise the limits
   (DEPLOY_RUNBOOK §3).
@@ -687,5 +685,5 @@ runbook).
 - [x] pgTAP `010_sell` (59 checks); e2e `sell.spec.ts`, concurrent sells in `db-concurrency`.
 - [x] Trade panel / sheet Buy-Sell tabs, dashboard Sell action, P&L with sales, translated
       success overlay and toasts, admin user orders with side.
-- [ ] S2 markets in the first HTML (per-request store, language cookie).
+- [x] S2 markets and language in the first HTML; one store per request (D-035).
 - [ ] S3 auth load and trusted client IP. S4 branding. S5 backups. S6 launch QA.

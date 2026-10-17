@@ -10,6 +10,8 @@ import {
 } from "react";
 import {
   DICTIONARIES,
+  LOCALE_COOKIE,
+  LOCALE_COOKIE_MAX_AGE,
   LOCALE_META,
   STORAGE_KEY,
   en,
@@ -40,18 +42,34 @@ function interpolate(template: string, vars?: Record<string, string | number>) {
   );
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+function writeCookie(locale: Locale) {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax`;
+}
 
-  // Read the stored choice after mount only, so SSR output stays deterministic.
+/**
+ * `initialLocale` comes from the bp-lang cookie on the server (S2), so the
+ * server HTML and the first client render use the same language.
+ */
+export function LanguageProvider({ initialLocale = "en", children }: { initialLocale?: Locale; children: React.ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
+
+  // localStorage stays the source of truth; the cookie mirrors it for the
+  // server. They only disagree for choices saved before S2 (or set directly):
+  // adopt the stored one and fix the cookie, so the next load renders in it.
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (isLocale(stored)) setLocaleState(stored);
+      if (!isLocale(stored)) {
+        writeCookie(initialLocale);
+        return;
+      }
+      const cookie = document.cookie.split("; ").find((c) => c.startsWith(`${LOCALE_COOKIE}=`))?.split("=")[1];
+      if (cookie !== stored) writeCookie(stored);
+      if (stored !== initialLocale) setLocaleState(stored);
     } catch {
-      /* storage unavailable — stay on English */
+      /* storage unavailable — keep the server's choice */
     }
-  }, []);
+  }, [initialLocale]);
 
   // Keep <html lang> and the active script in sync with the choice.
   useEffect(() => {
@@ -61,6 +79,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
+    writeCookie(next);
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
     } catch {

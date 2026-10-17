@@ -14,7 +14,9 @@ import { TradeModal } from "@/components/TradeModal";
 import { Toaster } from "@/components/Toaster";
 import { TradeSuccess } from "@/components/TradeSuccess";
 import { LivePrices } from "@/components/LivePrices";
-import { MarketsHydrator } from "@/components/MarketsHydrator";
+import { cookies } from "next/headers";
+import { MarketStoreProvider } from "@/store/MarketStoreProvider";
+import { LOCALE_COOKIE, LOCALE_META, localeFromCookie } from "@/i18n";
 import { getMarkets } from "@/services/markets/read";
 import { AuthSync } from "@/components/AuthSync";
 import { AgeConfirmDialog } from "@/components/AgeConfirmDialog";
@@ -36,12 +38,14 @@ export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const markets = await getMarkets();
+  // Saved language (cookie) for the first HTML; English otherwise (S2).
+  const locale = localeFromCookie(cookies().get(LOCALE_COOKIE)?.value);
   return (
-    <html lang="en" className={fontVariables}>
+    <html lang={locale} data-script={LOCALE_META[locale].script} className={fontVariables}>
       <body className="min-h-screen bg-surface-1 font-sans text-primary antialiased">
-        <LanguageProvider>
+        <LanguageProvider initialLocale={locale}>
         <ThemeProvider>
-          <MarketsHydrator markets={markets.ok ? markets.data : []} ok={markets.ok} />
+        <MarketStoreProvider markets={markets.ok ? markets.data : []} ok={markets.ok}>
           <LivePrices />
           <AuthSync />
           <Header />
@@ -61,6 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <TradeModal />
           <TradeSuccess />
           <Toaster />
+        </MarketStoreProvider>
         </ThemeProvider>
         </LanguageProvider>
       </body>

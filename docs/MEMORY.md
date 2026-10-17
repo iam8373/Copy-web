@@ -262,3 +262,9 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - `getByText("Order confirmed")` also matches the screen-reader sentence; use `exact: true`.
 - After a container restart re-run `npx playwright install-deps chromium` (symptom: every
   browser test fails in ~2 ms with "browserType.launch: … has been closed").
+- Store (S2): `useMarketStore(selector)` needs `<MarketStoreProvider>` (root layout);
+  in effects/handlers use `useMarketStoreApi().getState()`. Never put per-user data in the
+  provider's initial state (it is server-rendered).
+- Language: `bp-lang` cookie mirrors localStorage; tests that set localStorage still work
+  (the provider adopts it after mount).
+- Market outcomes from a PostgREST embed are unordered: pick by label or sort_order.

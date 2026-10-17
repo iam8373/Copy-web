@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useMarketStore } from "@/store/useMarketStore";
+import { useMarketStoreApi } from "@/store/useMarketStore";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { REALTIME_ENABLED, supabaseConfigured } from "@/lib/supabase/config";
 
@@ -15,9 +15,10 @@ const POLL_MS = 20_000;
  * FlashValue shows each change. Replaces the old client-side random jitter.
  */
 export function LivePrices() {
+  const api = useMarketStoreApi();
   useEffect(() => {
     if (!supabaseConfigured) return;
-    const apply = useMarketStore.getState().applyPrices;
+    const apply = api.getState().applyPrices;
 
     let channel: ReturnType<ReturnType<typeof getBrowserSupabase>["channel"]> | null = null;
     if (REALTIME_ENABLED) {
@@ -54,7 +55,7 @@ export function LivePrices() {
       document.removeEventListener("visibilitychange", onVisible);
       if (channel) void channel.unsubscribe();
     };
-  }, []);
+  }, [api]);
 
   return null;
 }

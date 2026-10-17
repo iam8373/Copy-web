@@ -6,6 +6,9 @@ import { localRest, localUserId, openMarket, resetState, signInWithEmail, unique
 
 const en = DICTIONARIES.en;
 
+/** The first outcome on screen (binary markets: "Yes"; the REST embed is unordered). */
+const yesOf = (m: { outcomes: Array<{ id: string; label: string }> }) => m.outcomes.find((o) => o.label === "Yes")!.id;
+
 /** Signs in a fresh user and buys ₹500 of the first outcome through the UI. */
 async function buyFirst(page: Page, slug: string, sheet = false) {
   await page.goto(`/market/${slug}`);
@@ -46,7 +49,7 @@ test.describe("sell-back", () => {
     await expect(page.getByText(en.trade.saleConfirmed, { exact: true })).toBeVisible();
     await expect(panel.getByTestId("sell-nothing")).toBeVisible();
 
-    const p = await position(email, market.outcomes[0].id);
+    const p = await position(email, yesOf(market));
     expect(p.shares).toBe(0);
     expect(p.realized).toBeLessThanOrEqual(0);
     expect(p.realized).toBeGreaterThan(-0.05);
@@ -66,18 +69,18 @@ test.describe("sell-back", () => {
     await resetState(page);
     const email = await signInWithEmail(page, uniqueEmail("partial"));
     await buyFirst(page, market.slug);
-    const before = await position(email, market.outcomes[0].id);
+    const before = await position(email, yesOf(market));
 
     await page.goto("/dashboard");
     await page.getByTestId("position-sell").first().click();
-    await expect(page).toHaveURL(new RegExp(`/market/${market.slug}\\?side=sell&outcome=${market.outcomes[0].id}`));
+    await expect(page).toHaveURL(new RegExp(`/market/${market.slug}\\?side=sell&outcome=${yesOf(market)}`));
     const panel = page.getByTestId("trade-panel");
     await expect(panel.getByTestId("trade-side-sell")).toHaveAttribute("aria-pressed", "true");
     await expect(panel.getByTestId("sell-outcome").first()).toHaveAttribute("aria-pressed", "true");
     await panel.getByTestId("sell-chip-50").click();
     await panel.getByTestId("sell-submit").click();
     await expect(page.getByText(en.trade.saleConfirmed, { exact: true })).toBeVisible();
-    const after = await position(email, market.outcomes[0].id);
+    const after = await position(email, yesOf(market));
     expect(after.shares).toBeCloseTo(before.shares / 2, 6);
 
     // Oversell is refused in the form.
@@ -137,6 +140,6 @@ test.describe("sell-back on mobile", () => {
     await sheet.getByTestId("sell-chip-100").click();
     await sheet.getByTestId("sell-submit").click();
     await expect(page.getByText(en.trade.saleConfirmed, { exact: true })).toBeVisible();
-    expect((await position(email, market.outcomes[0].id)).shares).toBe(0);
+    expect((await position(email, yesOf(market))).shares).toBe(0);
   });
 });

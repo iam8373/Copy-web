@@ -1,6 +1,8 @@
 "use client";
 
-import { create } from "zustand";
+import { createContext, useContext } from "react";
+import { useStore } from "zustand";
+import { createStore, type StateCreator, type StoreApi } from "zustand/vanilla";
 import type { Market } from "@/lib/types";
 import { MAX_TRADE, MIN_TRADE, formatLimit, validateAmount } from "@/lib/trade-limits";
 import { submitOrder, submitSell } from "@/app/actions/trade";
@@ -145,7 +147,7 @@ interface MarketState {
   loadPortfolio: (opts?: { ordersPage?: number; ledgerPage?: number }) => Promise<void>;
   lastFill: Fill | null;
   toasts: Toast[];
-  /** "loading" until MarketsHydrator runs; "error" when the DB was unreachable. */
+  /** Set by MarketStoreProvider from the server fetch; "error" when the DB was unreachable. */
   marketsStatus: "loading" | "ready" | "error";
   /**
    * Applies live prices (Realtime or the /api/prices poll). Recomputes each
@@ -174,7 +176,7 @@ interface MarketState {
   dismissToast: (id: string) => void;
 }
 
-export const useMarketStore = create<MarketState>((set, get) => ({
+const createState: StateCreator<MarketState> = (set, get) => ({
   markets: [],
   marketsStatus: "loading",
   session: null,
@@ -403,4 +405,34 @@ export const useMarketStore = create<MarketState>((set, get) => ({
 
   dismissToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
-}));
+});
+
+/**
+ * One store per React tree (S2): MarketStoreProvider creates it, so on the
+ * server every request renders with its own store (no module-level state is
+ * shared between concurrent requests) and in the browser there is one per
+ * page load. The server only ever puts the public market catalogue in it;
+ * session, wallet, positions, orders and ledger are loaded by the browser
+ * from same-origin GET routes after hydration.
+ */
+export type MarketStore = StoreApi<MarketState>;
+
+export function createMarketStore(init?: Pick<MarketState, "markets" | "marketsStatus">): MarketStore {
+  const store = createStore<MarketState>()(createState);
+  if (init) store.setState(init);
+  return store;
+}
+
+export const MarketStoreContext = createContext<MarketStore | null>(null);
+
+/** The store instance, for event handlers and effects (getState / setState). */
+export function useMarketStoreApi(): MarketStore {
+  const store = useContext(MarketStoreContext);
+  if (!store) throw new Error("useMarketStore must be used inside <MarketStoreProvider>");
+  return store;
+}
+
+/** Selector hook, as before: `useMarketStore((s) => s.markets)`. */
+export function useMarketStore<T>(selector: (s: MarketState) => T): T {
+  return useStore(useMarketStoreApi(), selector);
+}

@@ -31,6 +31,16 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
 };
 
 export const STORAGE_KEY = "bp-lang";
+/**
+ * The chosen language is also a cookie (S2) so the server renders the first
+ * HTML in it (no flash of English). Functional, not tracking: a language code.
+ */
+export const LOCALE_COOKIE = "bp-lang";
+export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+export function localeFromCookie(value: string | undefined): Locale {
+  return isLocale(value) ? value : "en";
+}
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);

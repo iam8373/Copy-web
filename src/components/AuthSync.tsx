@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useMarketStore } from "@/store/useMarketStore";
+import { useMarketStoreApi } from "@/store/useMarketStore";
 import { signOut } from "@/app/actions/auth";
 import type { SessionProfile } from "@/services/auth/server";
 
@@ -22,14 +22,15 @@ export function notifyAuthChanged(opts: { fresh?: boolean } = {}) {
  * Mirrors the server-verified session into the store the UI reads (header
  * avatar, trade gating). The session itself is the Supabase auth cookie,
  * refreshed by the middleware; this only asks the server who the user is
- * (getClaims + own profile) via GET /api/session. Renders nothing.
+ * (session + own profile) via GET /api/session. Renders nothing.
  *
  * Also: removes the old demo session from localStorage, signs out suspended
  * accounts with a message, and reports ?auth_error=1 from /auth/callback.
  */
 export function AuthSync() {
+  const api = useMarketStoreApi();
   useEffect(() => {
-    const store = useMarketStore.getState;
+    const store = api.getState;
     try {
       // Left over from the removed demo sign-in (D-021). Never trusted.
       window.localStorage.removeItem("bp-session");
@@ -91,7 +92,7 @@ export function AuthSync() {
       window.removeEventListener(EVENT, onChange);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [api]);
 
   return null;
 }

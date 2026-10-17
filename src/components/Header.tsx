@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { LogOut, Moon, Search, Sun, User, Shield } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
-import { useMarketStore } from "@/store/useMarketStore";
+import { useMarketStore, useMarketStoreApi } from "@/store/useMarketStore";
 import { useT } from "@/i18n/LanguageProvider";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Button, FOCUS_RING, IconButton } from "@/components/ui";
@@ -18,6 +18,7 @@ const MENU_ITEM =
 
 export function Header() {
   const { theme, toggle } = useTheme();
+  const storeApi = useMarketStoreApi();
   const setSearchOpen = useMarketStore((s) => s.setSearchOpen);
   const setAuthOpen = useMarketStore((s) => s.setAuthOpen);
   const session = useMarketStore((s) => s.session);
@@ -121,7 +122,7 @@ export function Header() {
                       onClick={() => {
                         setMenuOpen(false);
                         void signOutAction().finally(() => {
-                          useMarketStore.getState().signOut();
+                          storeApi.getState().signOut();
                           notifyAuthChanged();
                         });
                       }}

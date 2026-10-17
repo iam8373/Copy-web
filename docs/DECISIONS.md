@@ -2,6 +2,32 @@
 
 Architecture and product decisions, newest first.
 
+## D-035 — Phase S2: markets and language in the first HTML, one store per request
+
+**Date:** Phase S2
+**Status:** Accepted
+
+- **Store:** the Zustand store is no longer a module singleton. `MarketStoreProvider`
+  (rendered by the root layout) creates one with `createStore` per React tree: per request
+  on the server, once per page load in the browser. Components keep
+  `useMarketStore(selector)`; imperative code uses `useMarketStoreApi()`. The server puts
+  **only the public catalogue** in it (from the cached `getMarkets()`, tags unchanged);
+  session, wallet, positions, orders and ledger are only ever fetched by the browser from
+  `/api/session` and `/api/portfolio` after hydration. `MarketsHydrator` is gone (merged
+  into the provider, which keeps the `markets-status` marker).
+- **Rendering:** pages stay dynamic (`force-dynamic`, cached reads with short revalidate);
+  the build fetches nothing. An unreachable database still renders the existing
+  "markets unavailable" state.
+- **Language:** the choice is also the `bp-lang` cookie (functional, 1 year, `SameSite=Lax`).
+  The layout reads it and renders `<html lang data-script>` and every string in that
+  language; English otherwise. localStorage stays the source of truth and the cookie
+  mirrors it; a choice saved only in localStorage (before S2) is adopted once and written
+  to the cookie, so the next load is right from the first byte.
+- Tests (`ssr.spec.ts`): titles in the raw HTML; language from the cookie; 24 concurrent
+  requests from two signed-in users with different languages never show the other's
+  language or either account; no hydration warnings or console errors in English or
+  Hindi; a live price update causes no layout shift (CLS < 0.01).
+
 ## D-034 — Phase S1: sell-back, and settlement records P&L
 
 **Date:** Phase S1
