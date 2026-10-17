@@ -26,16 +26,20 @@ export default function PrivacyPage() {
 
       <section className="rounded-card border border-success/30 bg-success/[0.06] p-4 sm:p-6">
         <h2 className="text-18 font-bold text-primary">
-          What this demo actually stores
+          What BharatPredict stores today
         </h2>
         <p className="mt-2 text-13 leading-relaxed text-secondary">
-          Your email address is held{" "}
+          When you sign in we store, in our database (hosted by Supabase):{" "}
           <span className="font-semibold text-primary">
-            only in your own browser&apos;s local storage
-          </span>{" "}
-          as part of a demo session, alongside your theme preference, language choice and
-          simulated positions. Nothing is transmitted to a server, no sign-in code is actually emailed,
-          and there is no account database. Clearing site data removes all of it.
+            your email address and sign-in method, your profile (display handle, language,
+            the time you confirmed you are 18+, the terms version), your play-credit ledger,
+            orders and positions, and any grievance you send us
+          </span>
+          . Staff actions are recorded in an audit log. Your browser keeps your theme and
+          language (local storage and a <code>bp-lang</code> cookie) and the sign-in session
+          cookie. We do not run identity checks and do not collect your phone number or date
+          of birth. Retention periods and the data-hosting region are to be stated here
+          after legal review.
         </p>
       </section>
 

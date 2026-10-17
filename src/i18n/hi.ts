@@ -2,7 +2,7 @@
 import type { Dictionary } from "./en";
 
 export const hi: Dictionary = {
-  brand: { name: "भारतप्रेडिक्ट", tagline: "भारत का प्रेडिक्शन मार्केट — ₹ में।" },
+  brand: { name: "भारतप्रेडिक्ट", tagline: "भारत और दुनिया की घटनाओं पर प्रेडिक्शन मार्केट — सिर्फ़ प्ले क्रेडिट।", metaTitle: "भारतप्रेडिक्ट — प्ले क्रेडिट वाले प्रेडिक्शन मार्केट", metaDescription: "क्रिकेट, चुनाव, अर्थव्यवस्था और बहुत कुछ के नतीजों पर प्ले क्रेडिट से ट्रेड करें। कोई असली पैसा नहीं।" },
 
   nav: {
     /** Accessible name of the category bar. */
@@ -59,7 +59,6 @@ export const hi: Dictionary = {
     pauseRotation: "बदलना रोकें",
     resumeRotation: "बदलना फिर शुरू करें",
     resolvesVia: "निर्णय का स्रोत: {source}",
-    learnBody: "शेयर, ऑड्स और नतीजे कैसे काम करते हैं — आसान भाषा में, ₹ के उदाहरणों के साथ।",
   },
 
   card: {
@@ -73,100 +72,45 @@ export const hi: Dictionary = {
   },
 
   resolution: {
-
     open: "खुला",
-
     closed: "ट्रेडिंग समाप्त",
-
     resolving: "नतीजा लंबित",
-
     resolved: "नतीजा: {outcome}",
-
     voided: "रद्द",
-
     noticeClosed: "ट्रेडिंग समाप्त हो गई है। समाधान स्रोत से जाँच के बाद नतीजा प्रकाशित होगा।",
-
     noticeReviewing: "ट्रेडिंग समाप्त हो गई है। नतीजे की समीक्षा हो रही है।",
-
     noticeProposed: "प्रस्तावित नतीजा: {outcome}। अगर आपको यह गलत लगता है, तो {date} से पहले शिकायत दर्ज करें।",
-
     noticeProposedVoid: "प्रस्ताव: यह मार्केट रद्द कर हर ट्रेडर की शुद्ध लागत (खरीद घटा बिक्री) लौटाई जाए। अगर आपको यह गलत लगता है, तो {date} से पहले शिकायत दर्ज करें।",
-
     noticeResolved: "{date} को नतीजा: {outcome}। हर जीतने वाले शेयर पर प्ले क्रेडिट में ₹1 मिला।",
-
     noticeVoided: "{date} को रद्द किया गया। हर ट्रेडर की शुद्ध लागत (खरीद घटा बिक्री) प्ले क्रेडिट में लौटा दी गई।",
-
     evidence: "सबूत",
-
     selfApproved: "एक ही समीक्षक द्वारा स्वीकृत।",
-
     grievance: "शिकायत दर्ज करें",
-
     title: "समाधान",
 
   },
 
 
   grievanceForm: {
-
-
     title: "शिकायत दर्ज करें",
-
-
     intro: "आपके खाते, किसी मार्केट, किसी नतीजे या आपके निजी डेटा के बारे में। आपको एक संदर्भ संख्या मिलेगी।",
-
-
     name: "आपका नाम",
-
-
     email: "ईमेल",
-
-
     category: "विषय",
-
-
     cat_account: "मेरा खाता",
-
-
     cat_market: "कोई मार्केट",
-
-
     cat_resolution: "किसी मार्केट का नतीजा",
-
-
     cat_privacy: "मेरा निजी डेटा",
-
-
     cat_other: "कुछ और",
-
-
     subject: "शीर्षक",
-
-
     message: "क्या हुआ?",
-
-
     messageHint: "मार्केट, समय और आपने क्या उम्मीद की थी, लिखें। कम से कम 10 अक्षर।",
-
-
     submit: "भेजें",
-
-
     sentTitle: "शिकायत मिल गई",
-
-
     sentBody: "आपकी संदर्भ संख्या {reference} है। हर जवाब में इसका उल्लेख करें।",
-
-
     invalid: "फ़ील्ड जाँचें और फिर कोशिश करें।",
-
-
     rateLimited: "यहाँ से बहुत सारी शिकायतें आई हैं। एक घंटे बाद कोशिश करें।",
-
-
     failed: "भेजी नहीं जा सकी। थोड़ी देर बाद कोशिश करें।",
-
-
     privacy: "हम इन जानकारियों का उपयोग केवल इस शिकायत के निपटारे के लिए करते हैं।",
 
 
@@ -175,73 +119,22 @@ export const hi: Dictionary = {
 
 
   trade: {
-
-
-
     buyTab: "खरीदें",
-
-
-
     sellTab: "बेचें",
-
-
-
     sideLabel: "खरीदें या बेचें",
-
-
-
     sell: "{outcome} बेचें",
-
-
-
     youHold: "{count} आपके पास",
-
-
-
     sharesToSell: "बेचने वाले शेयर",
-
-
-
     sellPercent: "अपने {pct}% शेयर बेचें",
-
-
-
     priceImpact: "कीमत पर असर",
-
-
-
     realizedPnl: "प्राप्त लाभ/हानि",
-
-
-
     sellShares: "शेयर बेचें",
-
-
-
     sellNothing: "इस मार्केट में बेचने के लिए आपके पास कोई शेयर नहीं है।",
-
-
-
     sellInvalid: "शेयरों की संख्या लिखें (अधिकतम 8 दशमलव)।",
-
-
-
     sellTooMany: "आपके पास {count} शेयर हैं।",
-
-
-
     saleConfirmed: "बिक्री पूरी हुई",
-
-
-
     srBought: "ऑर्डर पूरा हुआ: {outcome} के {shares} शेयर {price} पर",
-
-
-
     srSold: "बिक्री पूरी हुई: {outcome} के {shares} शेयर {amount} में",
-
-
-
     srOnMarket: "{summary}, {title}",
     amount: "राशि (₹)",
     max: "अधिकतम",
@@ -252,7 +145,7 @@ export const hi: Dictionary = {
     avgPrice: "औसत भाव",
     placeOrder: "ऑर्डर करें",
     priceMoved: "ऑर्डर खोलने के बाद भाव {price} हो गया है।",
-    settlementNote: "ऑफ-चेन मैचिंग · रुपये में निपटान",
+    settlementNote: "सिर्फ़ प्ले क्रेडिट — कोई असली पैसा नहीं।",
     orderConfirmed: "ऑर्डर पूरा हुआ",
     limits: "न्यूनतम {min} · अधिकतम {max}",
     errorInvalid: "रुपये में राशि दर्ज करें।",
@@ -264,7 +157,7 @@ export const hi: Dictionary = {
 
   auth: {
     title: "साइन अप / लॉग इन",
-    subtitle: "भारतीय इवेंट्स पर ₹ में ट्रेड करें। वॉलेट की ज़रूरत नहीं।",
+    subtitle: "सिर्फ़ प्ले क्रेडिट। कोई वॉलेट या भुगतान नहीं चाहिए।",
     ageConfirm:
       "मैं पुष्टि करता/करती हूँ कि मेरी उम्र 18 वर्ष या अधिक है और मैं उपयोग की शर्तें तथा गोपनीयता नीति स्वीकार करता/करती हूँ।",
     termsLink: "उपयोग की शर्तें",
@@ -280,7 +173,7 @@ export const hi: Dictionary = {
     codeSentTo: "{email} पर भेजा गया 6 अंकों का कोड डालें",
     codePlaceholder: "6 अंकों का कोड",
     errorEmail: "सही ईमेल पता डालें।",
-    errorCode: "6 अंकों का कोड डालें। इस डेमो में कोई भी 6 अंक चलेंगे।",
+    errorCode: "ईमेल में आया 6 अंकों का कोड डालें।",
     continueGoogle: "Google से जारी रखें",
     googleHint: "Google से साइन इन करने के बाद आप यहीं लौट आएँगे।",
     codeHint: "हम आपको 6 अंकों का कोड ईमेल करेंगे। पासवर्ड की ज़रूरत नहीं।",
@@ -298,25 +191,15 @@ export const hi: Dictionary = {
   },
 
   dashboard: {
-
     ledgerSale: "बिक्री",
-
     sell: "बेचें",
-
     sellPosition: "{outcome} बेचें",
-
     actions: "कार्रवाई",
-
     sideBuy: "खरीदें",
-
     sideSell: "बेचें",
-
     resultWon: "जीते",
-
     resultLost: "हारे",
-
     resultVoid: "रिफ़ंड हुआ",
-
     sharesHeld: "{count} शेयर",
     title: "डैशबोर्ड",
     signedInAs: "{handle} के रूप में साइन इन",
@@ -362,17 +245,11 @@ export const hi: Dictionary = {
   },
 
   profit: {
-
     stateOpen: "खुला",
-
     stateClosed: "बेच दिया",
-
     stateWon: "जीते",
-
     stateLost: "हारे",
-
     stateVoid: "रिफ़ंड हुआ",
-
     costIn: "{amount} लगाए",
     title: "लाभ और हानि",
     subtitle: "आपकी सभी पोज़िशन का वास्तविक और अवास्तविक प्रदर्शन।",
@@ -387,15 +264,10 @@ export const hi: Dictionary = {
   },
 
   toast: {
-
     saleDone: "बिक गए",
-
     saleFilled: "{outcome} के {shares} शेयर ₹{amount} में बिके।",
-
     saleRejected: "बिक्री नहीं हुई",
-
     orderInsufficientShares: "आपके पास इतने शेयर नहीं हैं।",
-
     orderSellTooSmall: "यह बिक्री ₹1 से कम है। ज़्यादा शेयर या पूरी पोज़िशन बेचें।",
     welcome: "स्वागत है, {handle}",
     signedInGoogle: "गूगल से साइन इन किया।",
@@ -444,8 +316,7 @@ export const hi: Dictionary = {
   },
 
   footer: {
-    learn: "प्रेडिक्शन 101",
-    mailingList: "मेलिंग लिस्ट से जुड़ें",
+    learn: "यह कैसे काम करता है",
     terms: "शर्तें",
     privacy: "गोपनीयता",
     responsiblePlay: "ज़िम्मेदार खेल",
@@ -564,6 +435,9 @@ export const hi: Dictionary = {
     retry: "फिर से कोशिश करें",
     home: "होम पर जाएँ",
     reference: "संदर्भ: {digest}",
+    notFoundTitle: "पेज नहीं मिला",
+    notFoundBody: "लिंक गलत हो सकता है, या पेज हटा दिया गया है।",
+    notFoundHome: "मार्केट देखें",
   },
 
   loading: {
@@ -589,7 +463,7 @@ export const hi: Dictionary = {
     chance: "संभावना",
     demoData: "डेमो डेटा",
     aboutDemoData: "इस चार्ट के बारे में",
-    demoDataTip: "यह डेमो के लिए बनाया गया है। असली कीमत का इतिहास ट्रेडिंग शुरू होने पर दिखेगा।",
+    demoDataTip: "उदाहरण वक्र: इस मार्केट में अभी कोई ट्रेड दर्ज नहीं है। पहले ट्रेड के बाद असली कीमत इतिहास दिखेगा।",
     chartRange: "चार्ट अवधि",
     rangeAll: "सभी",
     chartSummary: "{outcome}: {range} में {from} से {to}",
@@ -612,7 +486,7 @@ export const hi: Dictionary = {
     positions: "पोज़िशन",
     comments: "टिप्पणियाँ",
     noActivity: "अभी कोई ट्रेड नहीं",
-    noActivityBody: "ट्रेडिंग शुरू होने पर ट्रेड यहाँ दिखेंगे।",
+    noActivityBody: "हाल के ट्रेड यहाँ दिखेंगे।",
     noHolders: "अभी कोई धारक नहीं",
     noHoldersBody: "इस मार्केट की सबसे बड़ी पोज़िशन यहाँ दिखेंगी।",
     noPositions: "इस मार्केट में कोई पोज़िशन नहीं",

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Wordmark } from "@/components/Wordmark";
 import { LogOut, Moon, Search, Sun, User, Shield } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useMarketStore, useMarketStoreApi } from "@/store/useMarketStore";
@@ -43,14 +44,9 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-subtle bg-surface-1/85 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-content items-center gap-3 px-gutter sm:h-16 sm:gap-6">
         <Link href="/" className={cn("flex shrink-0 items-center gap-2 rounded-btn", FOCUS_RING)}>
-          <span className="grid h-7 w-7 place-items-center rounded-btn bg-brand-fill text-13 font-bold text-white">
-            B
-          </span>
-          {/* Below the xs breakpoint the wordmark doesn't fit next to long sign-in
+          {/* Below the xs breakpoint the name doesn't fit next to long sign-in
               labels (e.g. Tamil), so only the mark shows; screen readers still get the name. */}
-          <span className="sr-only text-18 font-bold tracking-tight text-primary xs:not-sr-only">
-            Bharat<span className="text-brand">Predict</span>
-          </span>
+          <Wordmark compact />
         </Link>
 
         <button

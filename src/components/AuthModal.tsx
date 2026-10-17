@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Wordmark } from "@/components/Wordmark";
 import Link from "next/link";
 import { ArrowLeft, Check, Mail, ShieldCheck } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
@@ -157,6 +158,7 @@ export function AuthModal({ emailOtpEnabled }: { emailOtpEnabled: boolean }) {
       description={t("auth", "subtitle")}
       data-testid="auth-modal"
     >
+      <Wordmark size="sm" className="mb-4" />
       {!supabaseConfigured ? (
         <p role="status" className="rounded-btn border border-warning/30 bg-warning/10 px-3 py-2 text-13 text-warning">
           {t("auth", "authUnavailable")}

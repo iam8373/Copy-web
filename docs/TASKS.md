@@ -688,4 +688,6 @@ runbook).
 - [x] S2 markets and language in the first HTML; one store per request (D-035).
 - [x] S3 fewer Auth-server calls (local session in middleware and routine reads), trusted
       client IP from X-Real-IP, runbook limits + signing-key steps (D-036).
-- [ ] S4 branding. S5 backups. S6 launch QA.
+- [x] S4 branding: wordmark, icons, manifest, social image, localized metadata, "How it
+      works", leftovers fixed (D-037).
+- [ ] S5 backups. S6 launch QA.

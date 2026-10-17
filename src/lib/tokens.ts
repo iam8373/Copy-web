@@ -78,3 +78,15 @@ export const tooltipStyle = {
   fontSize: size.tooltipFont,
   color: color.textPrimary,
 } as const;
+
+/**
+ * Literal colours for generated images (icons, social preview): the image
+ * renderer cannot read CSS variables. Same values as the dark theme in
+ * globals.css (--brand-fill, --surface-1, --text-primary, --text-secondary).
+ */
+export const imageColor = {
+  brandFill: "rgb(106, 70, 245)",
+  surface: "rgb(10, 11, 13)",
+  text: "rgb(255, 255, 255)",
+  textSecondary: "rgb(161, 165, 171)",
+} as const;

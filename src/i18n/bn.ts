@@ -5,7 +5,9 @@ import type { Dictionary } from "./en";
 export const bn: Dictionary = {
   brand: {
     name: "ভারতপ্রেডিক্ট",
-    tagline: "ভারতের প্রেডিকশন মার্কেট — ₹-এ।",
+    tagline: "ভারত ও বিশ্বের ঘটনা নিয়ে প্রেডিকশন মার্কেট — শুধু প্লে ক্রেডিট।",
+    metaTitle: "ভারতপ্রেডিক্ট — প্লে ক্রেডিটের প্রেডিকশন মার্কেট",
+    metaDescription: "ক্রিকেট, নির্বাচন, অর্থনীতি ও আরও অনেক কিছুর ফলাফলে প্লে ক্রেডিট দিয়ে ট্রেড করুন। কোনো আসল টাকা নয়।",
   },
 
   nav: {
@@ -67,7 +69,6 @@ export const bn: Dictionary = {
     pauseRotation: "ঘোরানো থামান",
     resumeRotation: "আবার ঘোরানো শুরু করুন",
     resolvesVia: "ফলাফলের উৎস: {source}",
-    learnBody: "শেয়ার, অডস ও ফলাফল কীভাবে কাজ করে — সহজ ভাষায়, ₹ উদাহরণ সহ।",
   },
 
   card: {
@@ -81,100 +82,45 @@ export const bn: Dictionary = {
   },
 
   resolution: {
-
     open: "চালু",
-
     closed: "ট্রেডিং শেষ",
-
     resolving: "ফলাফল বাকি",
-
     resolved: "ফলাফল: {outcome}",
-
     voided: "বাতিল",
-
     noticeClosed: "ট্রেডিং শেষ হয়েছে। সমাধানের উৎসের সঙ্গে মিলিয়ে দেখার পর ফলাফল প্রকাশ করা হবে।",
-
     noticeReviewing: "ট্রেডিং শেষ হয়েছে। ফলাফল পর্যালোচনা করা হচ্ছে।",
-
     noticeProposed: "প্রস্তাবিত ফলাফল: {outcome}। ভুল মনে হলে {date}-এর আগে অভিযোগ জানান।",
-
     noticeProposedVoid: "প্রস্তাব: এই মার্কেট বাতিল করে প্রত্যেক ট্রেডারের নিট খরচ (কেনা বাদ বিক্রি) ফেরত দেওয়া হবে। ভুল মনে হলে {date}-এর আগে অভিযোগ জানান।",
-
     noticeResolved: "{date} তারিখে ফলাফল: {outcome}। প্রতিটি জয়ী শেয়ারে প্লে ক্রেডিটে ₹1 দেওয়া হয়েছে।",
-
     noticeVoided: "{date} তারিখে বাতিল। প্রত্যেক ট্রেডারের নিট খরচ (কেনা বাদ বিক্রি) প্লে ক্রেডিটে ফেরত দেওয়া হয়েছে।",
-
     evidence: "প্রমাণ",
-
     selfApproved: "একজন পর্যালোচক অনুমোদন করেছেন।",
-
     grievance: "অভিযোগ জানান",
-
     title: "সমাধান",
 
   },
 
 
   grievanceForm: {
-
-
     title: "অভিযোগ জানান",
-
-
     intro: "আপনার অ্যাকাউন্ট, কোনো মার্কেট, কোনো ফলাফল বা আপনার ব্যক্তিগত তথ্য সম্পর্কে। আপনি একটি রেফারেন্স নম্বর পাবেন।",
-
-
     name: "আপনার নাম",
-
-
     email: "ইমেল",
-
-
     category: "বিষয়",
-
-
     cat_account: "আমার অ্যাকাউন্ট",
-
-
     cat_market: "কোনো মার্কেট",
-
-
     cat_resolution: "কোনো মার্কেটের ফলাফল",
-
-
     cat_privacy: "আমার ব্যক্তিগত তথ্য",
-
-
     cat_other: "অন্য কিছু",
-
-
     subject: "শিরোনাম",
-
-
     message: "কী হয়েছে?",
-
-
     messageHint: "মার্কেট, সময় এবং আপনি কী আশা করেছিলেন লিখুন। অন্তত 10টি অক্ষর।",
-
-
     submit: "পাঠান",
-
-
     sentTitle: "অভিযোগ পাওয়া গেছে",
-
-
     sentBody: "আপনার রেফারেন্স নম্বর {reference}। প্রতিটি উত্তরে এটি উল্লেখ করুন।",
-
-
     invalid: "ঘরগুলো দেখে আবার চেষ্টা করুন।",
-
-
     rateLimited: "এখান থেকে অনেক অভিযোগ এসেছে। এক ঘণ্টা পরে চেষ্টা করুন।",
-
-
     failed: "পাঠানো যায়নি। একটু পরে চেষ্টা করুন।",
-
-
     privacy: "আমরা এই তথ্য শুধু এই অভিযোগের জন্য ব্যবহার করি।",
 
 
@@ -183,73 +129,22 @@ export const bn: Dictionary = {
 
 
   trade: {
-
-
-
     buyTab: "কিনুন",
-
-
-
     sellTab: "বিক্রি করুন",
-
-
-
     sideLabel: "কিনুন বা বিক্রি করুন",
-
-
-
     sell: "{outcome} বিক্রি করুন",
-
-
-
     youHold: "আপনার কাছে {count}",
-
-
-
     sharesToSell: "বিক্রির শেয়ার",
-
-
-
     sellPercent: "আপনার {pct}% শেয়ার বিক্রি করুন",
-
-
-
     priceImpact: "দামের প্রভাব",
-
-
-
     realizedPnl: "প্রাপ্ত লাভ/ক্ষতি",
-
-
-
     sellShares: "শেয়ার বিক্রি করুন",
-
-
-
     sellNothing: "এই মার্কেটে বিক্রি করার মতো আপনার কোনো শেয়ার নেই।",
-
-
-
     sellInvalid: "শেয়ারের সংখ্যা লিখুন (সর্বোচ্চ 8 দশমিক)।",
-
-
-
     sellTooMany: "আপনার কাছে {count}টি শেয়ার আছে।",
-
-
-
     saleConfirmed: "বিক্রি নিশ্চিত হয়েছে",
-
-
-
     srBought: "অর্ডার নিশ্চিত: {outcome}-এর {shares}টি শেয়ার {price} দামে",
-
-
-
     srSold: "বিক্রি নিশ্চিত: {outcome}-এর {shares}টি শেয়ার {amount}-এ",
-
-
-
     srOnMarket: "{summary}, {title}",
     amount: "পরিমাণ (₹)",
     max: "সর্বোচ্চ",
@@ -260,7 +155,7 @@ export const bn: Dictionary = {
     avgPrice: "গড় দাম",
     placeOrder: "অর্ডার দিন",
     priceMoved: "অর্ডার খোলার পর দাম {price} হয়েছে।",
-    settlementNote: "অফ-চেন ম্যাচিং · টাকায় নিষ্পত্তি",
+    settlementNote: "শুধু প্লে ক্রেডিট — কোনো আসল টাকা নয়।",
     orderConfirmed: "অর্ডার নিশ্চিত হয়েছে",
     limits: "সর্বনিম্ন {min} · সর্বোচ্চ {max}",
     errorInvalid: "টাকায় পরিমাণ লিখুন।",
@@ -272,7 +167,7 @@ export const bn: Dictionary = {
 
   auth: {
     title: "সাইন আপ / লগ ইন",
-    subtitle: "ভারতীয় ঘটনায় ₹-এ ট্রেড করুন। ওয়ালেট লাগবে না।",
+    subtitle: "শুধু প্লে ক্রেডিট। কোনো ওয়ালেট বা পেমেন্ট লাগবে না।",
     ageConfirm: "আমি নিশ্চিত করছি যে আমার বয়স ১৮ বা তার বেশি এবং আমি ব্যবহারের শর্তাবলি ও গোপনীয়তা নীতি মেনে নিচ্ছি।",
     termsLink: "ব্যবহারের শর্তাবলি",
     privacyLink: "গোপনীয়তা নীতি",
@@ -287,7 +182,7 @@ export const bn: Dictionary = {
     codeSentTo: "{email}-এ পাঠানো ৬ সংখ্যার কোডটি লিখুন",
     codePlaceholder: "৬ সংখ্যার কোড",
     errorEmail: "একটি সঠিক ইমেল ঠিকানা লিখুন।",
-    errorCode: "৬ সংখ্যার কোডটি লিখুন। এই ডেমোতে যেকোনো ৬টি সংখ্যা চলবে।",
+    errorCode: "ইমেলে পাওয়া ৬ সংখ্যার কোডটি দিন।",
     continueGoogle: "Google দিয়ে চালিয়ে যান",
     googleHint: "Google দিয়ে সাইন ইন করার পর আপনি এখানেই ফিরে আসবেন।",
     codeHint: "আমরা আপনাকে ৬ সংখ্যার একটি কোড ইমেল করব। পাসওয়ার্ড লাগবে না।",
@@ -305,25 +200,15 @@ export const bn: Dictionary = {
   },
 
   dashboard: {
-
     ledgerSale: "বিক্রি",
-
     sell: "বিক্রি করুন",
-
     sellPosition: "{outcome} বিক্রি করুন",
-
     actions: "পদক্ষেপ",
-
     sideBuy: "কিনুন",
-
     sideSell: "বিক্রি করুন",
-
     resultWon: "জিতেছেন",
-
     resultLost: "হেরেছেন",
-
     resultVoid: "ফেরত দেওয়া হয়েছে",
-
     sharesHeld: "{count}টি শেয়ার",
     title: "ড্যাশবোর্ড",
     signedInAs: "{handle} হিসেবে সাইন ইন",
@@ -369,17 +254,11 @@ export const bn: Dictionary = {
   },
 
   profit: {
-
     stateOpen: "চালু",
-
     stateClosed: "বিক্রি হয়েছে",
-
     stateWon: "জিতেছেন",
-
     stateLost: "হেরেছেন",
-
     stateVoid: "ফেরত দেওয়া হয়েছে",
-
     costIn: "{amount} বিনিয়োগ",
     title: "লাভ ও ক্ষতি",
     subtitle: "আপনার সব পজিশনের বাস্তবায়িত ও অবাস্তবায়িত পারফরম্যান্স।",
@@ -394,15 +273,10 @@ export const bn: Dictionary = {
   },
 
   toast: {
-
     saleDone: "বিক্রি হয়েছে",
-
     saleFilled: "{outcome}-এর {shares}টি শেয়ার ₹{amount}-এ বিক্রি হয়েছে।",
-
     saleRejected: "বিক্রি হয়নি",
-
     orderInsufficientShares: "আপনার কাছে এত শেয়ার নেই।",
-
     orderSellTooSmall: "এই বিক্রি ₹1-এর কম। আরও শেয়ার বা পুরো পজিশন বিক্রি করুন।",
     welcome: "স্বাগতম, {handle}",
     signedInGoogle: "গুগল দিয়ে সাইন ইন হয়েছে।",
@@ -450,8 +324,7 @@ export const bn: Dictionary = {
   },
 
   footer: {
-    learn: "প্রেডিকশন ১০১",
-    mailingList: "মেলিং লিস্টে যোগ দিন",
+    learn: "এটি কীভাবে কাজ করে",
     terms: "শর্তাবলি",
     privacy: "গোপনীয়তা",
     responsiblePlay: "দায়িত্বশীল খেলা",
@@ -570,6 +443,9 @@ export const bn: Dictionary = {
     retry: "আবার চেষ্টা করুন",
     home: "হোমে যান",
     reference: "রেফারেন্স: {digest}",
+    notFoundTitle: "পেজটি পাওয়া যায়নি",
+    notFoundBody: "লিংকটি ভুল হতে পারে, অথবা পেজটি সরানো হয়েছে।",
+    notFoundHome: "মার্কেট দেখুন",
   },
 
   loading: {
@@ -595,7 +471,7 @@ export const bn: Dictionary = {
     chance: "সম্ভাবনা",
     demoData: "ডেমো ডেটা",
     aboutDemoData: "এই চার্ট সম্পর্কে",
-    demoDataTip: "এটি ডেমোর জন্য তৈরি। আসল দামের ইতিহাস ট্রেডিং চালু হলে দেখা যাবে।",
+    demoDataTip: "উদাহরণ রেখা: এই মার্কেটে এখনো কোনো ট্রেড রেকর্ড হয়নি। প্রথম ট্রেডের পরে আসল দামের ইতিহাস দেখা যাবে।",
     chartRange: "চার্টের সময়কাল",
     rangeAll: "সব",
     chartSummary: "{outcome}: {range}-এ {from} থেকে {to}",
@@ -618,7 +494,7 @@ export const bn: Dictionary = {
     positions: "পজিশন",
     comments: "মন্তব্য",
     noActivity: "এখনও কোনো ট্রেড নেই",
-    noActivityBody: "ট্রেডিং চালু হলে ট্রেড এখানে দেখা যাবে।",
+    noActivityBody: "সাম্প্রতিক ট্রেড এখানে দেখানো হবে।",
     noHolders: "এখনও কোনো ধারক নেই",
     noHoldersBody: "এই মার্কেটের সবচেয়ে বড় পজিশনগুলো এখানে দেখানো হবে।",
     noPositions: "এই মার্কেটে কোনো পজিশন নেই",

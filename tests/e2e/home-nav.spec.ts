@@ -174,8 +174,8 @@ test.describe("home in Hindi", () => {
     await expect(main.getByRole("heading", { name: hi.home.featured })).toBeVisible();
     await expect(main.getByRole("heading", { name: hi.nav.cricket, exact: true })).toBeVisible();
     await expect(main).toContainText(hi.home.viewAll);
-    await expect(main).toContainText(hi.home.learnBody);
-    for (const english of ["View all", "Featured Markets", "Live now", "Resolves via", "Predictions 101"]) {
+    await expect(main).toContainText(hi.brand.tagline);
+    for (const english of ["View all", "Featured Markets", "Live now", "Resolves via", "Predictions 101", "How it works"]) {
       await expect(main).not.toContainText(english);
     }
     // Category labels on cards follow the locale too.

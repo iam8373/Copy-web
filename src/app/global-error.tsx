@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Wordmark } from "@/components/Wordmark";
 import "./globals.css";
 import { DICTIONARIES, STORAGE_KEY, isLocale, type Locale } from "@/i18n";
 
@@ -38,6 +39,7 @@ export default function GlobalError({
           role="alert"
           className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-3 px-4 text-center"
         >
+          <Wordmark size="sm" className="mb-2" />
           <h1 className="text-xl font-bold tracking-tight">{e.title}</h1>
           <p className="text-14 leading-relaxed text-secondary">{e.body}</p>
           <div className="mt-2 flex flex-wrap justify-center gap-2">

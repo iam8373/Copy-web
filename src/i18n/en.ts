@@ -6,7 +6,7 @@
  * English for now. `Market` carries optional `title_hi` etc. for later.
  */
 export const en = {
-  brand: { name: "BharatPredict", tagline: "India's prediction market — priced in ₹." },
+  brand: { name: "BharatPredict", tagline: "Prediction markets on Indian and world events — play credits only.", metaTitle: "BharatPredict — prediction markets with play credits", metaDescription: "Trade the outcome of cricket, elections, the economy and more with play credits. No real money." },
 
   nav: {
     /** Accessible name of the category bar. */
@@ -63,7 +63,6 @@ export const en = {
     pauseRotation: "Pause rotation",
     resumeRotation: "Resume rotation",
     resolvesVia: "Resolves via {source}",
-    learnBody: "How shares, odds and resolution work — in plain language, with ₹ examples.",
   },
 
   card: {
@@ -77,100 +76,45 @@ export const en = {
   },
 
   resolution: {
-
     open: "Open",
-
     closed: "Trading ended",
-
     resolving: "Result pending",
-
     resolved: "Resolved: {outcome}",
-
     voided: "Voided",
-
     noticeClosed: "Trading has ended. The result will be published after it is checked against the resolution source.",
-
     noticeReviewing: "Trading has ended. A result is being reviewed.",
-
     noticeProposed: "Proposed result: {outcome}. If you think it is wrong, raise a grievance before {date}.",
-
     noticeProposedVoid: "Proposed: void this market and refund each trader's net cost (buys minus sales). If you think it is wrong, raise a grievance before {date}.",
-
     noticeResolved: "Resolved: {outcome} on {date}. Each winning share paid ₹1 in play credits.",
-
     noticeVoided: "Voided on {date}. Each trader's net cost (buys minus sales) was refunded in play credits.",
-
     evidence: "Evidence",
-
     selfApproved: "Approved by a single reviewer.",
-
     grievance: "Raise a grievance",
-
     title: "Resolution",
 
   },
 
 
   grievanceForm: {
-
-
     title: "Raise a grievance",
-
-
     intro: "About your account, a market, a resolution or your personal data. You will get a reference number.",
-
-
     name: "Your name",
-
-
     email: "Email",
-
-
     category: "Topic",
-
-
     cat_account: "My account",
-
-
     cat_market: "A market",
-
-
     cat_resolution: "A market result",
-
-
     cat_privacy: "My personal data",
-
-
     cat_other: "Something else",
-
-
     subject: "Subject",
-
-
     message: "What happened?",
-
-
     messageHint: "Include the market, the time, and what you expected. At least 10 characters.",
-
-
     submit: "Send",
-
-
     sentTitle: "Grievance received",
-
-
     sentBody: "Your reference is {reference}. Quote it in any reply.",
-
-
     invalid: "Check the fields and try again.",
-
-
     rateLimited: "Too many grievances from here. Try again in an hour.",
-
-
     failed: "It could not be sent. Try again in a moment.",
-
-
     privacy: "We use these details only to handle this grievance.",
 
 
@@ -179,73 +123,22 @@ export const en = {
 
 
   trade: {
-
-
-
     buyTab: "Buy",
-
-
-
     sellTab: "Sell",
-
-
-
     sideLabel: "Buy or sell",
-
-
-
     sell: "Sell {outcome}",
-
-
-
     youHold: "{count} held",
-
-
-
     sharesToSell: "Shares to sell",
-
-
-
     sellPercent: "Sell {pct}% of your shares",
-
-
-
     priceImpact: "Price impact",
-
-
-
     realizedPnl: "Realized P&L",
-
-
-
     sellShares: "Sell shares",
-
-
-
     sellNothing: "You hold no shares in this market to sell.",
-
-
-
     sellInvalid: "Enter a number of shares (up to 8 decimals).",
-
-
-
     sellTooMany: "You hold {count} shares.",
-
-
-
     saleConfirmed: "Sale confirmed",
-
-
-
     srBought: "Order confirmed: {shares} {outcome} shares at {price}",
-
-
-
     srSold: "Sale confirmed: {shares} {outcome} shares for {amount}",
-
-
-
     srOnMarket: "{summary}, {title}",
     amount: "Amount (₹)",
     max: "Max",
@@ -256,7 +149,7 @@ export const en = {
     avgPrice: "Avg price",
     placeOrder: "Place Order",
     priceMoved: "Price moved to {price} since you opened this order.",
-    settlementNote: "Off-chain matching · rupee settlement",
+    settlementNote: "Play credits only — no real money.",
     orderConfirmed: "Order confirmed",
     limits: "Min {min} · Max {max}",
     errorInvalid: "Enter an amount in rupees.",
@@ -268,7 +161,7 @@ export const en = {
 
   auth: {
     title: "Sign up / Log in",
-    subtitle: "Trade Indian events in ₹. No wallet needed.",
+    subtitle: "Play credits only. No wallet or payment needed.",
     ageConfirm:
       "I confirm I am 18 or older and accept the Terms of Use and Privacy Policy.",
     termsLink: "Terms of Use",
@@ -284,7 +177,7 @@ export const en = {
     codeSentTo: "Enter the 6-digit code sent to {email}",
     codePlaceholder: "6-digit code",
     errorEmail: "Enter a valid email address.",
-    errorCode: "Enter the 6-digit code. Any 6 digits work in this demo.",
+    errorCode: "Enter the 6-digit code from the email.",
     continueGoogle: "Continue with Google",
     googleHint: "You'll come back here after signing in with Google.",
     codeHint: "We'll email you a 6-digit code. No password needed.",
@@ -302,25 +195,15 @@ export const en = {
   },
 
   dashboard: {
-
     ledgerSale: "Sale",
-
     sell: "Sell",
-
     sellPosition: "Sell {outcome}",
-
     actions: "Actions",
-
     sideBuy: "Buy",
-
     sideSell: "Sell",
-
     resultWon: "Won",
-
     resultLost: "Lost",
-
     resultVoid: "Refunded",
-
     sharesHeld: "{count} shares",
     title: "Dashboard",
     signedInAs: "Signed in as {handle}",
@@ -366,17 +249,11 @@ export const en = {
   },
 
   profit: {
-
     stateOpen: "Open",
-
     stateClosed: "Sold",
-
     stateWon: "Won",
-
     stateLost: "Lost",
-
     stateVoid: "Refunded",
-
     costIn: "{amount} invested",
     title: "Profit & loss",
     subtitle: "Realised and unrealised performance across every market you hold.",
@@ -391,15 +268,10 @@ export const en = {
   },
 
   toast: {
-
     saleDone: "Sold",
-
     saleFilled: "Sold {shares} {outcome} shares for ₹{amount}.",
-
     saleRejected: "Sale not completed",
-
     orderInsufficientShares: "You don't hold that many shares.",
-
     orderSellTooSmall: "This sale is under ₹1. Sell more shares, or the whole position.",
     welcome: "Welcome, {handle}",
     signedInGoogle: "Signed in with Google.",
@@ -447,8 +319,7 @@ export const en = {
   },
 
   footer: {
-    learn: "Predictions 101",
-    mailingList: "Join the mailing list",
+    learn: "How it works",
     terms: "Terms",
     privacy: "Privacy",
     responsiblePlay: "Responsible play",
@@ -568,6 +439,9 @@ export const en = {
     retry: "Try again",
     home: "Go to home",
     reference: "Reference: {digest}",
+    notFoundTitle: "Page not found",
+    notFoundBody: "The link may be wrong, or the page has moved.",
+    notFoundHome: "Browse markets",
   },
 
   loading: {
@@ -593,7 +467,7 @@ export const en = {
     chance: "chance",
     demoData: "Demo data",
     aboutDemoData: "About this chart",
-    demoDataTip: "Generated for the demo. Real price history starts when trading goes live.",
+    demoDataTip: "Illustrative curve: this market has no recorded trades yet. Real price history appears after the first trades.",
     chartRange: "Chart range",
     rangeAll: "All",
     chartSummary: "{outcome}: {from} to {to} over {range}",
@@ -616,7 +490,7 @@ export const en = {
     positions: "Positions",
     comments: "Comments",
     noActivity: "No trades yet",
-    noActivityBody: "Trades will appear here once trading goes live.",
+    noActivityBody: "Recent trades will be listed here.",
     noHolders: "No holders yet",
     noHoldersBody: "The largest positions in this market will be listed here.",
     noPositions: "No positions in this market",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useMarketStore } from "@/store/useMarketStore";
 import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { MarketsUnavailable } from "@/components/MarketsUnavailable";
@@ -101,22 +101,6 @@ export function HomeFeed() {
         );
       })}
 
-      <Link
-        href="/learn"
-        className={cn(
-          "flex items-center gap-4 rounded-card border border-subtle bg-surface-2 p-4 shadow-card transition-colors duration-xs hover:border-strong sm:p-6",
-          FOCUS_RING
-        )}
-      >
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-brand/15 text-brand">
-          <GraduationCap className="h-5 w-5" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="text-16 font-bold text-primary">{t("footer", "learn")}</p>
-          <p className="mt-1 text-13 text-secondary">{t("home", "learnBody")}</p>
-        </div>
-        <ArrowRight className="ml-auto hidden h-4 w-4 shrink-0 text-secondary sm:block" aria-hidden />
-      </Link>
     </div>
   );
 }

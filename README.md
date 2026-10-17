@@ -136,7 +136,7 @@ src/
 │  ├─ market/[slug]/            # market page: chart, AMM order book, rules, sticky trade panel
 │  ├─ dashboard/                # positions, portfolio value, resolved history
 │  ├─ profit/                   # realised/unrealised P&L breakdown + chart
-│  ├─ learn/                    # Predictions 101 / help
+│  ├─ learn/                    # How it works (/learn)
 │  ├─ terms/ privacy/ responsible-play/ grievance/   # draft legal pages
 ├─ components/                  # Header, CategoryNav, BottomNav, MarketCard, modals, views
 │  ├─ ui/                       # shared primitives (see docs/DESIGN.md → Components)

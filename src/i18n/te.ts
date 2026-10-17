@@ -5,7 +5,9 @@ import type { Dictionary } from "./en";
 export const te: Dictionary = {
   brand: {
     name: "భారత్‌ప్రెడిక్ట్",
-    tagline: "భారతదేశ ప్రిడిక్షన్ మార్కెట్ — ₹లో.",
+    tagline: "భారత, ప్రపంచ సంఘటనలపై ప్రిడిక్షన్ మార్కెట్లు — ప్లే క్రెడిట్‌లు మాత్రమే.",
+    metaTitle: "భారత్‌ప్రిడిక్ట్ — ప్లే క్రెడిట్‌లతో ప్రిడిక్షన్ మార్కెట్లు",
+    metaDescription: "క్రికెట్, ఎన్నికలు, ఆర్థిక వ్యవస్థ మరియు మరిన్నింటి ఫలితాలపై ప్లే క్రెడిట్‌లతో ట్రేడ్ చేయండి. నిజమైన డబ్బు లేదు.",
   },
 
   nav: {
@@ -67,7 +69,6 @@ export const te: Dictionary = {
     pauseRotation: "మార్పు ఆపండి",
     resumeRotation: "మార్పు మళ్లీ ప్రారంభించండి",
     resolvesVia: "ఫలిత మూలం: {source}",
-    learnBody: "షేర్లు, ఆడ్స్, ఫలితాలు ఎలా పనిచేస్తాయి — సరళమైన భాషలో, ₹ ఉదాహరణలతో.",
   },
 
   card: {
@@ -81,100 +82,45 @@ export const te: Dictionary = {
   },
 
   resolution: {
-
     open: "తెరిచి ఉంది",
-
     closed: "ట్రేడింగ్ ముగిసింది",
-
     resolving: "ఫలితం పెండింగ్‌లో ఉంది",
-
     resolved: "ఫలితం: {outcome}",
-
     voided: "రద్దు",
-
     noticeClosed: "ట్రేడింగ్ ముగిసింది. పరిష్కార మూలంతో సరిచూసిన తర్వాత ఫలితం ప్రచురించబడుతుంది.",
-
     noticeReviewing: "ట్రేడింగ్ ముగిసింది. ఫలితం సమీక్షలో ఉంది.",
-
     noticeProposed: "ప్రతిపాదిత ఫలితం: {outcome}. ఇది తప్పని మీరు భావిస్తే {date} లోపు ఫిర్యాదు చేయండి.",
-
     noticeProposedVoid: "ప్రతిపాదన: ఈ మార్కెట్‌ను రద్దు చేసి ప్రతి ట్రేడర్ నికర ఖర్చు (కొనుగోళ్లు మైనస్ అమ్మకాలు) తిరిగి చెల్లించడం. ఇది తప్పని మీరు భావిస్తే {date} లోపు ఫిర్యాదు చేయండి.",
-
     noticeResolved: "{date}న ఫలితం: {outcome}. గెలిచిన ప్రతి షేర్‌కు ప్లే క్రెడిట్‌లలో ₹1 చెల్లించబడింది.",
-
     noticeVoided: "{date}న రద్దు చేయబడింది. ప్రతి ట్రేడర్ నికర ఖర్చు (కొనుగోళ్లు మైనస్ అమ్మకాలు) ప్లే క్రెడిట్‌లలో తిరిగి చెల్లించబడింది.",
-
     evidence: "ఆధారం",
-
     selfApproved: "ఒకే సమీక్షకుడు ఆమోదించారు.",
-
     grievance: "ఫిర్యాదు చేయండి",
-
     title: "పరిష్కారం",
 
   },
 
 
   grievanceForm: {
-
-
     title: "ఫిర్యాదు చేయండి",
-
-
     intro: "మీ ఖాతా, ఒక మార్కెట్, ఒక ఫలితం లేదా మీ వ్యక్తిగత డేటా గురించి. మీకు ఒక రిఫరెన్స్ నంబర్ వస్తుంది.",
-
-
     name: "మీ పేరు",
-
-
     email: "ఇమెయిల్",
-
-
     category: "అంశం",
-
-
     cat_account: "నా ఖాతా",
-
-
     cat_market: "ఒక మార్కెట్",
-
-
     cat_resolution: "మార్కెట్ ఫలితం",
-
-
     cat_privacy: "నా వ్యక్తిగత డేటా",
-
-
     cat_other: "ఇంకేదైనా",
-
-
     subject: "శీర్షిక",
-
-
     message: "ఏం జరిగింది?",
-
-
     messageHint: "మార్కెట్, సమయం, మీరు ఏమి ఆశించారో రాయండి. కనీసం 10 అక్షరాలు.",
-
-
     submit: "పంపండి",
-
-
     sentTitle: "ఫిర్యాదు అందింది",
-
-
     sentBody: "మీ రిఫరెన్స్ నంబర్ {reference}. ప్రతి సమాధానంలో దీనిని పేర్కొనండి.",
-
-
     invalid: "ఫీల్డ్‌లను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
-
-
     rateLimited: "ఇక్కడి నుండి చాలా ఫిర్యాదులు వచ్చాయి. ఒక గంట తర్వాత ప్రయత్నించండి.",
-
-
     failed: "పంపలేకపోయాం. కొద్దిసేపటి తర్వాత ప్రయత్నించండి.",
-
-
     privacy: "ఈ వివరాలను ఈ ఫిర్యాదు కోసం మాత్రమే ఉపయోగిస్తాం.",
 
 
@@ -183,73 +129,22 @@ export const te: Dictionary = {
 
 
   trade: {
-
-
-
     buyTab: "కొనండి",
-
-
-
     sellTab: "అమ్మండి",
-
-
-
     sideLabel: "కొనండి లేదా అమ్మండి",
-
-
-
     sell: "{outcome} అమ్మండి",
-
-
-
     youHold: "మీ దగ్గర {count}",
-
-
-
     sharesToSell: "అమ్మాల్సిన షేర్లు",
-
-
-
     sellPercent: "మీ షేర్లలో {pct}% అమ్మండి",
-
-
-
     priceImpact: "ధరపై ప్రభావం",
-
-
-
     realizedPnl: "పొందిన లాభం/నష్టం",
-
-
-
     sellShares: "షేర్లు అమ్మండి",
-
-
-
     sellNothing: "ఈ మార్కెట్‌లో అమ్మడానికి మీ దగ్గర షేర్లు లేవు.",
-
-
-
     sellInvalid: "షేర్ల సంఖ్యను నమోదు చేయండి (గరిష్ఠంగా 8 దశాంశాలు).",
-
-
-
     sellTooMany: "మీ దగ్గర {count} షేర్లు ఉన్నాయి.",
-
-
-
     saleConfirmed: "అమ్మకం నిర్ధారించబడింది",
-
-
-
     srBought: "ఆర్డర్ నిర్ధారించబడింది: {outcome} షేర్లు {shares}, ధర {price}",
-
-
-
     srSold: "అమ్మకం నిర్ధారించబడింది: {outcome} షేర్లు {shares}, మొత్తం {amount}",
-
-
-
     srOnMarket: "{summary}, {title}",
     amount: "మొత్తం (₹)",
     max: "గరిష్ఠం",
@@ -260,7 +155,7 @@ export const te: Dictionary = {
     avgPrice: "సగటు ధర",
     placeOrder: "ఆర్డర్ చేయండి",
     priceMoved: "ఆర్డర్ తెరిచిన తర్వాత ధర {price}కి మారింది.",
-    settlementNote: "ఆఫ్-చెయిన్ మ్యాచింగ్ · రూపాయల్లో సెటిల్‌మెంట్",
+    settlementNote: "ప్లే క్రెడిట్‌లు మాత్రమే — నిజమైన డబ్బు లేదు.",
     orderConfirmed: "ఆర్డర్ నిర్ధారించబడింది",
     limits: "కనీసం {min} · గరిష్ఠం {max}",
     errorInvalid: "రూపాయల్లో మొత్తం నమోదు చేయండి.",
@@ -272,7 +167,7 @@ export const te: Dictionary = {
 
   auth: {
     title: "సైన్ అప్ / లాగిన్",
-    subtitle: "భారతీయ ఈవెంట్లపై ₹లో ట్రేడ్ చేయండి. వాలెట్ అవసరం లేదు.",
+    subtitle: "ప్లే క్రెడిట్‌లు మాత్రమే. వాలెట్ లేదా చెల్లింపు అవసరం లేదు.",
     ageConfirm: "నాకు 18 సంవత్సరాలు లేదా అంతకంటే ఎక్కువ వయస్సు ఉందని నిర్ధారిస్తూ, వినియోగ నిబంధనలు మరియు గోప్యతా విధానాన్ని అంగీకరిస్తున్నాను.",
     termsLink: "వినియోగ నిబంధనలు",
     privacyLink: "గోప్యతా విధానం",
@@ -287,7 +182,7 @@ export const te: Dictionary = {
     codeSentTo: "{email}కి పంపిన 6 అంకెల కోడ్‌ను నమోదు చేయండి",
     codePlaceholder: "6 అంకెల కోడ్",
     errorEmail: "సరైన ఈమెయిల్ చిరునామాను నమోదు చేయండి.",
-    errorCode: "6 అంకెల కోడ్‌ను నమోదు చేయండి. ఈ డెమోలో ఏ 6 అంకెలైనా పనిచేస్తాయి.",
+    errorCode: "ఈమెయిల్‌లో వచ్చిన 6 అంకెల కోడ్‌ను నమోదు చేయండి.",
     continueGoogle: "Googleతో కొనసాగండి",
     googleHint: "Googleతో సైన్ ఇన్ చేశాక మీరు ఇక్కడికే తిరిగి వస్తారు.",
     codeHint: "మేము మీకు 6 అంకెల కోడ్‌ను ఈమెయిల్ చేస్తాము. పాస్‌వర్డ్ అవసరం లేదు.",
@@ -305,25 +200,15 @@ export const te: Dictionary = {
   },
 
   dashboard: {
-
     ledgerSale: "అమ్మకం",
-
     sell: "అమ్మండి",
-
     sellPosition: "{outcome} అమ్మండి",
-
     actions: "చర్యలు",
-
     sideBuy: "కొనండి",
-
     sideSell: "అమ్మండి",
-
     resultWon: "గెలిచారు",
-
     resultLost: "ఓడారు",
-
     resultVoid: "తిరిగి చెల్లించారు",
-
     sharesHeld: "{count} షేర్లు",
     title: "డాష్‌బోర్డ్",
     signedInAs: "{handle}గా సైన్ ఇన్ అయ్యారు",
@@ -369,17 +254,11 @@ export const te: Dictionary = {
   },
 
   profit: {
-
     stateOpen: "తెరిచి ఉంది",
-
     stateClosed: "అమ్మబడింది",
-
     stateWon: "గెలిచారు",
-
     stateLost: "ఓడారు",
-
     stateVoid: "తిరిగి చెల్లించారు",
-
     costIn: "{amount} పెట్టుబడి",
     title: "లాభం & నష్టం",
     subtitle: "మీరు కలిగి ఉన్న అన్ని మార్కెట్లలో వాస్తవిక మరియు అవాస్తవిక పనితీరు.",
@@ -394,15 +273,10 @@ export const te: Dictionary = {
   },
 
   toast: {
-
     saleDone: "అమ్మబడింది",
-
     saleFilled: "{outcome} షేర్లు {shares} ₹{amount}కు అమ్మబడ్డాయి.",
-
     saleRejected: "అమ్మకం జరగలేదు",
-
     orderInsufficientShares: "మీ దగ్గర అన్ని షేర్లు లేవు.",
-
     orderSellTooSmall: "ఈ అమ్మకం ₹1 కంటే తక్కువ. మరిన్ని షేర్లు లేదా మొత్తం పొజిషన్ అమ్మండి.",
     welcome: "స్వాగతం, {handle}",
     signedInGoogle: "గూగుల్‌తో సైన్ ఇన్ అయ్యారు.",
@@ -450,8 +324,7 @@ export const te: Dictionary = {
   },
 
   footer: {
-    learn: "ప్రిడిక్షన్స్ 101",
-    mailingList: "మెయిలింగ్ జాబితాలో చేరండి",
+    learn: "ఇది ఎలా పనిచేస్తుంది",
     terms: "నిబంధనలు",
     privacy: "గోప్యత",
     responsiblePlay: "బాధ్యతాయుత ఆట",
@@ -570,6 +443,9 @@ export const te: Dictionary = {
     retry: "మళ్లీ ప్రయత్నించండి",
     home: "హోమ్‌కు వెళ్లండి",
     reference: "సూచన: {digest}",
+    notFoundTitle: "పేజీ కనుగొనబడలేదు",
+    notFoundBody: "లింక్ తప్పు కావచ్చు, లేదా పేజీ తరలించబడి ఉండవచ్చు.",
+    notFoundHome: "మార్కెట్లను చూడండి",
   },
 
   loading: {
@@ -595,7 +471,7 @@ export const te: Dictionary = {
     chance: "అవకాశం",
     demoData: "డెమో డేటా",
     aboutDemoData: "ఈ చార్ట్ గురించి",
-    demoDataTip: "ఇది డెమో కోసం రూపొందించబడింది. నిజమైన ధర చరిత్ర ట్రేడింగ్ మొదలైనప్పుడు వస్తుంది.",
+    demoDataTip: "ఉదాహరణ వక్రరేఖ: ఈ మార్కెట్‌లో ఇంకా ట్రేడ్‌లు నమోదు కాలేదు. మొదటి ట్రేడ్‌ల తర్వాత నిజమైన ధర చరిత్ర కనిపిస్తుంది.",
     chartRange: "చార్ట్ వ్యవధి",
     rangeAll: "అన్నీ",
     chartSummary: "{outcome}: {range}లో {from} నుండి {to}",
@@ -618,7 +494,7 @@ export const te: Dictionary = {
     positions: "పొజిషన్లు",
     comments: "వ్యాఖ్యలు",
     noActivity: "ఇంకా ట్రేడ్లు లేవు",
-    noActivityBody: "ట్రేడింగ్ మొదలైనప్పుడు ట్రేడ్లు ఇక్కడ కనిపిస్తాయి.",
+    noActivityBody: "ఇటీవలి ట్రేడ్‌లు ఇక్కడ కనిపిస్తాయి.",
     noHolders: "ఇంకా హోల్డర్లు లేరు",
     noHoldersBody: "ఈ మార్కెట్‌లోని పెద్ద పొజిషన్లు ఇక్కడ ఉంటాయి.",
     noPositions: "ఈ మార్కెట్‌లో పొజిషన్లు లేవు",

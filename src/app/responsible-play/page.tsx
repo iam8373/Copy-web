@@ -32,8 +32,10 @@ export default function ResponsiblePlayPage() {
           <li>Keep prediction markets separate from money you need for rent, fees, EMIs or family expenses.</li>
         </ul>
         <p className="mt-3 rounded-btn bg-surface-3 p-3 text-12 text-secondary">
-          Planned: configurable daily, weekly and monthly deposit caps set by you, with a
-          cooling-off delay before any increase takes effect.
+          There are no deposits: every balance is play credits. Planned: a self-set daily
+          limit on the play credits you can spend on new orders, with a cooling-off delay
+          before any increase takes effect (the system already enforces such a limit; the
+          setting screen is still to come).
         </p>
       </section>
 

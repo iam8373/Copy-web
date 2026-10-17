@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { DICTIONARIES, LOCALE_COOKIE, localeFromCookie } from "@/i18n";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -26,8 +28,8 @@ export default function TermsPage() {
           Terms of Use
         </h1>
         <p className="text-14 leading-relaxed text-secondary">
-          Placeholder terms for a demonstration product. Nothing here is legal advice or a
-          binding agreement.
+          Draft terms for a play-credit service. Nothing here is legal advice or a binding
+          agreement yet.
         </p>
       </header>
 
@@ -47,7 +49,7 @@ export default function TermsPage() {
           </p>
           <p>
             Accounts we believe to be operated by a person under 18 may be suspended and
-            any simulated balances voided.
+            any play-credit balances voided.
           </p>
           <p>
             <span className="font-semibold text-primary">Availability:</span>{" "}
@@ -60,11 +62,13 @@ export default function TermsPage() {
       </section>
 
       <section className="rounded-card border border-subtle bg-surface-2 p-4 sm:p-6">
-        <h2 className="text-16 font-bold text-primary">Demonstration only</h2>
+        <h2 className="text-16 font-bold text-primary">Play credits only</h2>
         <p className="mt-1.5 text-13 leading-relaxed text-secondary">
-          All markets, prices, balances and positions in this application are simulated. No
-          real money is accepted, held or paid out, no order reaches an exchange, and
-          nothing here is an offer to participate in real-money gaming or trading.
+          Balances, prices and payouts are play credits, shown with the ₹ sign for
+          readability. Play credits have no cash value and cannot be bought, sold,
+          withdrawn or exchanged. No real money is accepted, held or paid out, no order
+          reaches an exchange, and nothing here is an offer to participate in real-money
+          gaming or trading.
         </p>
       </section>
 
@@ -106,7 +110,7 @@ export default function TermsPage() {
         <Link href="/privacy">Privacy Policy</Link>
         <Link href="/responsible-play">Responsible play</Link>
         <Link href="/grievance">Grievance redressal</Link>
-        <Link href="/learn">Predictions 101</Link>
+        <Link href="/learn">{DICTIONARIES[localeFromCookie(cookies().get(LOCALE_COOKIE)?.value)].footer.learn}</Link>
       </nav>
     </div>
   );

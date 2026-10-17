@@ -274,3 +274,8 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - Client IP: `clientIpFrom()` (X-Real-IP only). Never parse X-Forwarded-For.
 - In node-level tests, load app modules that use "@/…" with `require()` (Playwright maps
   paths for require, not for dynamic `import()`).
+- Brand: change the logo only in `src/components/Wordmark.tsx` (BrandMark + BRAND_MARK_PATHS,
+  reused by the generated icons). `src/app/icon.svg` is a static copy of the mark: update
+  it too if the shapes change.
+- Server pages that need a translated string without a client component read the
+  `bp-lang` cookie: `DICTIONARIES[localeFromCookie(cookies().get(LOCALE_COOKIE)?.value)]`.

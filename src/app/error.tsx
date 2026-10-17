@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Wordmark } from "@/components/Wordmark";
 import Link from "next/link";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { useT } from "@/i18n/LanguageProvider";
@@ -32,6 +33,7 @@ export default function ErrorBoundary({
       data-testid="error-boundary"
       className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-3 text-center"
     >
+      <Wordmark size="sm" className="mb-2" />
       <span className="grid h-12 w-12 place-items-center rounded-full bg-danger/15 text-danger">
         <AlertTriangle className="h-6 w-6" aria-hidden="true" />
       </span>

@@ -2,6 +2,36 @@
 
 Architecture and product decisions, newest first.
 
+## D-037 — Phase S4: branding cleanup
+
+**Date:** Phase S4
+**Status:** Accepted
+
+- **Wordmark:** one original component (`src/components/Wordmark.tsx`): a rounded square
+  with three rising bars and a forecast tick, plus "Bharat**Predict**", tokens only, both
+  themes; the text is always the accessible name (visually hidden below `xs` in the
+  header). Used in the header, footer, sign-in sheet, error boundary, global error and
+  404. A supplied logo later replaces the SVG in that one file.
+- **Icons and sharing** (Next file conventions, no dependency): `app/icon.svg` (favicon),
+  `app/icon1.tsx` (PNG 32/192/512 via `generateImageMetadata`), `app/apple-icon.tsx`
+  (180), `app/manifest.ts`, `app/opengraph-image.tsx` (1200×630, Next's bundled Latin
+  font, English text only, generated at build time). Image colours come from
+  `imageColor` in `src/lib/tokens.ts` (the renderer cannot read CSS variables). The
+  middleware skips these routes.
+- **Metadata:** `generateMetadata` in the root layout gives title, description, Open Graph
+  and Twitter tags in the saved language (`brand.metaTitle` / `metaDescription`);
+  `metadataBase` from `NEXT_PUBLIC_SITE_URL` when set.
+- **"Predictions 101" removed:** the home card is gone (and `home.learnBody`); the footer
+  link, `/learn` title and heading and the terms link read "How it works" (`footer.learn`)
+  in six languages. The `/learn` route stays (guide body still English).
+- **Leftovers fixed** (user-facing): demo/simulation claims on /learn, Terms and Privacy
+  (Privacy now states what is actually stored), "deposit caps" on Responsible play, a
+  non-working mailing-list form and its footer link, "Any 6 digits work in this demo",
+  "rupee settlement", "Trade Indian events in ₹", the "goes live" chart/activity notes,
+  the English-only 404 ("That market doesn't exist"). The tagline now says play credits.
+  No third-party product names or reference-site wording were found in user-facing text
+  (the words "OpenAI"/"Google Gemini" appear only as AI market content).
+
 ## D-036 — Phase S3: fewer Auth-server calls, trusted client IP
 
 **Date:** Phase S3

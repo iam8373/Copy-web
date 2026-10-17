@@ -62,5 +62,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
   // Skip static assets and images; everything else may need a fresh session.
   // Also skips the healthcheck, which must not depend on Supabase.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|fonts/|api/health|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff2?)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon1/|apple-icon|opengraph-image|manifest.webmanifest|fonts/|api/health|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff2?)$).*)"],
 };
