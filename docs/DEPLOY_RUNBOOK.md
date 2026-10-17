@@ -296,3 +296,105 @@ Optional: `AUTH_RATE_LIMIT_PER_IP`, `AUTH_RATE_LIMIT_PER_EMAIL` (defaults 20 and
 3. Rotate any key that may have leaked (section 8).
 4. Write what happened and what changed in `docs/DECISIONS.md`.
 
+## 10. Backups (free plan: none are made for you)
+
+Supabase's free plan has no managed backups. Take one **before every migration** and at
+least weekly, on your own machine (Docker running):
+
+```bash
+# Dashboard → Connect → Session pooler → copy the URI, put your DB password in it.
+read -rs SUPABASE_DB_URL && export SUPABASE_DB_URL   # typed, not echoed, not in history
+npm run db:backup                                     # → backups/<UTC time>/
+unset SUPABASE_DB_URL
+```
+
+It writes `roles.sql`, `schema.sql`, `data.sql`, the migration history and `SHA256SUMS`
+(folder mode 700, files 600; `backups/` is git-ignored). It reads the connection string
+only from the environment and never prints it.
+
+**Dumps contain every user's email and the full ledger.** Keep them off shared drives and
+out of chat; store them encrypted (e.g. an encrypted disk image or a password manager's
+file vault); delete old ones you no longer need.
+
+**Restore** (into a NEW project, never over the live one):
+
+1. Create the project; enable any extensions the old one used (pg_cron, pgtap is not needed).
+2. Check the files: `cd backups/<time> && sha256sum -c SHA256SUMS`.
+3. With the new project's Session pooler URI in `NEW_DB_URL` (typed as above):
+
+```bash
+psql --single-transaction --variable ON_ERROR_STOP=1 \
+  --file roles.sql --file schema.sql \
+  --command 'SET session_replication_role = replica' \
+  --file data.sql --dbname "$NEW_DB_URL"
+psql --single-transaction --variable ON_ERROR_STOP=1 \
+  --file history_schema.sql --file history_data.sql --dbname "$NEW_DB_URL"
+```
+
+4. Supabase's notes on permission errors (`supabase_admin` owner lines,
+   `cli_login_postgres`) apply: see the
+   [backup-restore guide](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore).
+5. Re-create in the new project what a dump does not carry: Auth settings (URLs, Google
+   provider, CAPTCHA, rate limits, JWT signing keys), the Realtime publication for
+   `outcomes`, the pg_cron job (re-run the last block of `20261010000100_admin.sql`), and
+   point Railway's variables at the new project.
+6. Smoke-test sign-in, a market page and `/admin` before switching users over.
+
+## 11. Finding and cleaning test data (never delete ledger rows)
+
+The ledger, orders, audit log and resolutions are append-only (the database refuses
+deletes). Test data is therefore **neutralised**, not deleted: test markets are voided
+(refunded) or kept as drafts, and test accounts are suspended. Run these yourself in
+Dashboard → SQL Editor. Every block is a **dry run first**; read its output before
+running the change. Adjust the patterns to the addresses and slugs you actually used.
+
+**1. Find test accounts** (dry run, changes nothing):
+
+```sql
+select p.id, u.email, p.role, p.status, w.balance, p.created_at
+  from public.profiles p
+  join auth.users u on u.id = p.id
+  left join public.wallets w on w.user_id = p.id
+ where u.email ilike '%@example.com'          -- your test domains
+    or u.email ilike '%+test%@%'
+ order by p.created_at;
+```
+
+**2. Suspend them** (reversible; they cannot trade, data stays for the audit trail):
+
+```sql
+begin;
+update public.profiles p
+   set status = 'suspended', suspended_reason = 'Test account', suspended_at = now()
+  from auth.users u
+ where u.id = p.id and p.role = 'user'
+   and (u.email ilike '%@example.com' or u.email ilike '%+test%@%');
+-- check the row count, then:
+commit;   -- or: rollback;
+```
+
+Staff accounts are excluded on purpose; demote a test admin in /admin/users first.
+
+**3. Find test markets** (dry run):
+
+```sql
+select m.id, m.slug, m.status, m.total_volume, count(o.id) as orders
+  from public.markets m left join public.orders o on o.market_id = m.id
+ where m.slug like 'e2e-%' or m.slug like 'test-%' or m.title ilike '%test%'
+ group by m.id order by m.created_at;
+```
+
+**4. Neutralise them** — do it in the admin panel, not SQL, so it is audited and paid
+correctly: drafts can simply stay drafts (invisible to the public); open or closed test
+markets: **Admin → Resolutions → propose Void** (reason: "Test market"), approve, finalize
+after the window. Voiding refunds each trader's net cost through the ledger.
+
+**5. Test credits.** Credits given by mistake are corrected with **Admin → Users → Adjust
+play credits** (negative amount, reason "Test credit reversal"); this adds a ledger row, it
+never edits one.
+
+**What stays visible:** suspended accounts keep their profile, positions and ledger (only
+staff see them); voided markets stay listed publicly as *Voided* with the refund note; all
+of it remains in the audit log. Drafts are never public. If a voided test market should
+not be listed at all, tell me — hiding voided markets from public lists is a small code
+change, not a data deletion.

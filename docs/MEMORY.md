@@ -279,3 +279,6 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
   it too if the shapes change.
 - Server pages that need a translated string without a client component read the
   `bp-lang` cookie: `DICTIONARIES[localeFromCookie(cookies().get(LOCALE_COOKIE)?.value)]`.
+- `supabase db dump` cannot run in this sandbox (Docker host-gateway); the backup script is
+  tested with a stub CLI (`npm run test:db-backup`). Cleanup SQL (runbook §11) was run
+  against the local DB with the update rolled back.

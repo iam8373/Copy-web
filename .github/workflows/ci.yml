@@ -65,6 +65,10 @@ jobs:
       - name: Build-check self-tests
         run: npm run test:verify-build
 
+      # db:backup with a stub CLI: private files, checksums, never prints the URL.
+      - name: Backup script self-tests
+        run: npm run test:db-backup
+
       - name: Build
         run: npm run build
 

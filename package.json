@@ -16,6 +16,8 @@
     "check:secrets": "bash scripts/check-secrets.sh",
     "validate:translations": "tsx scripts/validate-translations.ts",
     "db:seed": "tsx scripts/db-seed.ts",
+    "db:backup": "bash scripts/db-backup.sh",
+    "test:db-backup": "bash scripts/db-backup.selftest.sh",
     "admin:grant": "tsx scripts/admin-grant.ts",
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
     "db:types:url": "supabase gen types typescript --db-url \"$SUPABASE_DB_URL\" --schema public > src/types/database.ts",

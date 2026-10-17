@@ -2,6 +2,27 @@
 
 Architecture and product decisions, newest first.
 
+## D-038 — Phase S5: manual backups and test-data cleanup
+
+**Date:** Phase S5
+**Status:** Accepted
+
+- Free plan = no managed backups. `npm run db:backup` (`scripts/db-backup.sh`) runs the
+  Supabase CLI dumps from Supabase's backup-restore guide (roles, schema, data with COPY,
+  migration history) into `backups/<UTC time>/` (git-ignored; folder 700, files 600) with
+  `SHA256SUMS`. The connection string is read from `SUPABASE_DB_URL` in the environment
+  only and never printed (failures are filtered to `<db-url>`). Needs Docker (the CLI runs
+  pg_dump in a container).
+- `scripts/db-backup.selftest.sh` (CI step "Backup script self-tests") checks the refusals,
+  file modes, checksums and that the URL never appears, with a stub CLI.
+- Restore: into a new project with `psql --single-transaction` per the guide, then
+  re-create what a dump does not carry (Auth settings, Realtime publication, cron job,
+  Railway variables). DEPLOY_RUNBOOK §10.
+- Test data is neutralised, never deleted (ledger, orders, audit are append-only):
+  suspend test accounts, void test markets through the admin (audited, refunds through
+  the ledger), reverse credits with a negative adjustment. Reviewed SQL with dry runs in
+  DEPLOY_RUNBOOK §11; the owner runs it. Nothing destructive is automated.
+
 ## D-037 — Phase S4: branding cleanup
 
 **Date:** Phase S4

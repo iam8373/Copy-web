@@ -690,4 +690,5 @@ runbook).
       client IP from X-Real-IP, runbook limits + signing-key steps (D-036).
 - [x] S4 branding: wordmark, icons, manifest, social image, localized metadata, "How it
       works", leftovers fixed (D-037).
-- [ ] S5 backups. S6 launch QA.
+- [x] S5 `npm run db:backup`, restore steps, test-data cleanup SQL with dry runs (D-038).
+- [ ] S6 launch QA.

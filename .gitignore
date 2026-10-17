@@ -16,3 +16,6 @@ test-results
 .next-e2e
 .next-auth
 .scratch
+
+# Database dumps (npm run db:backup): contain user emails, never commit.
+backups/
