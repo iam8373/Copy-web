@@ -418,9 +418,11 @@ const createState: StateCreator<MarketState> = (set, get) => ({
 export type MarketStore = StoreApi<MarketState>;
 
 export function createMarketStore(init?: Pick<MarketState, "markets" | "marketsStatus">): MarketStore {
-  const store = createStore<MarketState>()(createState);
-  if (init) store.setState(init);
-  return store;
+  // The catalogue must be part of the INITIAL state: zustand's useStore renders
+  // the server HTML from getInitialState(), so a setState() after creation
+  // would leave the server-rendered lists empty (they would only appear after
+  // hydration).
+  return createStore<MarketState>()((set, get, api) => ({ ...createState(set, get, api), ...init }));
 }
 
 export const MarketStoreContext = createContext<MarketStore | null>(null);

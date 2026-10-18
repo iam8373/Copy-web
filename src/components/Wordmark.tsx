@@ -42,7 +42,7 @@ export function BrandMark({ size = 28, className }: { size?: number; className?:
 
 /**
  * Mark + "BharatPredict". The text is always in the DOM (it is the accessible
- * name); `compact` hides it visually below the xs breakpoint (header at 360px
+ * name); `compact` hides it visually below the xs breakpoint (header on a 360-wide screen
  * next to long sign-in labels).
  */
 export function Wordmark({

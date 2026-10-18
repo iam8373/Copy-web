@@ -28,10 +28,15 @@ test.describe("server-rendered first HTML", () => {
     const top = await localRest<Array<{ title: string; category: string }>>(
       "markets?status=eq.open&is_live=eq.false&select=title,category&order=total_volume.desc&limit=3"
     );
-    const home = decode(await (await request.get("/")).text());
-    for (const m of top) expect(home).toContain(m.title);
-    const cat = decode(await (await request.get(`/markets/${top[0].category}`)).text());
-    expect(cat).toContain(top[0].title);
+    // Rendered markup, not only the data payload: the titles must be inside
+    // card headings and the cards must link to their markets.
+    const visible = (html: string) => decode(html.replace(/<script[\s\S]*?<\/script>/g, ""));
+    const homeRaw = await (await request.get("/")).text();
+    const home = visible(homeRaw);
+    for (const m of top) expect(home).toContain(`>${m.title}</h3>`);
+    expect((homeRaw.match(/href="\/market\/[a-z0-9-]+"/g) ?? []).length).toBeGreaterThan(5);
+    const catRaw = await (await request.get(`/markets/${top[0].category}`)).text();
+    expect(visible(catRaw)).toContain(`>${top[0].title}</h3>`);
     expect(home).toContain('data-testid="markets-status" data-status="ready"');
   });
 

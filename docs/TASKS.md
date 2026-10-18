@@ -691,4 +691,5 @@ runbook).
 - [x] S4 branding: wordmark, icons, manifest, social image, localized metadata, "How it
       works", leftovers fixed (D-037).
 - [x] S5 `npm run db:backup`, restore steps, test-data cleanup SQL with dry runs (D-038).
-- [ ] S6 launch QA.
+- [x] S6 launch smoke, responsive/language sweep, ARCHITECTURE / SECURITY /
+      LAUNCH_CHECKLIST; SSR card regression from S2 found and fixed (D-039).

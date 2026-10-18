@@ -1,8 +1,16 @@
 import { test, expect } from "@playwright/test";
-import { MARKETS } from "../../src/data/markets";
-import { resetState } from "./helpers";
+import { localRest, resetState } from "./helpers";
 
-const LIVE_TITLES = MARKETS.filter((m) => m.isLive).map((m) => m.title);
+/**
+ * Live markets come from the database: the scheduled job closes a live market
+ * (is_live = false) once its end time passes, so the static catalogue's flag
+ * goes stale during the day.
+ */
+let LIVE_TITLES: string[] = [];
+test.beforeAll(async () => {
+  const rows = await localRest<Array<{ title: string }>>("markets?is_live=eq.true&status=neq.draft&select=title");
+  LIVE_TITLES = rows.map((r) => r.title);
+});
 
 test.beforeEach(async ({ page }) => {
   await resetState(page);

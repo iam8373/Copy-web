@@ -12,6 +12,7 @@
     "check": "npm run typecheck && npm run lint && npm run build",
     "test:e2e:sandbox": "E2E_PORT=3100 playwright test",
     "test:e2e:auth": "playwright test -c playwright.auth.config.ts",
+    "test:smoke": "playwright test -c playwright.smoke.config.ts",
     "translate:markets": "tsx scripts/translate-markets.ts",
     "check:secrets": "bash scripts/check-secrets.sh",
     "validate:translations": "tsx scripts/validate-translations.ts",

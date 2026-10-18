@@ -282,3 +282,9 @@ server serves a broken Pages-Router fallback (no `lang`, 404 chunks). Fix:
 - `supabase db dump` cannot run in this sandbox (Docker host-gateway); the backup script is
   tested with a stub CLI (`npm run test:db-backup`). Cleanup SQL (runbook §11) was run
   against the local DB with the update rolled back.
+- zustand v5 `useStore` server-renders from `getInitialState()`: initial data must be in
+  the creator, never applied with `setState` after `createStore`.
+- SSR assertions must look at rendered markup (strip `<script>`), not the flight payload.
+- Before an e2e run make sure nothing listens on :3100 (Playwright reuses an existing
+  server locally and then tests a stale build). `.scratch/phase-check.sh` kills by env.
+- Launch smoke: `SMOKE_BASE_URL=<url> npm run test:smoke` (read-only).

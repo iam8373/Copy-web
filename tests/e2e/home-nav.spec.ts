@@ -15,8 +15,18 @@ async function gridTitles(page: Page) {
   return page.locator('section:not([data-testid="live-section"]) h3').allInnerTexts();
 }
 
+/**
+ * Live state comes from the database: the scheduled job closes a live market
+ * when its end time passes (is_live = false), so the catalogue flag can be stale.
+ */
+let liveNow: Set<string> | null = null;
+test.beforeAll(async () => {
+  const rows = await localRest<Array<{ title: string }>>("markets?is_live=eq.true&select=title");
+  liveNow = new Set(rows.map((r) => r.title));
+});
+
 function expected(category: string, by: (a: (typeof MARKETS)[number], b: (typeof MARKETS)[number]) => number) {
-  return MARKETS.filter((m) => m.category === category && !m.isLive)
+  return MARKETS.filter((m) => m.category === category && !liveNow!.has(m.title))
     .sort(by)
     .map((m) => m.title);
 }

@@ -2,6 +2,32 @@
 
 Architecture and product decisions, newest first.
 
+## D-039 — Phase S6: launch QA
+
+**Date:** Phase S6
+**Status:** Accepted
+
+- **Launch smoke** (`playwright.smoke.config.ts`, `tests/smoke/`, `npm run test:smoke`):
+  read-only checks against any base URL (`SMOKE_BASE_URL`, default local dev): health ok,
+  robots disallows, `/admin` redirects when signed out, market cards in the raw home HTML,
+  sign-in sheet offers Google, a market page shows chart / order book / rules and a
+  signed-out buy opens sign-in (or a closed market shows its note). No secrets, no
+  sign-in, no writes. Desktop and mobile.
+- **Responsive and language sweep** (`tests/e2e/responsive.spec.ts`): 360 / 390 / 768 /
+  1280 px × six languages × dark and light on home, a category, a market and /learn: no
+  horizontal overflow, exactly one h1, no console or page errors, a visible keyboard focus
+  ring on the first Tab stop. Nothing failed.
+- **Bug found by the smoke run and fixed (S2 regression):** the server HTML had no
+  market cards. zustand's `useStore` renders on the server from `getInitialState()`, and
+  `createMarketStore` set the catalogue with `setState` *after* creation, so lists were
+  empty until hydration. The catalogue is now part of the initial state. The S2 test had
+  passed because titles were present in the page's data payload; it now checks rendered
+  card headings and `/market/…` links. The home and category pages render their cards on
+  the server again (verified: 81 market links in the raw home HTML).
+- `home-nav.spec.ts` reads live state from the database (the scheduled job closes live
+  markets when their time passes, so the catalogue flag goes stale during the day).
+- Docs: `ARCHITECTURE.md`, `SECURITY.md`, `LAUNCH_CHECKLIST.md` (every manual step left).
+
 ## D-038 — Phase S5: manual backups and test-data cleanup
 
 **Date:** Phase S5
